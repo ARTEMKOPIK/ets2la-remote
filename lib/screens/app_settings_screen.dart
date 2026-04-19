@@ -417,7 +417,7 @@ class _PortTile extends StatelessWidget {
           style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 18),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
           ElevatedButton(
             onPressed: () {
               final v = int.tryParse(ctrl.text);

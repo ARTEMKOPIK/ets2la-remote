@@ -158,7 +158,7 @@ class AppSettingsScreen extends StatelessWidget {
             _Divider(),
             _InfoTile(
               icon: Icons.router_rounded,
-              title: 'Connected to',
+              title: AppLocalizations.of(context)?.connectedTo ?? 'Connected to',
               value: conn.currentHost.isNotEmpty ? conn.currentHost : '—',
             ),
             _Divider(),

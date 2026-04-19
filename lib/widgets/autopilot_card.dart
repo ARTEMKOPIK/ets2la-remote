@@ -164,7 +164,9 @@ class _AutopilotCardState extends State<AutopilotCard>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isActive ? 'Steering the truck' : 'Manual control',
+                        isActive 
+                          ? (AppLocalizations.of(context)?.steeringTheTruck ?? 'Steering the truck') 
+                          : (AppLocalizations.of(context)?.manualControl ?? 'Manual control'),
                         style: GoogleFonts.inter(
                           fontSize: 13, color: AppColors.textSecondary,
                         ),
@@ -264,7 +266,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Adaptive Cruise Control',
+                          AppLocalizations.of(context)?.adaptiveCruiseControl ?? 'Adaptive Cruise Control',
                           style: GoogleFonts.inter(
                             fontSize: 13, fontWeight: FontWeight.w500,
                             color: AppColors.textPrimary,

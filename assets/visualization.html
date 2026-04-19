@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>ETS2LA Visualization</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+  canvas { display: block; }
+  #status { position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(20,20,20,0.9); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 6px 16px; font-size: 12px; color: #9CA3AF;
+    z-index: 100; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #EF4444; }
+  .dot.connected { background: #22C55E; box-shadow: 0 0 6px #22C55E; }
+  #hud { position: fixed; bottom: 20px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; pointer-events: none; z-index: 100; }
+  .hud-card { background: rgba(20,20,20,0.88); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 8px 14px; }
+  .hud-label { font-size: 9px; color: #9CA3AF; letter-spacing: 1.5px; text-transform: uppercase; }
+  .hud-value { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.1; }
+  .hud-unit { font-size: 10px; color: #9CA3AF; }
+  #ap-badge { background: rgba(20,20,20,0.88); border: 1px solid rgba(249,115,22,0.3);
+    border-radius: 10px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }
+  #ap-dot { width: 8px; height: 8px; border-radius: 50%; background: #4B5563; }
+  #ap-dot.on { background: #22C55E; box-shadow: 0 0 8px #22C55E; }
+  #ap-text { font-size: 11px; font-weight: 700; color: #9CA3AF; letter-spacing: 1px; }
+  #ap-text.on { color: #22C55E; }
+</style>
+</head>
+<body>
+<div id="status"><div class="dot" id="dot"></div><span id="status-text">Connecting...</span></div>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div class="hud-card">
+    <div class="hud-label">Speed</div>
+    <div><span class="hud-value" id="spd">0</span><span class="hud-unit"> km/h</span></div>
+  </div>
+  <div id="ap-badge">
+    <div id="ap-dot"></div>
+    <div id="ap-text">AUTOPILOT</div>
+  </div>
+  <div class="hud-card">
+    <div class="hud-label">Limit</div>
+    <div><span class="hud-value" id="lmt" style="color:#9CA3AF">--</span><span class="hud-unit"> km/h</span></div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = () => canvas.width = window.innerWidth;
+const H = () => canvas.height = window.innerHeight;
+W(); H();
+window.addEventListener('resize', () => { W(); H(); });
+
+// ─── State ───────────────────────────────────────────────────────
+let truck = { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, vx: 0, vz: 0 };
+let truckSmooth = { x: 0, z: 0, rx: 0 };
+let steering = [];
+let truckState = { speed: 0, speed_limit: 0, throttle: 0, brake: 0,
+  indicating_left: false, indicating_right: false };
+let traffic = [];
+let trailers = [];
+let status = { enabled: [], disabled: [] };
+let connected = false;
+let wsUrl = 'ws://localhost:37522';
+let socket = null;
+let lastAck = 0;
+let SCALE = 6; // pixels per meter
+let camX = 0, camZ = 0;
+let initialized = false;
+let blinkTimer = 0;
+
+// ─── Connect ─────────────────────────────────────────────────────
+function connect() {
+  try {
+    socket = new WebSocket(wsUrl);
+    socket.onopen = () => {
+      connected = true;
+      document.getElementById('dot').className = 'dot connected';
+      document.getElementById('status-text').textContent = 'Connected · ' + wsUrl.replace('ws://','').replace(':37522','');
+      socket.send(JSON.stringify({method:'acknowledge', channel:0}));
+      [1,2,3,4,5,7].forEach(ch => socket.send(JSON.stringify({method:'subscribe', channel:ch})));
+    };
+    socket.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        const ch = msg.channel;
+        const data = msg.result && msg.result.data;
+        if (!data) return;
+        if (ch === 1) {
+          truck.vx = data.z - truck.x;
+          truck.vz = data.x - truck.z;
+          truck.x = data.z; truck.y = data.y; truck.z = data.x;
+          truck.rx = data.rx; truck.ry = data.ry; truck.rz = data.rz;
+          if (!initialized) { truckSmooth.x = truck.x; truckSmooth.z = truck.z; initialized = true; }
+        } else if (ch === 2) {
+          steering = (data.points || []).map(p => ({x: p.z, z: p.x}));
+        } else if (ch === 3) {
+          truckState = data;
+          const spd = Math.abs(data.speed * 3.6);
+          document.getElementById('spd').textContent = spd.toFixed(0);
+          const lmt = data.speed_limit * 3.6;
+          document.getElementById('lmt').textContent = lmt > 0 ? lmt.toFixed(0) : '--';
+          document.getElementById('lmt').style.color = (lmt > 0 && spd > lmt * 1.05) ? '#EF4444' : '#fff';
+        } else if (ch === 4) {
+          traffic = (data.vehicles || []);
+        } else if (ch === 5) {
+          trailers = (data.trailers || []);
+        } else if (ch === 7) {
+          status = data;
+          const apOn = (data.enabled || []).includes('Map');
+          document.getElementById('ap-dot').className = apOn ? 'on' : '';
+          document.getElementById('ap-text').className = apOn ? 'on' : '';
+        }
+        // Acknowledge
+        const now = Date.now();
+        if (now - lastAck > 80) {
+          socket.send(JSON.stringify({method:'acknowledge', channel:0}));
+          lastAck = now;
+        }
+      } catch(e2) {}
+    };
+    socket.onerror = socket.onclose = () => {
+      connected = false;
+      document.getElementById('dot').className = 'dot';
+      document.getElementById('status-text').textContent = 'Reconnecting...';
+      setTimeout(connect, 3000);
+    };
+  } catch(e) { setTimeout(connect, 3000); }
+}
+
+// Receive IP from Flutter
+window.setWsUrl = function(url) {
+  wsUrl = url.startsWith('ws://') ? url : 'ws://' + url + ':37522';
+  if (socket) { try { socket.close(); } catch(e){} }
+  connect();
+};
+
+// ─── Math helpers ─────────────────────────────────────────────────
+function lerp(a, b, t) { return a + (b - a) * t; }
+function worldToScreen(wx, wz) {
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const dx = wx - camX;
+  const dz = wz - camZ;
+  // Rotate by truck heading
+  const angle = -truckSmooth.rx * Math.PI / 180;
+  const rx = dx * Math.cos(angle) - dz * Math.sin(angle);
+  const rz = dx * Math.sin(angle) + dz * Math.cos(angle);
+  return { x: cx + rx * SCALE, y: cy - rz * SCALE };
+}
+
+// ─── Draw ─────────────────────────────────────────────────────────
+function drawRoad() {
+  if (steering.length < 2) return;
+  // Wide road surface
+  ctx.save();
+  ctx.strokeStyle = '#1e2a3a';
+  ctx.lineWidth = SCALE * 7;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  const p0 = worldToScreen(steering[0].x, steering[0].z);
+  ctx.moveTo(p0.x, p0.y);
+  for (let i = 1; i < steering.length; i++) {
+    const p = worldToScreen(steering[i].x, steering[i].z);
+    ctx.lineTo(p.x, p.y);
+  }
+  ctx.stroke();
+  // Road edges
+  ctx.strokeStyle = '#2d3d50';
+  ctx.lineWidth = SCALE * 7;
+  ctx.setLineDash([]);
+  ctx.stroke();
+  // Center dashed line
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([20, 20]);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSteeringLine() {
+  if (steering.length < 2) return;
+  const apOn = (status.enabled || []).includes('Map');
+  ctx.save();
+  ctx.strokeStyle = apOn ? '#F97316' : '#4B5563';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = apOn ? 'rgba(249,115,22,0.5)' : 'transparent';
+  ctx.shadowBlur = apOn ? 12 : 0;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  const p0 = worldToScreen(steering[0].x, steering[0].z);
+  ctx.moveTo(p0.x, p0.y);
+  for (let i = 1; i < steering.length; i++) {
+    const p = worldToScreen(steering[i].x, steering[i].z);
+    ctx.lineTo(p.x, p.y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTruck() {
+  const p = worldToScreen(truckSmooth.x, truckSmooth.z);
+  const W2 = SCALE * 1.2, L2 = SCALE * 2.2;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  // Body
+  ctx.fillStyle = '#F97316';
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = 'rgba(249,115,22,0.6)';
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.roundRect(-W2, -L2, W2*2, L2*2, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Arrow (direction)
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.beginPath();
+  ctx.moveTo(0, -L2 + 4);
+  ctx.lineTo(-6, -L2 + 16);
+  ctx.lineTo(0, -L2 + 11);
+  ctx.lineTo(6, -L2 + 16);
+  ctx.closePath();
+  ctx.fill();
+  // Headlights
+  ctx.fillStyle = 'rgba(255,255,200,0.8)';
+  ctx.beginPath(); ctx.ellipse(-W2+4, -L2+4, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(W2-4, -L2+4, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+function drawTrailers() {
+  for (const t of trailers) {
+    const p = worldToScreen(t.z || t.x || 0, t.x || t.z || 0);
+    const W2 = SCALE * 1.1, L2 = SCALE * 3.5;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.fillStyle = '#374151';
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(-W2, -L2, W2*2, L2*2, 3);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawTraffic() {
+  for (const v of traffic) {
+    if (!v.position) continue;
+    const p = worldToScreen(v.position.z || 0, v.position.x || 0);
+    const r = SCALE * 0.9;
+    ctx.save();
+    ctx.fillStyle = '#60A5FA';
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'rgba(96,165,250,0.4)';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.roundRect(p.x - r, p.y - r*1.5, r*2, r*3, 3);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawGrid() {
+  const cx = canvas.width/2, cy = canvas.height/2;
+  const spacing = SCALE * 20;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let x = cx % spacing; x < canvas.width; x += spacing) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = cy % spacing; y < canvas.height; y += spacing) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawIndicators() {
+  if (!truckState) return;
+  blinkTimer++;
+  const show = blinkTimer % 30 < 15;
+  const cx = canvas.width / 2, cy = 50;
+  if (truckState.indicating_left && show) {
+    ctx.save();
+    ctx.fillStyle = '#F59E0B';
+    ctx.shadowColor = '#F59E0B'; ctx.shadowBlur = 12;
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('◀', cx - 50, cy);
+    ctx.restore();
+  }
+  if (truckState.indicating_right && show) {
+    ctx.save();
+    ctx.fillStyle = '#F59E0B';
+    ctx.shadowColor = '#F59E0B'; ctx.shadowBlur = 12;
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('▶', cx + 28, cy);
+    ctx.restore();
+  }
+}
+
+// ─── Main loop ────────────────────────────────────────────────────
+function frame() {
+  requestAnimationFrame(frame);
+  const t = 0.12;
+  truckSmooth.x = lerp(truckSmooth.x, truck.x, t);
+  truckSmooth.z = lerp(truckSmooth.z, truck.z, t);
+  truckSmooth.rx = lerp(truckSmooth.rx, truck.rx, t);
+  camX = truckSmooth.x;
+  camZ = truckSmooth.z;
+
+  // Clear
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (!initialized) {
+    // Waiting screen
+    ctx.fillStyle = 'rgba(249,115,22,0.15)';
+    ctx.beginPath();
+    ctx.arc(canvas.width/2, canvas.height/2, 40, 0, Math.PI*2*(Date.now()%1000/1000));
+    ctx.stroke();
+    return;
+  }
+
+  drawGrid();
+  drawRoad();
+  drawTraffic();
+  drawTrailers();
+  drawSteeringLine();
+  drawTruck();
+  drawIndicators();
+
+  // Throttle/brake bar
+  if (truckState.throttle > 0.01 || truckState.brake > 0.01) {
+    const bw = 80, bh = 6, bx = canvas.width/2 - bw/2, by = canvas.height/2 + SCALE*3;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.roundRect(bx-2, by-2, bw+4, bh+4, 3); ctx.fill();
+    if (truckState.throttle > 0.01) {
+      ctx.fillStyle = '#22C55E';
+      ctx.beginPath(); ctx.roundRect(bx, by, bw*truckState.throttle, bh, 3); ctx.fill();
+    }
+    if (truckState.brake > 0.01) {
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath(); ctx.roundRect(bx + bw - bw*truckState.brake, by, bw*truckState.brake, bh, 3); ctx.fill();
+    }
+  }
+}
+
+connect();
+frame();
+</script>
+</body>
+</html>

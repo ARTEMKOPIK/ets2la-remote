@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ETS2LA Visualization</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+    #unity-container { width: 100%; height: 100%; }
+    #unity-canvas { width: 100%; height: 100%; }
+    #loading {
+      position: fixed; inset: 0; background: #0a0a0a;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: system-ui; color: white; z-index: 999;
+    }
+    #loading-bar-bg {
+      width: 240px; height: 6px; background: #1a1a1a; border-radius: 3px; margin-top: 24px; overflow: hidden;
+    }
+    #loading-bar { height: 100%; background: #F97316; border-radius: 3px; width: 0%; transition: width 0.3s; }
+    .logo-hex { margin-bottom: 16px; }
+    #loading-text { font-size: 13px; color: #9CA3AF; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <svg class="logo-hex" width="72" height="72" viewBox="0 0 90 90">
+      <polygon points="45,5 80,24 80,66 45,85 10,66 10,24" fill="none" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+      <polygon points="14,78 30,78 47,30 42,30" fill="#F97316"/>
+      <polygon points="60,78 76,78 48,30 43,30" fill="#F97316"/>
+      <line x1="45" y1="60" x2="45" y2="50" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      <line x1="45" y1="44" x2="45" y2="36" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div style="font-size:20px;font-weight:700;letter-spacing:2px;">ETS2LA</div>
+    <div style="font-size:11px;color:#F97316;letter-spacing:4px;margin-top:4px;">VISUALIZATION</div>
+    <div id="loading-bar-bg"><div id="loading-bar"></div></div>
+    <div id="loading-text">Loading Unity engine...</div>
+  </div>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+  </div>
+
+  <script>
+    // IP injected by Flutter app
+    var AUTO_CONNECT_IP = null;
+
+    window.setAutoConnectIP = function(ip) {
+      AUTO_CONNECT_IP = ip;
+      tryAutoConnect();
+    };
+
+    function tryAutoConnect() {
+      if (!AUTO_CONNECT_IP) return;
+      var wsUrl = 'ws://' + AUTO_CONNECT_IP + ':37522';
+
+      // Try to fill Unity's IP input and click connect
+      var attempts = 0;
+      var interval = setInterval(function() {
+        attempts++;
+        if (attempts > 60) { clearInterval(interval); return; }
+
+        try {
+          // Find input fields inside Unity canvas overlay
+          var inputs = document.querySelectorAll('input[type="text"], input:not([type])');
+          for (var i = 0; i < inputs.length; i++) {
+            var inp = inputs[i];
+            if (inp.value.includes('localhost') || inp.value.includes('ws://') || inp.placeholder.includes('ws://')) {
+              inp.value = wsUrl;
+              inp.dispatchEvent(new Event('input', {bubbles:true}));
+              inp.dispatchEvent(new Event('change', {bubbles:true}));
+            }
+          }
+          // Click any "connect" / "remote" button
+          var btns = document.querySelectorAll('button, [role="button"]');
+          for (var j = 0; j < btns.length; j++) {
+            var t = (btns[j].textContent || '').toLowerCase();
+            if (t.includes('remote') || t.includes('connect')) {
+              btns[j].click();
+              clearInterval(interval);
+              return;
+            }
+          }
+        } catch(e) {}
+      }, 500);
+    }
+
+    // Load Unity
+    var buildUrl = '.';
+    var loaderUrl = buildUrl + '/visualization.loader.js';
+    var config = {
+      dataUrl:      buildUrl + '/visualization.data',
+      frameworkUrl: buildUrl + '/visualization.framework.js',
+      codeUrl:      buildUrl + '/visualization.wasm',
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: 'ETS2LA',
+      productName: 'ETS2LA Visualization',
+      productVersion: '1.0',
+    };
+
+    var canvas = document.querySelector('#unity-canvas');
+
+    // Progress callbacks
+    var unityInstance = null;
+
+    // ── Theme control ──
+    // Unity ThemeHandler reads theme from URL only at startup.
+    // We simulate light theme by adding a white overlay + adjusting canvas brightness.
+    window.setTheme = function(theme) {
+      if (theme === 'light') {
+        document.body.style.background = '#e8e8e8';
+        canvas.style.filter = 'invert(1) hue-rotate(180deg)';
+        document.getElementById('loading').style.background = '#e8e8e8';
+      } else {
+        document.body.style.background = '#0a0a0a';
+        canvas.style.filter = '';
+        document.getElementById('loading').style.background = '#0a0a0a';
+      }
+    };
+
+    // ── Camera zoom via scroll simulation ──
+    var _zoomLevel = 0;
+    window.zoomIn = function() {
+      _zoomLevel = Math.max(_zoomLevel - 1, -10);
+      canvas.dispatchEvent(new WheelEvent('wheel', {deltaY: -100, bubbles: true}));
+    };
+    window.zoomOut = function() {
+      _zoomLevel = Math.min(_zoomLevel + 1, 10);
+      canvas.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, bubbles: true}));
+    };
+    window.resetCamera = function() {
+      // Reset zoom by dispatching opposite wheel events
+      var delta = _zoomLevel > 0 ? -100 : 100;
+      var times = Math.abs(_zoomLevel);
+      for (var i = 0; i < times; i++) {
+        canvas.dispatchEvent(new WheelEvent('wheel', {deltaY: delta, bubbles: true}));
+      }
+      _zoomLevel = 0;
+    };
+
+    var script = document.createElement('script');
+    script.src = loaderUrl;
+    script.onload = function() {
+      createUnityInstance(canvas, config, function(progress) {
+        var pct = Math.round(progress * 100);
+        document.getElementById('loading-bar').style.width = pct + '%';
+        document.getElementById('loading-text').textContent = 'Loading... ' + pct + '%';
+      }).then(function(instance) {
+        unityInstance = instance;
+        document.getElementById('loading').style.display = 'none';
+        // Auto-connect after Unity loaded
+        setTimeout(tryAutoConnect, 1500);
+      }).catch(function(message) {
+        document.getElementById('loading-text').textContent = 'Error: ' + message;
+        console.error(message);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

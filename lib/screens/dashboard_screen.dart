@@ -104,7 +104,7 @@ class _DashboardTab extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Text(message,
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500)),
+                style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
         backgroundColor: success ? const Color(0xFF166534) : const Color(0xFF7F1D1D),
@@ -168,7 +168,7 @@ class _DashboardTab extends StatelessWidget {
           children: [
             const Icon(Icons.shield_outlined, color: AppColors.orange, size: 22),
             const SizedBox(width: 10),
-            Text('One-time PC setup', style: GoogleFonts.inter(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
+            Text('One-time PC setup', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
           ],
         ),
         content: Column(
@@ -177,10 +177,10 @@ class _DashboardTab extends StatelessWidget {
           children: [
             Text(
               'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.',
-              style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 14),
-            Text('Run in PowerShell (Admin):', style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 12)),
+            Text('Run in PowerShell (Admin):', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.all(10),
@@ -197,7 +197,7 @@ class _DashboardTab extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('OK', style: GoogleFonts.inter(color: AppColors.orange))),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('OK', style: TextStyle(fontFamily: 'Roboto', color: AppColors.orange))),
         ],
       ),
     );
@@ -346,7 +346,7 @@ class _StatusBar extends StatelessWidget {
         children: [
           Text(
             'ACTIVE PLUGINS',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -424,7 +424,7 @@ class _PedalsCard extends StatelessWidget {
               children: [
                 Text(
                   'GAME',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 9, color: AppColors.textSecondary,
                     letterSpacing: 1.5, fontWeight: FontWeight.w600,
                   ),
@@ -432,7 +432,7 @@ class _PedalsCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   game,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 14, color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
@@ -471,7 +471,7 @@ class _PedalItem extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Roboto', 
                 fontSize: 9, color: AppColors.textSecondary,
                 letterSpacing: 1.5, fontWeight: FontWeight.w600,
               ),
@@ -479,7 +479,7 @@ class _PedalItem extends StatelessWidget {
             const Spacer(),
             Text(
               '$pct%',
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Roboto', 
                 fontSize: 11, color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
@@ -535,7 +535,7 @@ class _PluginChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             name,
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 11,
               color: active ? AppColors.success : AppColors.textSecondary,
               fontWeight: FontWeight.w500,

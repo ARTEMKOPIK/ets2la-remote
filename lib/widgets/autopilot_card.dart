@@ -136,7 +136,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                 const SizedBox(width: 8),
                 Text(
                   'AUTOPILOT',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary, letterSpacing: 2,
                   ),
@@ -156,7 +156,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                     children: [
                       Text(
                         isActive ? 'Active' : 'Inactive',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 26, fontWeight: FontWeight.w700,
                           color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
                         ),
@@ -166,7 +166,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                         isActive 
                           ? (AppLocalizations.of(context)?.steeringTheTruck ?? 'Steering the truck') 
                           : (AppLocalizations.of(context)?.manualControl ?? 'Manual control'),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 13, color: AppColors.textSecondary,
                         ),
                       ),
@@ -266,14 +266,14 @@ class _AutopilotCardState extends State<AutopilotCard>
                       children: [
                         Text(
                           AppLocalizations.of(context)?.adaptiveCruiseControl ?? 'Adaptive Cruise Control',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Roboto', 
                             fontSize: 13, fontWeight: FontWeight.w500,
                             color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           widget.accEnabled ? 'Active' : 'Inactive',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Roboto', 
                             fontSize: 11,
                             color: widget.accEnabled
                                 ? AppColors.success
@@ -350,7 +350,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         active ? 'ON' : 'OFF',
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Roboto', 
           fontSize: 11, fontWeight: FontWeight.w700,
           color: active ? AppColors.success : AppColors.textMuted,
           letterSpacing: 1.5,

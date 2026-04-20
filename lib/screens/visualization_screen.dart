@@ -98,16 +98,16 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     if (!_serverReady) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: GoogleFonts.inter(fontWeight: FontWeight.w600))),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircularProgressIndicator(color: AppColors.orange),
               const SizedBox(height: 20),
-              Text(_statusText, style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 14)),
+              Text(_statusText, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 8),
-              Text('First launch only ~5s', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 12)),
+              Text('First launch only ~5s', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
             ],
           ),
         ),
@@ -116,14 +116,14 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     if (_errorText != null) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: GoogleFonts.inter(fontWeight: FontWeight.w600))),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
               const SizedBox(height: 16),
-              Text(_errorText!, style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+              Text(_errorText!, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
               const SizedBox(height: 16),
               ElevatedButton(onPressed: () { setState(() { _errorText = null; }); _ensureServer(); }, child: Text(AppLocalizations.of(context)?.retry ?? 'Retry')),
             ],
@@ -198,7 +198,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     const SizedBox(width: 6),
                     Text(
                       conn.isConnected ? host : 'Reconnecting...',
-                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+                      style: TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -228,7 +228,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     const SizedBox(width: 4),
                     Text(
                       '${telem.truckState.speedKmh.toStringAsFixed(0)} km/h',
-                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                   ],
                 ),
@@ -247,7 +247,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                       telem.autopilotStatus.steeringEnabled 
                         ? (AppLocalizations.of(context)?.autopilotOn ?? 'Autopilot ON') 
                         : (AppLocalizations.of(context)?.autopilotOff ?? 'Autopilot OFF'),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Roboto', 
                         fontSize: 11,
                         color: telem.autopilotStatus.steeringEnabled ? AppColors.success : AppColors.textSecondary,
                       ),
@@ -301,7 +301,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),

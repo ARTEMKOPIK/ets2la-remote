@@ -43,7 +43,7 @@ class MetricCard extends StatelessWidget {
               ],
               Text(
                 label.toUpperCase(),
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Roboto', 
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
@@ -58,7 +58,7 @@ class MetricCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Roboto', 
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -71,7 +71,7 @@ class MetricCard extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
                     unit!,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Roboto', 
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -84,7 +84,7 @@ class MetricCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle!,
-              style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+              style: TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
         ],
@@ -114,7 +114,7 @@ class ThrottleCard extends StatelessWidget {
         children: [
           Text(
             l10n?.pedals ?? 'PEDALS',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -146,7 +146,7 @@ class _PedalBar extends StatelessWidget {
           width: 46, // wider to prevent BRAKE wrapping
           child: Text(
             label,
-            style: GoogleFonts.inter(fontSize: 10, color: AppColors.textSecondary, letterSpacing: 1),
+            style: TextStyle(fontFamily: 'Roboto', fontSize: 10, color: AppColors.textSecondary, letterSpacing: 1),
             maxLines: 1,
             overflow: TextOverflow.clip,
           ),
@@ -167,7 +167,7 @@ class _PedalBar extends StatelessWidget {
           width: 32,
           child: Text(
             '${(value * 100).toStringAsFixed(0)}%',
-            style: GoogleFonts.inter(fontSize: 10, color: AppColors.textSecondary),
+            style: TextStyle(fontFamily: 'Roboto', fontSize: 10, color: AppColors.textSecondary),
             textAlign: TextAlign.right,
           ),
         ),

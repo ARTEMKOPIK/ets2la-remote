@@ -91,7 +91,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   // Title
                   Text(
                     AppLocalizations.of(context)?.connectToServer ?? 'Connect to ETS2LA',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Roboto', 
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -100,7 +100,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   const SizedBox(height: 8),
                   Text(
                     AppLocalizations.of(context)?.makeSureRunning ?? 'Enter the IP address of the PC running ETS2LA',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Roboto', 
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -123,7 +123,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                         Flexible(
                           child: Text(
                             AppLocalizations.of(context)?.vpnWarning ?? 'Warning: VPN may prevent connection',
-                            style: GoogleFonts.inter(fontSize: 12, color: AppColors.orange),
+                            style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
                           ),
                         ),
                       ],
@@ -135,7 +135,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   TextField(
                     controller: _ipController,
                     keyboardType: TextInputType.number,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Roboto', 
                       fontSize: 18,
                       color: AppColors.textPrimary,
                       letterSpacing: 1,
@@ -167,7 +167,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                           Expanded(
                             child: Text(
                               conn.errorMessage!,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 13, color: AppColors.error),
                             ),
                           ),
@@ -193,7 +193,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                             )
                           : Text(
                               'Connect',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                     ),
@@ -208,7 +208,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(AppLocalizations.of(context)?.recent ?? 'Recent',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 12, color: AppColors.textMuted)),
                         ),
                         Expanded(child: Divider(color: AppColors.surfaceBorder)),
@@ -256,7 +256,7 @@ class _RecentHostTile extends StatelessWidget {
             const Icon(Icons.history_rounded, size: 18, color: AppColors.textSecondary),
             const SizedBox(width: 10),
             Text(host,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 14, color: AppColors.textPrimary)),
             const Spacer(),
             const Icon(Icons.arrow_forward_ios_rounded,

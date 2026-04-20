@@ -71,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.plugins ?? 'Plugins', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.plugins ?? 'Plugins', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.textSecondary, size: 48),
                   const SizedBox(height: 12),
                   Text(AppLocalizations.of(context)?.noPlugins ?? 'No plugins found',
-                      style: GoogleFonts.inter(color: AppColors.textSecondary)),
+                      style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary)),
                 ],
               ),
             )
@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Expanded(
                         child: Text(
                           'Toggle plugins that are already loaded in ETS2LA',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Roboto', 
                               fontSize: 12, color: AppColors.orange),
                         ),
                       ),
@@ -177,12 +177,12 @@ class _StatChip extends StatelessWidget {
         children: [
           Text(
             '$count',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
                 fontSize: 16, fontWeight: FontWeight.w700, color: color),
           ),
           const SizedBox(width: 6),
           Text(label,
-              style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary)),
+              style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );

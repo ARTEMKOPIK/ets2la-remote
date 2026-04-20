@@ -16,7 +16,7 @@ class AppSettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -187,7 +187,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Roboto', 
           fontSize: 11, fontWeight: FontWeight.w700,
           color: AppColors.textSecondary, letterSpacing: 1.5,
         ),
@@ -245,9 +245,9 @@ class _SwitchTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
                 if (subtitle != null)
-                  Text(subtitle!, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
+                  Text(subtitle!, style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -280,7 +280,7 @@ class _SegmentTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
           const SizedBox(width: 8),
           Container(
             decoration: BoxDecoration(
@@ -303,7 +303,7 @@ class _SegmentTile extends StatelessWidget {
                     ),
                     child: Text(
                       e.value,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Roboto', 
                         fontSize: 12, fontWeight: FontWeight.w600,
                         color: selected ? Colors.white : AppColors.textSecondary,
                       ),
@@ -344,8 +344,8 @@ class _SliderTile extends StatelessWidget {
             children: [
               Icon(icon, size: 20, color: AppColors.orange),
               const SizedBox(width: 14),
-              Expanded(child: Text(title, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-              Text(subtitle, style: GoogleFonts.inter(fontSize: 13, color: AppColors.orange, fontWeight: FontWeight.w600)),
+              Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+              Text(subtitle, style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.orange, fontWeight: FontWeight.w600)),
             ],
           ),
           Slider(
@@ -377,7 +377,7 @@ class _PortTile extends StatelessWidget {
         children: [
           Icon(Icons.settings_ethernet_rounded, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(child: Text(label, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
           GestureDetector(
             onTap: () => _editPort(context),
             child: Container(
@@ -389,7 +389,7 @@ class _PortTile extends StatelessWidget {
               ),
               child: Text(
                 '$value',
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Roboto', 
                   fontSize: 13, fontWeight: FontWeight.w600,
                   color: AppColors.orange, fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -407,13 +407,13 @@ class _PortTile extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: Text(label, style: GoogleFonts.inter(color: AppColors.textPrimary)),
+        title: Text(label, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary)),
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           autofocus: true,
-          style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 18),
+          style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontSize: 18),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
@@ -447,8 +447,8 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-          Text(value, style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary)),
+          Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Text(value, style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -479,9 +479,9 @@ class _TapTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
                   if (subtitle != null)
-                    Text(subtitle!, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
+                    Text(subtitle!, style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
                 ],
               ),
             ),

@@ -51,7 +51,7 @@ class PluginToggle extends StatelessWidget {
               children: [
                 Text(
                   plugin.displayName,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -60,7 +60,7 @@ class PluginToggle extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   isRunning ? 'Running' : 'Stopped',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 12,
                     color: isRunning ? AppColors.success : AppColors.textSecondary,
                   ),

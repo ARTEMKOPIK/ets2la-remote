@@ -55,7 +55,7 @@ class _MapScreenState extends State<MapScreen>
       appBar: AppBar(
         title: Text(
           'Map',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600),
         ),
         actions: [
           IconButton(
@@ -158,7 +158,7 @@ class _MapScreenState extends State<MapScreen>
                       const SizedBox(width: 4),
                       Text(
                         '$speedKmh km/h',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
@@ -173,7 +173,7 @@ class _MapScreenState extends State<MapScreen>
                       const SizedBox(width: 4),
                       Text(
                         '${bearing.toStringAsFixed(0)}°',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
@@ -202,13 +202,13 @@ class _MapScreenState extends State<MapScreen>
                     const SizedBox(height: 8),
                     Text(
                       'No position data',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Roboto', 
                           color: AppColors.textSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Enable NavigationSockets plugin',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Roboto', 
                           color: AppColors.textMuted, fontSize: 12),
                     ),
                   ],

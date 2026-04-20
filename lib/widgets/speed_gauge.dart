@@ -105,7 +105,7 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
                         widget.speedUnit == 'mph'
                             ? (_displaySpeed * 0.621371).toStringAsFixed(0)
                             : _displaySpeed.toStringAsFixed(0),
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: widget.size * 0.3,
                           fontWeight: FontWeight.w800,
                           color: isOver ? AppColors.error : AppColors.textPrimary,
@@ -114,7 +114,7 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
                       ),
                       Text(
                         widget.speedUnit,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: widget.size * 0.075,
                           color: AppColors.textSecondary,
                           letterSpacing: 2,
@@ -198,13 +198,13 @@ class _Badge extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             '$label ',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 14, fontWeight: FontWeight.w700, color: color,
             ),
           ),
           Text(
             unit,
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 11, color: color.withOpacity(0.7),
             ),
           ),
@@ -314,7 +314,7 @@ class _ArcPainter extends CustomPainter {
       final speedVal = (maxSpeed * frac).round();
       labelPainter.text = TextSpan(
         text: '$speedVal',
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Roboto', 
           fontSize: size.width * 0.04,
           color: AppColors.textMuted.withOpacity(0.4),
           fontWeight: FontWeight.w500,

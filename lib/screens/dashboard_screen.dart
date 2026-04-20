@@ -191,7 +191,7 @@ class _DashboardTab extends StatelessWidget {
               ),
               child: SelectableText(
                 cmd,
-                style: TextStyle(fontFamily: (color: AppColors.orange, fontSize: 11),
+                style: TextStyle(fontFamily: "RobotoMono", color: AppColors.orange, fontSize: 11),
               ),
             ),
           ],

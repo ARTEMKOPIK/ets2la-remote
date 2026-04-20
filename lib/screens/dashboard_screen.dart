@@ -539,7 +539,7 @@ class _PedalItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n?.connectTitle ?? 'Connection',
+              "Connection" ?? 'Connection',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -554,7 +554,7 @@ class _PedalItem extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isConnected ? (l10n?.connectedTo ?? 'Connected') : (l10n?.notConnected ?? 'Not connected'),
+                  isConnected ? ("Connect"edTo ?? 'Connected') : ("Not connected" ?? 'Not connected'),
                   style: TextStyle(
                     color: isConnected ? AppColors.orange : AppColors.textMuted,
                   ),
@@ -578,7 +578,7 @@ class _PedalItem extends StatelessWidget {
                         conn.disconnect();
                         Navigator.pop(ctx);
                       },
-                      child: Text(l10n?.disconnect ?? 'Disconnect'),
+                      child: Text("Disconnect" ?? 'Disconnect'),
                     ),
                   ),
                 Expanded(
@@ -590,7 +590,7 @@ class _PedalItem extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => const ConnectScreen()),
                       );
                     },
-                    child: Text(isConnected ? (l10n?.changeServer ?? 'Change') : (l10n?.connect ?? 'Connect')),
+                    child: Text(isConnected ? ("Change" ?? 'Change') : ("Connect" ?? 'Connect')),
                   ),
                 ),
               ],

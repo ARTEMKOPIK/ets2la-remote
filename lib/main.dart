@@ -8,6 +8,7 @@ import 'providers/connection_provider.dart';
 import 'providers/telemetry_provider.dart';
 import 'providers/settings_provider.dart';
 import 'screens/connect_screen.dart';
+import 'screens/dashboard_screen.dart';
 import 'services/local_server.dart';
 
 void main() async {
@@ -73,7 +74,7 @@ class ETS2LARemoteApp extends StatelessWidget {
               return const Locale('en');
             },
             
-            home: const ConnectScreen(),
+            home: const DashboardScreen(),
           );
         },
       ),

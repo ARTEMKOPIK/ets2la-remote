@@ -54,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
-      );
+      ),
       // IndexedStack keeps all pages alive but wraps each in RepaintBoundary
       // so heavy screens (Unity, Map) don't trigger Flutter repaints
       body: IndexedStack(

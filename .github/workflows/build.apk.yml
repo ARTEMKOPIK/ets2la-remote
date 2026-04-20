@@ -25,16 +25,21 @@ jobs:
         run: |
           # Remove google_fonts dependency
           sed -i '/google_fonts/d' pubspec.yaml
-          # Add flutter generate: true for localization
-          sed -i 's/generate: false/generate: true/' pubspec.yaml
+          # Remove google_fonts imports
+          sed -i '/google_fonts/d' lib/main.dart
+          sed -i '/google_fonts/d' lib/theme/app_theme.dart
+          find lib -name '*.dart' -exec sed -i '/google_fonts/d' {} \;
           # Replace GoogleFonts.inter with native TextStyle
           find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g' {} \;
+          # Add flutter generate: true for localization
+          sed -i 's/generate: false/generate: true/' pubspec.yaml
           # Upgrade AGP to 8.1.1
           sed -i 's/"com.android.application" version "8.1.0"/"com.android.application" version "8.1.1"/' android/settings.gradle
           # Upgrade Gradle to 8.7
           sed -i 's/gradle-8.3-all.zip/gradle-8.7-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
           rm -rf .dart_tool
           flutter pub get
+          flutter gen-l10n
           flutter build apk --debug
 
       - name: Upload APK

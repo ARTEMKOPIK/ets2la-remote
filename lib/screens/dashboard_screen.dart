@@ -38,18 +38,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final l10n = AppLocalizations.of(context);
     final conn = context.watch<ConnectionProvider>();
 
-    // Auto-disconnect redirect — only when fully disconnected and no active host
-    if (!conn.isActiveOrConnecting) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const ConnectScreen()),
-          );
-        }
-      });
-    }
-
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('ETS2LA'),
+        actions: [
+          GestureDetector(
+            onTap: () => _showConnectionSheet(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(children: [
+                Icon(conn.isConnected ? Icons.wifi : Icons.wifi_off, color: conn.isConnected ? AppColors.orange : AppColors.textMuted, size: 20),
+                const SizedBox(width: 4),
+                Text(conn.currentHost.isNotEmpty ? conn.currentHost : '...', style: TextStyle(fontSize: 12, color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
+              ]),
+            ),
+          ),
+        ],
+      );
       // IndexedStack keeps all pages alive but wraps each in RepaintBoundary
       // so heavy screens (Unity, Map) don't trigger Flutter repaints
       body: IndexedStack(
@@ -82,6 +87,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               icon: const Icon(Icons.tune_rounded),
               label: l10n?.plugins ?? 'Plugins',
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showConnectionSheet(BuildContext context) {
+    final conn = context.read<ConnectionProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Подключение', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 16),
+            Row(children: [
+              Icon(conn.isConnected ? Icons.wifi : Icons.wifi_off, color: conn.isConnected ? AppColors.orange : AppColors.textMuted),
+              const SizedBox(width: 8),
+              Text(conn.isConnected ? 'Подключено' : 'Не подключено', style: TextStyle(color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
+              if (conn.isConnected && conn.currentHost.isNotEmpty) ...[const SizedBox(width: 8), Text(conn.currentHost, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12))],
+            ]),
+            const SizedBox(height: 20),
+            Row(children: [
+              if (conn.isConnected) Expanded(child: TextButton(onPressed: () { conn.disconnect(); Navigator.pop(ctx); }, child: const Text('Отключить'))),
+              Expanded(child: ElevatedButton(onPressed: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectScreen())); }, child: Text(conn.isConnected ? 'Изменить' : 'Подключиться'))),
+            ]),
           ],
         ),
       ),

@@ -44,17 +44,7 @@ class AppTheme {
         onSecondary: AppColors.textPrimary,
         onSurface: AppColors.textPrimary,
       ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(color: AppColors.textPrimary),
-        displayMedium: TextStyle(color: AppColors.textPrimary),
-        headlineLarge: TextStyle(color: AppColors.textPrimary),
-        headlineMedium: TextStyle(color: AppColors.textPrimary),
-        titleLarge: TextStyle(color: AppColors.textPrimary),
-        titleMedium: TextStyle(color: AppColors.textPrimary),
-        bodyLarge: TextStyle(color: AppColors.textPrimary),
-        bodyMedium: TextStyle(color: AppColors.textSecondary),
-        bodySmall: TextStyle(color: AppColors.textMuted),
-      ),
+      textTheme: const TextTheme(),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,

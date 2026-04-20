@@ -18,9 +18,8 @@ jobs:
 
       - name: Build
         run: |
-          rm -rf .dart_tool build
           flutter clean
-          flutter pub get
+          flutter pub get --offline || flutter pub get
           flutter build apk --debug
 
       - name: Upload APK

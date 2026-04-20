@@ -18,6 +18,7 @@ jobs:
 
       - name: Build
         run: |
+          rm -rf .dart_tool build
           flutter clean
           flutter pub get
           flutter build apk --debug

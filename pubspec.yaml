@@ -27,7 +27,7 @@ dependencies:
   shelf_static: ^1.1.2
 
 flutter:
-  generate: false
+  generate: true
   uses-material-design: true
   assets:
     - assets/

@@ -20,7 +20,7 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          flutter build apk --debug
+          flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

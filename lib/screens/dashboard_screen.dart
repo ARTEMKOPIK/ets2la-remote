@@ -38,18 +38,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final l10n = AppLocalizations.of(context);
     final conn = context.watch<ConnectionProvider>();
 
-    // Auto-disconnect redirect — only when fully disconnected and no active host
-    if (!conn.isActiveOrConnecting) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const ConnectScreen()),
-          );
-        }
-      });
-    }
-
     return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n?.appName ?? 'ETS2LA'),
+        actions: [
+          // Connection indicator
+          GestureDetector(
+            onTap: () => _showConnectionSheet(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    conn.isActive ? Icons.wifi : Icons.wifi_off,
+                    color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    conn.host ?? 'N/A',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
       // IndexedStack keeps all pages alive but wraps each in RepaintBoundary
       // so heavy screens (Unity, Map) don't trigger Flutter repaints
       body: IndexedStack(
@@ -499,6 +517,86 @@ class _PedalItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showConnectionSheet(BuildContext context) {
+    final conn = context.read<ConnectionProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Подключение',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Status row
+            Row(
+              children: [
+                Icon(
+                  conn.isActive ? Icons.wifi : Icons.wifi_off,
+                  color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  conn.isActive ? 'Подключено' : 'Не подключено',
+                  style: TextStyle(
+                    color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                  ),
+                ),
+                if (conn.isActive) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    conn.host ?? '',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Actions
+            Row(
+              children: [
+                if (conn.isActive)
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        conn.disconnect();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Отключить'),
+                    ),
+                  ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ConnectScreen()),
+                      );
+                    },
+                    child: Text(conn.isActive ? 'Изменить' : 'Подключиться'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
     );
   }
 }

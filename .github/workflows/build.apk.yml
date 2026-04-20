@@ -18,6 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sed -i '/google_fonts/d' pubspec.yaml
           flutter clean
           flutter pub get
 

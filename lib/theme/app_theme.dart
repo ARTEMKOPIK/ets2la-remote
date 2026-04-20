@@ -44,8 +44,7 @@ class AppTheme {
         onSecondary: AppColors.textPrimary,
         onSurface: AppColors.textPrimary,
       ),
-      textTheme: GoogleFonts.interTextTheme(
-        const TextTheme(
+      textTheme: const TextTheme(
           displayLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           displayMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
           headlineLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),

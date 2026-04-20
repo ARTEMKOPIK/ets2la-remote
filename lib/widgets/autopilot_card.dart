@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:ets2la_remote/l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 class AutopilotCard extends StatefulWidget {

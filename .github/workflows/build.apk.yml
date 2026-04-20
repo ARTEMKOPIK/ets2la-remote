@@ -25,6 +25,8 @@ jobs:
         run: |
           # Remove google_fonts dependency
           sed -i '/google_fonts/d' pubspec.yaml
+          # Add flutter generate: true for localization
+          sed -i 's/generate: false/generate: true/' pubspec.yaml
           # Replace GoogleFonts.inter with native TextStyle
           find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g' {} \;
           # Upgrade AGP to 8.1.1

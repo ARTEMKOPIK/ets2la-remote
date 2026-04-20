@@ -40,7 +40,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.appName ?? 'ETS2LA'),
+        title: const Text('ETS2LA'),
         actions: [
           // Connection indicator
           GestureDetector(
@@ -50,16 +50,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Row(
                 children: [
                   Icon(
-                    conn.isActive ? Icons.wifi : Icons.wifi_off,
-                    color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                    conn.isConnected ? Icons.wifi : Icons.wifi_off,
+                    color: conn.isConnected ? AppColors.orange : AppColors.textMuted,
                     size: 20,
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    conn.host ?? 'N/A',
+                    conn.currentHost.isNotEmpty ? conn.currentHost : 'N/A',
                     style: TextStyle(
                       fontSize: 12,
-                      color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                      color: conn.isConnected ? AppColors.orange : AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -522,73 +522,75 @@ class _PedalItem extends StatelessWidget {
 
   void _showConnectionSheet(BuildContext context) {
     final conn = context.read<ConnectionProvider>();
+    final l10n = AppLocalizations.of(context);
+    final isConnected = conn.isConnected;
+    final host = conn.currentHost;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (ctx) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Подключение',
+              l10n?.connectTitle ?? 'Connection',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 16),
-            // Status row
             Row(
               children: [
                 Icon(
-                  conn.isActive ? Icons.wifi : Icons.wifi_off,
-                  color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                  isConnected ? Icons.wifi : Icons.wifi_off,
+                  color: isConnected ? AppColors.orange : AppColors.textMuted,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  conn.isActive ? 'Подключено' : 'Не подключено',
+                  isConnected ? (l10n?.connectedTo ?? 'Connected') : (l10n?.notConnected ?? 'Not connected'),
                   style: TextStyle(
-                    color: conn.isActive ? AppColors.orange : AppColors.textMuted,
+                    color: isConnected ? AppColors.orange : AppColors.textMuted,
                   ),
                 ),
-                if (conn.isActive) ...[
+                if (isConnected && host.isNotEmpty) ...[
                   const SizedBox(width: 8),
                   Text(
-                    conn.host ?? '',
+                    host,
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                 ],
               ],
             ),
             const SizedBox(height: 20),
-            // Actions
             Row(
               children: [
-                if (conn.isActive)
+                if (isConnected)
                   Expanded(
                     child: TextButton(
                       onPressed: () {
                         conn.disconnect();
-                        Navigator.pop(context);
+                        Navigator.pop(ctx);
                       },
-                      child: const Text('Отключить'),
+                      child: Text(l10n?.disconnect ?? 'Disconnect'),
                     ),
                   ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(ctx);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const ConnectScreen()),
                       );
                     },
-                    child: Text(conn.isActive ? 'Изменить' : 'Подключиться'),
+                    child: Text(isConnected ? (l10n?.changeServer ?? 'Change') : (l10n?.connect ?? 'Connect')),
                   ),
                 ),
               ],
@@ -601,6 +603,7 @@ class _PedalItem extends StatelessWidget {
   }
 }
 
+/* DELETE BELOW
 class _PluginChip extends StatelessWidget {
   final String name;
   final bool active;

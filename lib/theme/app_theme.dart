@@ -45,7 +45,6 @@ class AppTheme {
         onSurface: AppColors.textPrimary,
       ),
       textTheme: const TextTheme(),
-      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         elevation: 0,

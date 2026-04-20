@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Backgrounds
@@ -106,7 +105,7 @@ class AppTheme {
           foregroundColor: AppColors.textPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600, fontSize: 15),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
         ),
       ),

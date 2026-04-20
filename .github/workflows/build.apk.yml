@@ -32,7 +32,23 @@ jobs:
           # Replace GoogleFonts.inter with native TextStyle
           find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g' {} \;
           # Add flutter generate: true for localization
+          # Fix localization with synthetic-package: false to output-dir
+          cat > l10n.yaml << 'EOF'
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+synthetic-package: false
+output-dir: lib/l10n
+EOF
           sed -i 's/generate: false/generate: true/' pubspec.yaml
+          # Update imports to use local path based on depth
+          sed -i "s|package:flutter_gen/gen_l10n/app_localizations.dart|l10n/app_localizations.dart|" lib/main.dart
+          sed -i "s|package:flutter_gen/gen_l10n/app_localizations.dart|l10n/app_localizations.dart|" lib/screens/*.dart
+          sed -i "s|package:flutter_gen/gen_l10n/app_localizations.dart|l10n/app_localizations.dart|" lib/widgets/*.dart
+          # Fix app_theme.dart - remove GoogleFonts completely
+          sed -i 's/GoogleFonts.inter(TextStyle(fontFamily: /TextStyle(fontFamily: /g' lib/theme/app_theme.dart
+          sed -i "s/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g" lib/theme/app_theme.dart
+          sed -i 's/import.*google_fonts.*//' lib/theme/app_theme.dart
           # Upgrade AGP to 8.1.1
           sed -i 's/"com.android.application" version "8.1.0"/"com.android.application" version "8.1.1"/' android/settings.gradle
           # Upgrade Gradle to 8.7

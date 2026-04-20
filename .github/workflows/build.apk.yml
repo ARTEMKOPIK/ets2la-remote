@@ -27,6 +27,10 @@ jobs:
           sed -i '/google_fonts/d' pubspec.yaml
           # Replace GoogleFonts.inter with native TextStyle
           find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g' {} \;
+          # Upgrade AGP to 8.1.1
+          sed -i 's/"com.android.application" version "8.1.0"/"com.android.application" version "8.1.1"/' android/settings.gradle
+          # Upgrade Gradle to 8.7
+          sed -i 's/gradle-8.3-all.zip/gradle-8.7-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
           rm -rf .dart_tool
           flutter pub get
           flutter build apk --debug

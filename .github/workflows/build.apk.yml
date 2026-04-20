@@ -18,15 +18,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sed -i '/google_fonts/d' pubspec.yaml
-          # Replace GoogleFonts.inter with native TextStyle
-          find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: /g' {} \;
-          rm -rf .dart_tool build
           flutter clean
           flutter pub get
 
       - name: Build APK
-        run: flutter build apk --debug
+        run: |
+          # Remove google_fonts dependency
+          sed -i '/google_fonts/d' pubspec.yaml
+          # Replace GoogleFonts.inter with native TextStyle
+          find lib -name '*.dart' -exec sed -i 's/GoogleFonts.inter(/TextStyle(fontFamily: 'Roboto', /g' {} \;
+          rm -rf .dart_tool
+          flutter pub get
+          flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

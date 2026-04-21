@@ -23,7 +23,7 @@ class ApiService {
     try {
       final res = await http.get(Uri.parse('$_base/')).timeout(const Duration(seconds: 3));
       return res.statusCode == 200;
-    } catch (_) {
+    } catch (e) { debugPrint("ApiService.ping error: $e"); return false; }
       return false;
     }
   }

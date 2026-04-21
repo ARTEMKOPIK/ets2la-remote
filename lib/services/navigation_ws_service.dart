@@ -51,12 +51,13 @@ class NavigationWsService {
             } else if (decoded is Map<String, dynamic>) {
               _handleMessage(decoded);
             }
-          } catch (_) {}
+          } catch (e) { debugPrint("NavigationWsService error: $e"); }
         },
         onDone: _onDisconnected,
         onError: (_) => _onDisconnected(),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NavigationWsService connect error: $e');
       _onDisconnected();
     }
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -59,7 +60,7 @@ class VisualizationWsService {
               _send({'method': 'acknowledge', 'channel': 0});
               _lastAck = now;
             }
-          } catch (e) { debugPrint("WebSocketService error: $e"); }
+          } catch (_) {}
         },
         onDone: _onDisconnected,
         onError: (e) => _onDisconnected(),
@@ -71,7 +72,9 @@ class VisualizationWsService {
       
       // Start keep-alive timer
       _startKeepAlive();
-    } catch (e) { debugPrint("WebSocketService connect error: $e"); _onDisconnected(); }
+    } catch (e) {
+      _onDisconnected();
+    }
   }
 
   void _subscribeToChannels() {
@@ -108,7 +111,7 @@ class VisualizationWsService {
   void _send(Map<String, dynamic> msg) {
     try {
       _channel?.sink.add(jsonEncode(msg));
-    } catch (e) { debugPrint("WebSocketService error: $e"); }
+    } catch (_) {}
   }
 
   void _onDisconnected() {

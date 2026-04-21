@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -44,8 +45,7 @@ jobs:
           MINOR=$(echo "$VER" | awk -F. '{print $2}')
           VERSION="$MAJOR.$MINOR.$PATCH"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "New version: $VERSION"
-      - run: sed -i "s/version:.*/version: ${{ steps.ver.outputs.VERSION }}/" pubspec.yaml
+      - run: sed -i "s/version:.*/version: $VERSION/" pubspec.yaml
       - run: flutter pub get && flutter build apk --release
       - uses: softprops/action-gh-release@v1
         with:

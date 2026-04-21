@@ -60,6 +60,10 @@ class _ConnectScreenState extends State<ConnectScreen>
 
     final conn = context.read<ConnectionProvider>();
     final telem = context.read<TelemetryProvider>();
+    final settings = context.read<AppSettings>();
+
+    // Configure ports from settings before connecting
+    conn.configurePorts(settings);
 
     final ok = await conn.connect(host);
     if (ok && mounted) {

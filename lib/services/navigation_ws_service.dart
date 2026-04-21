@@ -4,7 +4,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/telemetry.dart';
 
 class NavigationWsService {
-  static const int port = 62840;
+  int _port = 62840; // Default, can be overridden
+
+  void setPort(int port) => _port = port;
+
+  int get port => _port;
 
   WebSocketChannel? _channel;
   String? _host;

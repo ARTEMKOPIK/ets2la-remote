@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/websocket_service.dart';
 import '../services/navigation_ws_service.dart';
 import '../services/pages_ws_service.dart';
 import '../services/api_service.dart';
+import 'settings_provider.dart';
 
 class ConnectionProvider extends ChangeNotifier {
+  ConnectionProvider() : super() {
+    // Ports will be set in connect() using AppSettings
+  }
+
+  AppSettings?? _savedSettings;
+
+  void configurePorts(AppSettings settings) {
+    _savedSettings = settings;
+    _applyPorts(settings);
+  }
+
+  void _applyPorts(AppSettings? settings) {
+    if (settings != null) {
+      apiService.setPort(settings.portApi);
+      wsService.setPort(settings.portViz);
+      navService.setPort(settings.portNav);
+      pagesService.setPort(settings.portPages);
+    }
+  }
   final VisualizationWsService wsService = VisualizationWsService();
   final NavigationWsService navService = NavigationWsService();
   final PagesWsService pagesService = PagesWsService();
@@ -62,6 +83,10 @@ class ConnectionProvider extends ChangeNotifier {
       }
       _currentHost = cleanHost;
       apiService.setHost(cleanHost);
+      // Apply ports from settings on each connect
+      // Settings passed from connect_screen for simplicity
+      final settings = _savedSettings;
+      _applyPorts(settings);
 
       final reachable = await apiService.ping();
       if (!reachable) {

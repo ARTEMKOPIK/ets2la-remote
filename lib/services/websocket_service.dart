@@ -5,7 +5,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 enum WsConnectionState { disconnected, connecting, connected, error }
 
 class VisualizationWsService {
-  static const int port = 37522;
+  int _port = 37522; // Default, can be overridden
+
+  void setPort(int port) => _port = port;
+
+  int get port => _port;
 
   WebSocketChannel? _channel;
   // Single persistent broadcast controller — never replaced on reconnect.

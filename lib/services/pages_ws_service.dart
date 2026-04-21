@@ -9,6 +9,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class PagesWsService {
   static const int defaultPort = 37523;
 
+  int get port => _port;
+
+  void setPort(int port) => _port = port;
+
   WebSocketChannel? _channel;
   String? _host;
   int _port = defaultPort;

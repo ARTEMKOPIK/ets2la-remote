@@ -59,6 +59,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // so heavy screens (Unity, Map) don't trigger Flutter repaints
       body: IndexedStack(
         index: _currentIndex,
+        sizingKey: const ValueKey('dashboard_stack'),
+        maintainState: true,
         children: _pages
             .map((p) => RepaintBoundary(child: p))
             .toList(),

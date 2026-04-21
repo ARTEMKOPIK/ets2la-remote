@@ -3,7 +3,11 @@ import 'package:http/http.dart' as http;
 import '../models/plugin_state.dart';
 
 class ApiService {
-  static const int port = 37520;
+  int _port = 37520; // Default, can be overridden
+
+  void setPort(int port) => _port = port;
+
+  int get port => _port;
 
   String? _host;
 
@@ -47,7 +51,7 @@ class ApiService {
           }).toList();
         }
       }
-    } catch (_) {}
+    } catch (_) { return []; }
     return [];
   }
 
@@ -116,7 +120,7 @@ class ApiService {
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
-    } catch (_) {}
+    } catch (_) { return []; }
     return {};
   }
 
@@ -128,7 +132,7 @@ class ApiService {
       if (res.statusCode == 200) {
         return jsonDecode(res.body);
       }
-    } catch (_) {}
+    } catch (_) { return []; }
     return null;
   }
 }

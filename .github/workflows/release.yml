@@ -54,15 +54,18 @@ jobs:
       - name: Version
         id: v
         run: |
-          LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
-          VER=$(echo $LAST | sed s/v//)
-          V=$(echo $VER | awk -F. {$NF++; print $1.$2.$3})
-          echo "VER=$V" >> $GITHUB_OUTPUT
+          LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VER=$(echo "$LAST" | sed "s/v//")
+          IFS="." read -r MAJOR MINOR PATCH <<< "$VER"
+          PATCH=$((PATCH + 1))
+          VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION"
 
-      - name: Update
-        run: sed -i "s/version:.*/version: ${{ steps.v.outputs.VER }}/" pubspec.yaml
+      - name: Update pubspec
+        run: sed -i "s/version:.*/version: ${{ steps.v.outputs.VERSION }}/" pubspec.yaml
 
-      - name: Build
+      - name: Build release
         run: flutter pub get && flutter build apk --release
 
       - name: Release

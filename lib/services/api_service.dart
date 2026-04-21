@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
@@ -24,7 +23,7 @@ class ApiService {
     try {
       final res = await http.get(Uri.parse('$_base/')).timeout(const Duration(seconds: 3));
       return res.statusCode == 200;
-    } catch (e) { debugPrint("ApiService error: $e"); 
+    } catch (_) {
       return false;
     }
   }

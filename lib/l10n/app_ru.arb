@@ -61,4 +61,9 @@
   "firewallCmd": "Выполните на ПК:",
   "copied": "Скопировано!",
   "view3d": "3D Вид"
+,
+  "updateAvailable": "Доступно обновление",
+  "updateNow": "Обновить сейчас",
+  "updateLater": "Напомнить позже",
+  "installUpdate": "Установить"
 }

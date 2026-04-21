@@ -61,4 +61,9 @@
   "firewallCmd": "Run this on PC:",
   "copied": "Copied!",
   "view3d": "3D View"
+,
+  "updateAvailable": "Update Available",
+  "updateNow": "Update Now",
+  "updateLater": "Remind Me Later",
+  "installUpdate": "Install Update"
 }

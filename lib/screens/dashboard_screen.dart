@@ -5,6 +5,8 @@ import '../models/truck_state.dart';
 import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/update_provider.dart';
+import '../widgets/update_dialog.dart';
 import 'app_settings_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
@@ -35,6 +37,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check for updates on first load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final upd = context.read<UpdateProvider>();
+      if (upd.state == UpdateState.idle || upd.state == UpdateState.available) {
+        upd.checkForUpdate();
+      }
+      if (upd.hasUpdate) {
+        UpdateDialog.show(context);
+      }
+    });
+
     final l10n = AppLocalizations.of(context);
     final conn = context.watch<ConnectionProvider>();
 

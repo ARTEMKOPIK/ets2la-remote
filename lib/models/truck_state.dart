@@ -44,9 +44,10 @@ class TruckState {
     );
   }
 
-  // speed from ETS2LA is already in m/s, convert to km/h and clamp negatives to 0
-  double get speedKmh => (speed * 3.6).abs();
-  double get speedLimitKmh => speedLimit * 3.6;
+  // speed from ETS2LA is in m/s, convert to km/h. Negative values clamped to 0.
+  double get speedKmh => (speed < 0 ? 0 : speed) * 3.6;
+  // speedLimit can be 0 (no limit) but never negative — clamp to 0 for safety
+  double get speedLimitKmh => (speedLimit < 0 ? 0 : speedLimit) * 3.6;
   double get targetSpeedKmh => targetSpeed * 3.6;
   bool get isOverSpeedLimit => speedLimit > 0 && speed > speedLimit * 1.05;
 

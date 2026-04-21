@@ -219,4 +219,10 @@ class _MapScreenState extends State<MapScreen>
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 }

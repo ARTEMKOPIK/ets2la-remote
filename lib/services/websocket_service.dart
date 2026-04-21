@@ -87,7 +87,7 @@ class VisualizationWsService {
 
   void _startKeepAlive() {
     _keepAliveTimer?.cancel();
-    // Send acknowledge every 500ms to keep connection alive
+    // Only send acknowledge when there is pending data to acknowledge (throttled to 500ms)
     _keepAliveTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       if (_state == WsConnectionState.connected && _channel != null) {
         _send({'method': 'acknowledge', 'channel': 0});

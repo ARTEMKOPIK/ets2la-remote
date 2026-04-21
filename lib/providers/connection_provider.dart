@@ -23,10 +23,15 @@ class ConnectionProvider extends ChangeNotifier {
 
   void _applyPorts(AppSettings? settings) {
     if (settings != null) {
-      apiService.setPort(settings.portApi);
-      wsService.setPort(settings.portViz);
-      navService.setPort(settings.portNav);
-      pagesService.setPort(settings.portPages);
+      // Clamp ports to valid range 1-65535
+      final apiPort = settings.portApi.clamp(1, 65535);
+      final vizPort = settings.portViz.clamp(1, 65535);
+      final navPort = settings.portNav.clamp(1, 65535);
+      final pagesPort = settings.portPages.clamp(1, 65535);
+      apiService.setPort(apiPort);
+      wsService.setPort(vizPort);
+      navService.setPort(navPort);
+      pagesService.setPort(pagesPort);
     }
   }
   final VisualizationWsService wsService = VisualizationWsService();

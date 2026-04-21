@@ -85,6 +85,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    _ctrl?.dispose();
     super.dispose();
   }
 

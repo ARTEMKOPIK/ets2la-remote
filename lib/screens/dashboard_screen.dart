@@ -15,7 +15,6 @@ import '../widgets/autopilot_card.dart';
 import '../widgets/metric_card.dart';
 import 'map_screen.dart';
 import 'settings_screen.dart';
-import 'connect_screen.dart';
 import 'visualization_screen.dart';
 
 class DashboardScreen extends StatefulWidget {

@@ -17,10 +17,27 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - run: flutter --version
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: softprops/action-gh-release@v1
+      - name: Get next version
+        run: |
+          LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
+          VER=$(echo "$LAST" | sed 's/v//')
+          PATCH=$(echo "$VER" | awk -F. '{print $3}')
+          if [ -z "$PATCH" ]; then PATCH=0; fi
+          PATCH=$((PATCH + 1))
+          MAJOR=$(echo "$VER" | awk -F. '{print $1}')
+          MAJOR=${MAJOR:-0}
+          MINOR=$(echo "$VER" | awk -F. '{print $2}')
+          MINOR=${MINOR:-0}
+          VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Next version: $VERSION"
+        id: ver
+      - name: Update version in pubspec
+        run: sed -i "s/version:.*/version: ${{ steps.ver.outputs.VERSION }}/" pubspec.yaml
+      - name: Build APK
+        run: flutter pub get && flutter build apk --release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
           draft: true
           generate_release_notes: true

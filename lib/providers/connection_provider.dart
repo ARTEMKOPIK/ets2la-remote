@@ -10,9 +10,11 @@ import 'settings_provider.dart';
 class ConnectionProvider extends ChangeNotifier {
   ConnectionProvider() : super() {
     // Ports will be set in connect() using AppSettings
+    _loadRecentHosts();
+    wsService.stateStream.listen((_) => notifyListeners());
   }
 
-  AppSettings?? _savedSettings;
+  AppSettings? _savedSettings;
 
   void configurePorts(AppSettings settings) {
     _savedSettings = settings;
@@ -46,11 +48,6 @@ class ConnectionProvider extends ChangeNotifier {
       wsService.state == WsConnectionState.connected ||
       wsService.state == WsConnectionState.connecting ||
       _currentHost.isNotEmpty;
-
-  ConnectionProvider() {
-    _loadRecentHosts();
-    wsService.stateStream.listen((_) => notifyListeners());
-  }
 
   Future<void> _loadRecentHosts() async {
     final prefs = await SharedPreferences.getInstance();

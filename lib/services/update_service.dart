@@ -1,11 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-
-// Use try-catch for package_info_plus - only available at runtime
-DynamicLibrary? _tryLoadPackageInfo() => null;
 
 /// Information about an available update
 class UpdateInfo {
@@ -111,3 +107,4 @@ class UpdateService {
     return 0;
   }
 }
+

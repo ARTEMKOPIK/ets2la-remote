@@ -180,5 +180,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copied => 'Скопировано!';
 
   @override
-  String get view3d => '3D Вид';
+  String get view3d => '3D;
+  String get updateAvailable => 'Обновление доступно ';
+  String get updateNow => 'Обновить сейчас ';
+  String get updateLater => 'Напомнить позже ';
+  String get installUpdate => 'Установить ';
 }

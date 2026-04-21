@@ -180,5 +180,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copied => 'Copied!';
 
   @override
-  String get view3d => '3D View';
+  String get view3d => '3D';
+  String get updateAvailable => 'Update available ';
+  String get updateNow => 'Update now ';
+  String get updateLater => 'Remind later ';
+  String get installUpdate => 'Install ';
 }

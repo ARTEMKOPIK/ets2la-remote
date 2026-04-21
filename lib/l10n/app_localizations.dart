@@ -444,6 +444,10 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'3D View'**
+  String get updateAvailable;
+  String get updateNow;
+  String get updateLater;
+  String get installUpdate;
   String get view3d;
 }
 

@@ -59,7 +59,7 @@ class VisualizationWsService {
               _send({'method': 'acknowledge', 'channel': 0});
               _lastAck = now;
             }
-          } catch (_) {}
+          } catch (e) { debugPrint("WebSocketService error: $e"); }
         },
         onDone: _onDisconnected,
         onError: (e) => _onDisconnected(),
@@ -110,7 +110,7 @@ class VisualizationWsService {
   void _send(Map<String, dynamic> msg) {
     try {
       _channel?.sink.add(jsonEncode(msg));
-    } catch (_) {}
+    } catch (e) { debugPrint("WebSocketService error: $e"); }
   }
 
   void _onDisconnected() {

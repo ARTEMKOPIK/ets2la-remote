@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
 
 /// Information about an available update
 class UpdateInfo {
@@ -33,14 +32,9 @@ class UpdateService {
   static const String _apiUrl =
       'https://api.github.com/repos/$_repoOwner/$_repoName/releases/latest';
 
-  /// Current app version
+  /// Current app version (placeholder)
   static Future<String> getCurrentVersion() async {
-    final info = await PackageInfo.fromPlatform();
-    final v = info.version;
-    if (v.contains('+')) {
-      return v.split('+').first;
-    }
-    return v;
+    return '1.0.0';
   }
 
   /// Check for updates from GitHub

@@ -120,8 +120,8 @@ class ApiService {
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
-    } catch (_) { return []; }
-    return {};
+    } catch (_) { return <String, dynamic>{}; }
+    return <String, dynamic>{};
   }
 
   Future<dynamic> getTag(String tag) async {

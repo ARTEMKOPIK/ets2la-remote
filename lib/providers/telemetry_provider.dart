@@ -98,6 +98,42 @@ class TelemetryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void startPluginRefresh(VisualizationWsService wsService, NavigationWsService navService, ApiService apiService) {
+    // Cancel existing timer first
+    _pluginRefreshTimer?.cancel();
+    
+    // Only start if connected
+    if (wsService.state == WsConnectionState.connected) {
+      _pluginRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+        // Check connection before fetching
+        if (wsService.state == WsConnectionState.connected) {
+          final list = await apiService.getPlugins();
+          if (list.isNotEmpty) {
+            plugins = list;
+            notifyListeners();
+          }
+        } else {
+          // Stop timer when disconnected
+          _pluginRefreshTimer?.cancel();
+          _pluginRefreshTimer = null;
+        }
+      });
+
+      // Initial fetch
+      apiService.getPlugins().then((list) {
+        if (list.isNotEmpty) {
+          plugins = list;
+          notifyListeners();
+        }
+      });
+    }
+  }
+
+  void stopPluginRefresh() {
+    _pluginRefreshTimer?.cancel();
+    _pluginRefreshTimer = null;
+  }
+
   @override
   void dispose() {
     _wsSub?.cancel();

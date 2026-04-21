@@ -170,7 +170,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                 }
               }
             },
-            onConsoleMessage: (_, msg) => debugPrint('[3DView] ${msg.message}'),
+            // debugPrint('[3DView] ${msg.message}'), // removed for production
           ),
         ),
 

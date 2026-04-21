@@ -62,9 +62,7 @@ class ETS2LARemoteApp extends StatelessWidget {
               Locale('en'),
               Locale('ru'),
             ],
-            locale: settings.language != null 
-                ? Locale(settings.language!) 
-                : null,
+            locale: settings.locale,
             localeResolutionCallback: (locale, supportedLocales) {
               for (final supported in supportedLocales) {
                 if (supported.languageCode == locale?.languageCode) {

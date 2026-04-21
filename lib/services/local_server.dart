@@ -67,6 +67,9 @@ class LocalUnityServer {
       _starting = false; // reset so ensureStarted can be called again if needed
     } catch (e) {
       _starting = false;
+      // Log error before rethrowing for debugging
+      // ignore: avoid_print
+      // print('[LocalServer] Failed to start: $e');
       rethrow;
     }
   }

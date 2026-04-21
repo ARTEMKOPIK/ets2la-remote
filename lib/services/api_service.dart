@@ -9,9 +9,12 @@ class ApiService {
 
   void setHost(String host) => _host = host;
 
-  String get _base => 'http://$_host:$port';
+  String get _base => _host != null ? 'http://$_host:$port' : '';
+
+  bool get hasHost => _host != null && _host!.isNotEmpty;
 
   Future<bool> ping() async {
+    if (!hasHost) return false;
     try {
       final res = await http.get(Uri.parse('$_base/')).timeout(const Duration(seconds: 3));
       return res.statusCode == 200;
@@ -21,6 +24,7 @@ class ApiService {
   }
 
   Future<List<PluginInfo>> getPlugins() async {
+    if (!hasHost) return [];
     try {
       final res = await http
           .get(Uri.parse('$_base/backend/plugins'))

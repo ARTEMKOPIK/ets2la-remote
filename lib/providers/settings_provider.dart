@@ -31,13 +31,7 @@ class AppSettings extends ChangeNotifier {
   String? _language;
   
   String? get language => _language;
-  Locale get locale {
-    if (_language == null) {
-      // Use system locale - will be resolved in main.dart
-      return const Locale('en');
-    }
-    return Locale(_language!);
-  }
+  Locale? get locale => _language != null ? Locale(_language!) : null;
 
   SpeedUnit get speedUnit => _speedUnit;
   GaugeMaxSpeed get gaugeMax => _gaugeMax;

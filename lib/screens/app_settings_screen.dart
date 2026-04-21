@@ -88,7 +88,6 @@ class AppSettingsScreen extends StatelessWidget {
               selectedIndex: s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
               onChanged: (i) => s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
             ),
-            // DEBUG: show current locale
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(

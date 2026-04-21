@@ -42,6 +42,8 @@ class _ConnectScreenState extends State<ConnectScreen>
       final hosts = context.read<ConnectionProvider>().recentHosts;
       if (hosts.isNotEmpty) {
         _ipController.text = hosts.first;
+        // Apply custom ports before auto-connect
+        conn.configurePorts(settings);
         await _connect();
       }
     }

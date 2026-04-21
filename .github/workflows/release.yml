@@ -60,10 +60,9 @@ jobs:
           PATCH=$((PATCH + 1))
           VERSION="$MAJOR.$MINOR.$PATCH"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION"
 
       - name: Update pubspec
-        run: sed -i "s/version:.*/version: ${{ steps.v.outputs.VERSION }}/" pubspec.yaml
+        run: sed -i 's/version:.*/version: ${{ steps.v.outputs.VERSION }}/' pubspec.yaml
 
       - name: Build release
         run: flutter pub get && flutter build apk --release

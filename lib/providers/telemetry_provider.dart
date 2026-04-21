@@ -40,16 +40,7 @@ class TelemetryProvider extends ChangeNotifier {
       notifyListeners();
     });
 
-    _pluginRefreshTimer?.cancel();
-    _pluginRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
-      final list = await apiService.getPlugins();
-      if (list.isNotEmpty) {
-        plugins = list;
-        notifyListeners();
-      }
-    });
-
-    apiService.getPlugins().then((list) {
+    // Plugin refresh timer moved to startPluginRefresh() to avoid duplicate timers
       if (list.isNotEmpty) {
         plugins = list;
         notifyListeners();

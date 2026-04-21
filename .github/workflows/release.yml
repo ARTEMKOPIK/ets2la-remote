@@ -13,20 +13,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - run: echo "Checking tags" && git describe --tags --abbrev=0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - run: |
-          LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
-          VER=$(echo "$LAST" | sed 's/v//')
-          PATCH=$(echo "$VER" | awk -F. '{print $3+1}')
-          MAJOR=$(echo "$VER" | awk -F. '{print $1}')
-          MINOR=$(echo "$VER" | awk -F. '{print $2}')
-          VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        id: ver
-      - run: sed -i "s/version:.*/version: ${{ steps.ver.outputs.VERSION }}/" pubspec.yaml
-      - run: flutter pub get && flutter build apk --release
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build apk --release
       - uses: softprops/action-gh-release@v1
         with:
           draft: true

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
+import 'connect_screen.dart';
 import 'package:provider/provider.dart';
 import '../models/truck_state.dart';
 import '../providers/connection_provider.dart';

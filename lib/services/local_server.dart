@@ -65,7 +65,7 @@ class LocalUnityServer {
       await _startServer(outDir.path);
       _ready = true;
       _starting = false; // reset so ensureStarted can be called again if needed
-    } catch (e) { debugPrint("LocalServer error: $e"); }
+    } catch (e) {
       _starting = false;
       // Log error before rethrowing for debugging
       // ignore: avoid_print

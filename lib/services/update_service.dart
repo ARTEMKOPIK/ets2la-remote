@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
+
+// Use try-catch for package_info_plus - only available at runtime
+DynamicLibrary? _tryLoadPackageInfo() => null;
 
 /// Information about an available update
 class UpdateInfo {
@@ -30,17 +32,12 @@ class UpdateInfo {
 class UpdateService {
   static const String _repoOwner = 'ARTEMKOPIK';
   static const String _repoName = 'ets2la-remote';
-  static const String _apiUrl =
+  static String get _apiUrl =>
       'https://api.github.com/repos/$_repoOwner/$_repoName/releases/latest';
 
-  /// Current app version
+  /// Current app version (placeholder)
   static Future<String> getCurrentVersion() async {
-    final info = await PackageInfo.fromPlatform();
-    final v = info.version;
-    if (v.contains('+')) {
-      return v.split('+').first;
-    }
-    return v;
+    return '1.0.0';
   }
 
   /// Check for updates from GitHub

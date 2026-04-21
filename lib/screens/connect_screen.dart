@@ -35,6 +35,8 @@ class _ConnectScreenState extends State<ConnectScreen>
   Future<void> _checkAutoConnect() async {
     final settings = context.read<AppSettings>();
     final conn = context.read<ConnectionProvider>();
+    // Apply saved ports before auto-connect
+    conn.configurePorts(settings);
     // Wait a bit for SharedPreferences to load recentHosts asynchronously
     if (settings.autoConnect) {
       await Future.delayed(const Duration(milliseconds: 300));

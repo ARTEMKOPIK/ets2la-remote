@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import '../models/plugin_state.dart';
 
@@ -51,7 +52,7 @@ class ApiService {
           }).toList();
         }
       }
-    } catch (_) { return []; }
+    } catch (e) { debugPrint('ApiService.getPlugins error: $e'); return []; }
     return [];
   }
 
@@ -96,9 +97,7 @@ class ApiService {
           .get(Uri.parse('$_base/backend/plugins/$name/enable'))
           .timeout(const Duration(seconds: 5));
       return res.statusCode == 200;
-    } catch (_) {
-      return false;
-    }
+    } catch (e) { debugPrint('ApiService.enablePlugin error: $e'); return false; }
   }
 
   Future<bool> disablePlugin(String name) async {
@@ -107,9 +106,7 @@ class ApiService {
           .get(Uri.parse('$_base/backend/plugins/$name/disable'))
           .timeout(const Duration(seconds: 5));
       return res.statusCode == 200;
-    } catch (_) {
-      return false;
-    }
+    } catch (e) { debugPrint('ApiService.disablePlugin error: $e'); return false; }
   }
 
   Future<Map<String, dynamic>> getPluginStates() async {
@@ -120,7 +117,7 @@ class ApiService {
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
-    } catch (_) { return <String, dynamic>{}; }
+    } catch (e) { debugPrint('ApiService.getPluginStates error: $e'); return <String, dynamic>{}; }
     return <String, dynamic>{};
   }
 
@@ -132,7 +129,7 @@ class ApiService {
       if (res.statusCode == 200) {
         return jsonDecode(res.body);
       }
-    } catch (_) { return []; }
+    } catch (e) { debugPrint('ApiService.getTag error: $e'); return []; }
     return null;
   }
 }

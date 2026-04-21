@@ -40,7 +40,6 @@ class TelemetryProvider extends ChangeNotifier {
       notifyListeners();
     });
 
-    // Plugin refresh via startPluginRefresh() method to avoid duplicate timers
     apiService.getPlugins().then((list) {
       if (list.isNotEmpty) {
         plugins = list;

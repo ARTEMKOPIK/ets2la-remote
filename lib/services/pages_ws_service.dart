@@ -39,7 +39,8 @@ class PagesWsService {
         onDone: _onDisconnected,
         onError: (_) => _onDisconnected(),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('PagesWsService connect error: $e');
       _onDisconnected();
     }
   }
@@ -64,7 +65,8 @@ class PagesWsService {
       });
       _channel?.sink.add(msg);
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('PagesWsService send error: $e');
       return false;
     }
   }

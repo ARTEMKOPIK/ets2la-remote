@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -51,12 +52,13 @@ class NavigationWsService {
             } else if (decoded is Map<String, dynamic>) {
               _handleMessage(decoded);
             }
-          } catch (_) {}
+          } catch (e) { debugPrint('NavigationWsService error: $e'); }
         },
         onDone: _onDisconnected,
         onError: (_) => _onDisconnected(),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NavigationWsService connect error: $e');
       _onDisconnected();
     }
   }

@@ -74,6 +74,7 @@ class VisualizationWsService {
       // Start keep-alive timer
       _startKeepAlive();
     } catch (e) {
+      debugPrint('WebSocketService error: $e');
       _onDisconnected();
     }
   }

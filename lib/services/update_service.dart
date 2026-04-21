@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 
 // Use try-catch for package_info_plus - only available at runtime
 DynamicLibrary? _tryLoadPackageInfo() => null;
@@ -35,9 +38,15 @@ class UpdateService {
   static String get _apiUrl =>
       'https://api.github.com/repos/$_repoOwner/$_repoName/releases/latest';
 
-  /// Current app version (placeholder)
+  /// Get current app version
   static Future<String> getCurrentVersion() async {
-    return '1.0.0';
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return info.version;
+    } catch (e) {
+      debugPrint('getCurrentVersion error: $e');
+      return '1.0.0';
+    }
   }
 
   /// Check for updates from GitHub
@@ -84,7 +93,8 @@ class UpdateService {
         sizeBytes: sizeBytes,
         isMandatory: isMandatory,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('UpdateService.checkForUpdate error: $e');
       return null;
     }
   }

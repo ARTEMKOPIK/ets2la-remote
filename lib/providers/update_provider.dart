@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -47,8 +48,9 @@ class UpdateProvider extends ChangeNotifier {
         _state = UpdateState.idle;
       }
     } catch (e) {
+      debugPrint('UpdateProvider.checkForUpdate error: $e');
       _state = UpdateState.error;
-      _errorMessage = 'Ошибка проверки';
+      _errorMessage = 'Ошибка проверки: $e';
     }
     notifyListeners();
   }
@@ -88,10 +90,18 @@ class UpdateProvider extends ChangeNotifier {
       _state = UpdateState.downloaded;
       notifyListeners();
     } catch (e) {
+      debugPrint('UpdateProvider.downloadUpdate error: $e');
       _state = UpdateState.error;
-      _errorMessage = 'Ошибка скачивания';
+      _errorMessage = 'Ошибка скачивания: $e';
       notifyListeners();
     }
+  }
+
+  /// Reset state to idle (for retry after error)
+  void resetState() {
+    _state = UpdateState.idle;
+    _errorMessage = null;
+    notifyListeners();
   }
 
   Future<void> skipUpdate() async {

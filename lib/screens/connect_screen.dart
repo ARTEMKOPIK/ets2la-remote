@@ -59,7 +59,7 @@ class _ConnectScreenState extends State<ConnectScreen>
     final ok = await conn.connect(host);
     if (ok && mounted) {
       telem.init(conn.wsService, conn.navService, conn.apiService);
-      telem.startPluginRefresh(conn.apiService);
+      telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
       // If we were pushed on top of Dashboard, just pop back
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();

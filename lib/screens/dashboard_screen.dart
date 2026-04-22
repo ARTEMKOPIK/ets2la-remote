@@ -57,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (ok && mounted) {
           final telem = context.read<TelemetryProvider>();
           telem.init(conn.wsService, conn.navService, conn.apiService);
-          telem.startPluginRefresh(conn.apiService);
+          telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
         }
       }
     }

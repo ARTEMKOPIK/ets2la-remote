@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
 import '../providers/connection_provider.dart';
+import '../providers/update_provider.dart';
+import '../widgets/update_dialog.dart';
 import '../theme/app_theme.dart';
 
 class AppSettingsScreen extends StatefulWidget {
@@ -194,6 +196,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               subtitle: 'github.com/ETS2LA',
               onTap: () => _launchUrl('https://github.com/ETS2LA'),
             ),
+            _Divider(),
+            _CheckUpdateTile(l10n: l10n),
           ]),
 
           const SizedBox(height: 32),
@@ -513,6 +517,74 @@ class _TapTile extends StatelessWidget {
               ),
             ),
             const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Check for update tile ────────────────────────────────────────────────────
+class _CheckUpdateTile extends StatefulWidget {
+  final AppLocalizations? l10n;
+  const _CheckUpdateTile({required this.l10n});
+
+  @override
+  State<_CheckUpdateTile> createState() => _CheckUpdateTileState();
+}
+
+class _CheckUpdateTileState extends State<_CheckUpdateTile> {
+  bool _checking = false;
+
+  Future<void> _checkForUpdate() async {
+    setState(() => _checking = true);
+    final upd = context.read<UpdateProvider>();
+    await upd.checkForUpdate();
+    if (!mounted) return;
+    setState(() => _checking = false);
+
+    if (upd.hasUpdate) {
+      UpdateDialog.show(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              const SizedBox(width: 10),
+              Text(widget.l10n?.noUpdates ?? 'You\'re up to date',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
+          backgroundColor: const Color(0xFF166534),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: _checking ? null : _checkForUpdate,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(Icons.system_update_rounded, size: 20, color: _checking ? AppColors.textMuted : AppColors.orange),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(widget.l10n?.checkForUpdates ?? 'Check for updates',
+                style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: _checking ? AppColors.textMuted : AppColors.textPrimary, fontWeight: FontWeight.w500)),
+            ),
+            if (_checking)
+              const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange))
+            else
+              const Icon(Icons.refresh_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
       ),

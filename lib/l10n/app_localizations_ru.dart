@@ -289,4 +289,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invalidIp => 'Введите корректный IPv4 адрес';
+
+  @override
+  String get checkForUpdates => 'Проверить обновления';
+
+  @override
+  String get noUpdates => 'У вас последняя версия';
 }

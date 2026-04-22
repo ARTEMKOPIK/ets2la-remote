@@ -482,6 +482,9 @@ abstract class AppLocalizations {
   String get firstLaunchHint;
   String get reconnecting;
   String get invalidIp;
+  String get checkForUpdates;
+  String get noUpdates;
+
 }
 
 class _AppLocalizationsDelegate

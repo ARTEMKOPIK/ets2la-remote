@@ -289,4 +289,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidIp => 'Enter a valid IPv4 address';
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get noUpdates => 'You\'re up to date';
 }

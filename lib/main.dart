@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:ets2la_remote/l10n/app_localizations.dart';
+import 'package:ets2la-remote/l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'providers/connection_provider.dart';
 import 'providers/telemetry_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/update_provider.dart';
-import 'screens/connect_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/local_server.dart';
 
@@ -78,7 +77,7 @@ class ETS2LARemoteApp extends StatelessWidget {
               return const Locale('en');
             },
             
-            home: const ConnectScreen(),
+            home: const DashboardScreen(),
           );
         },
       ),

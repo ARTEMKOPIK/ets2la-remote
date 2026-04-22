@@ -39,7 +39,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tryAutoConnect();
+      _checkForUpdates();
+    });
+  }
+
+  Future<void> _tryAutoConnect() async {
+    final settings = context.read<AppSettings>();
+    final conn = context.read<ConnectionProvider>();
+    conn.configurePorts(settings);
+
+    if (settings.autoConnect) {
+      final hosts = conn.recentHosts;
+      if (hosts.isNotEmpty) {
+        final ok = await conn.connect(hosts.first);
+        if (ok && mounted) {
+          final telem = context.read<TelemetryProvider>();
+          telem.init(conn.wsService, conn.navService, conn.apiService);
+          telem.startPluginRefresh(conn.apiService);
+        }
+      }
+    }
   }
 
   Future<void> _checkForUpdates() async {

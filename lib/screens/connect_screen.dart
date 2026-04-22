@@ -6,7 +6,6 @@ import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
-import 'dashboard_screen.dart';
 
 class ConnectScreen extends StatefulWidget {
   const ConnectScreen({super.key});
@@ -28,25 +27,6 @@ class _ConnectScreenState extends State<ConnectScreen>
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
-    // Auto-connect if enabled
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAutoConnect());
-  }
-
-  Future<void> _checkAutoConnect() async {
-    final settings = context.read<AppSettings>();
-    final conn = context.read<ConnectionProvider>();
-    // Apply saved ports before auto-connect
-    conn.configurePorts(settings);
-    if (settings.autoConnect) {
-      if (!mounted) return;
-      final hosts = context.read<ConnectionProvider>().recentHosts;
-      if (hosts.isNotEmpty) {
-        _ipController.text = hosts.first;
-        // Apply custom ports before auto-connect
-        conn.configurePorts(settings);
-        await _connect();
-      }
-    }
   }
 
   @override
@@ -79,9 +59,11 @@ class _ConnectScreenState extends State<ConnectScreen>
     final ok = await conn.connect(host);
     if (ok && mounted) {
       telem.init(conn.wsService, conn.navService, conn.apiService);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      telem.startPluginRefresh(conn.apiService);
+      // If we were pushed on top of Dashboard, just pop back
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

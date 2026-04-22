@@ -93,5 +93,7 @@
   "togglePluginsHint": "Управляйте плагинами, загруженными в ETS2LA",
   "firstLaunchHint": "Первый запуск ~5 секунд",
   "reconnecting": "Переподключение...",
-  "invalidIp": "Введите корректный IPv4 адрес"
+  "invalidIp": "Введите корректный IPv4 адрес",
+  "checkForUpdates": "Проверить обновления",
+  "noUpdates": "У вас актуальная версия"
 }

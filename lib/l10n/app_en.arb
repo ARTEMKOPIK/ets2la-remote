@@ -92,5 +92,7 @@
   "togglePluginsHint": "Toggle plugins that are already loaded in ETS2LA",
   "firstLaunchHint": "First launch only ~5s",
   "reconnecting": "Reconnecting...",
-  "invalidIp": "Enter a valid IPv4 address"
+  "invalidIp": "Enter a valid IPv4 address",
+  "checkForUpdates": "Check for updates",
+  "noUpdates": "You're up to date"
 }

@@ -39,13 +39,6 @@ class TelemetryProvider extends ChangeNotifier {
       navRoute = route;
       notifyListeners();
     });
-
-    apiService.getPlugins().then((list) {
-      if (list.isNotEmpty) {
-        plugins = list;
-        notifyListeners();
-      }
-    });
   }
 
   void _handleWsMessage(Map<String, dynamic> msg) {

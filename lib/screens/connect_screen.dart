@@ -37,9 +37,7 @@ class _ConnectScreenState extends State<ConnectScreen>
     final conn = context.read<ConnectionProvider>();
     // Apply saved ports before auto-connect
     conn.configurePorts(settings);
-    // Wait a bit for SharedPreferences to load recentHosts asynchronously
     if (settings.autoConnect) {
-      await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       final hosts = context.read<ConnectionProvider>().recentHosts;
       if (hosts.isNotEmpty) {
@@ -58,9 +56,18 @@ class _ConnectScreenState extends State<ConnectScreen>
     super.dispose();
   }
 
+  static final _ipRegex = RegExp(
+    r'^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$',
+  );
+
   Future<void> _connect() async {
     final host = _ipController.text.trim();
     if (host.isEmpty) return;
+    if (!_ipRegex.hasMatch(host)) {
+      final conn = context.read<ConnectionProvider>();
+      conn.setError(AppLocalizations.of(context)?.invalidIp ?? 'Enter a valid IPv4 address');
+      return;
+    }
 
     final conn = context.read<ConnectionProvider>();
     final telem = context.read<TelemetryProvider>();
@@ -149,7 +156,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                       letterSpacing: 1,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'IP Address',
+                      labelText: AppLocalizations.of(context)?.enterIp ?? 'IP Address',
                       hintText: '192.168.1.100',
                       prefixIcon: const Icon(Icons.router_rounded,
                           color: AppColors.textSecondary),
@@ -200,7 +207,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                               ),
                             )
                           : Text(
-                              'Connect',
+                              AppLocalizations.of(context)?.connect ?? 'Connect',
                               style: TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),

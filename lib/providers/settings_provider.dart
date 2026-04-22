@@ -83,8 +83,17 @@ class AppSettings extends ChangeNotifier {
 
   // ─────────────────────────────────────────────────────────────
 
-  AppSettings() {
-    _load();
+  bool _isReady = false;
+  bool get isReady => _isReady;
+
+  AppSettings._();
+
+  /// Create and load settings from SharedPreferences.
+  /// Always use this instead of the constructor.
+  static Future<AppSettings> create() async {
+    final instance = AppSettings._();
+    await instance._load();
+    return instance;
   }
 
   Future<void> _load() async {
@@ -104,10 +113,12 @@ class AppSettings extends ChangeNotifier {
     _mapShowRoute = p.getBool('mapShowRoute') ?? true;
     _vizDarkTheme = p.getBool('vizDarkTheme') ?? true;
     _vizAutoConnect = p.getBool('vizAutoConnect') ?? true;
+    _isReady = true;
     notifyListeners();
   }
 
   Future<void> _save() async {
+    try {
     final p = await SharedPreferences.getInstance();
     await p.setBool('autoConnect', _autoConnect);
     await p.setInt('connectionTimeout', _connectionTimeout);
@@ -128,6 +139,9 @@ class AppSettings extends ChangeNotifier {
     await p.setBool('mapShowRoute', _mapShowRoute);
     await p.setBool('vizDarkTheme', _vizDarkTheme);
     await p.setBool('vizAutoConnect', _vizAutoConnect);
+    } catch (e) {
+      debugPrint('AppSettings._save error: $e');
+    }
   }
 
   void setAutoConnect(bool v) { _autoConnect = v; _save(); notifyListeners(); }

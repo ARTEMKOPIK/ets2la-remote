@@ -1,18 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
 import '../providers/connection_provider.dart';
 import '../theme/app_theme.dart';
 
-class AppSettingsScreen extends StatelessWidget {
+class AppSettingsScreen extends StatefulWidget {
   const AppSettingsScreen({super.key});
+
+  @override
+  State<AppSettingsScreen> createState() => _AppSettingsScreenState();
+}
+
+class _AppSettingsScreenState extends State<AppSettingsScreen> {
+  String _appVersion = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppSettings>();
     final conn = context.watch<ConnectionProvider>();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,27 +51,27 @@ class AppSettingsScreen extends StatelessWidget {
         children: [
 
           // ── CONNECTION ─────────────────────────────────────────
-          _SectionHeader('Connection'),
+          _SectionHeader(l10n?.connection ?? 'Connection'),
           _SettingsCard(children: [
             _SwitchTile(
               icon: Icons.wifi_rounded,
-              title: 'Auto-connect on launch',
-              subtitle: 'Reconnect to last IP automatically',
+              title: l10n?.autoConnectOnLaunch ?? 'Auto-connect on launch',
+              subtitle: l10n?.reconnectToLastIp ?? 'Reconnect to last IP automatically',
               value: s.autoConnect,
               onChanged: s.setAutoConnect,
             ),
             _Divider(),
             _SliderTile(
               icon: Icons.timer_rounded,
-              title: 'Connection timeout',
-              subtitle: '${s.connectionTimeout} seconds',
+              title: l10n?.connectionTimeout ?? 'Connection timeout',
+              subtitle: l10n?.secondsFormat(s.connectionTimeout) ?? '${s.connectionTimeout} seconds',
               value: s.connectionTimeout.toDouble(),
               min: 2, max: 15, divisions: 13,
               onChanged: (v) => s.setConnectionTimeout(v.round()),
             ),
           ]),
 
-          _SectionHeader('Ports (Advanced)'),
+          _SectionHeader(l10n?.portsAdvanced ?? 'Ports (Advanced)'),
           _SettingsCard(children: [
             _PortTile(label: 'API (REST)', value: s.portApi, onChanged: s.setPortApi),
             _Divider(),
@@ -55,11 +83,11 @@ class AppSettingsScreen extends StatelessWidget {
           ]),
 
           // ── APPEARANCE ─────────────────────────────────────────
-          _SectionHeader('Appearance'),
+          _SectionHeader(l10n?.appearance ?? 'Appearance'),
           _SettingsCard(children: [
             _SegmentTile(
               icon: Icons.speed_rounded,
-              title: 'Speed units',
+              title: l10n?.speedUnits ?? 'Speed units',
               options: const ['km/h', 'mph'],
               selectedIndex: s.speedUnit.index,
               onChanged: (i) => s.setSpeedUnit(SpeedUnit.values[i]),
@@ -67,7 +95,7 @@ class AppSettingsScreen extends StatelessWidget {
             _Divider(),
             _SegmentTile(
               icon: Icons.data_usage_rounded,
-              title: 'Speedometer max',
+              title: l10n?.speedometerMax ?? 'Speedometer max',
               options: const ['160', '200', '250'],
               selectedIndex: s.gaugeMax.index,
               onChanged: (i) => s.setGaugeMax(GaugeMaxSpeed.values[i]),
@@ -75,15 +103,15 @@ class AppSettingsScreen extends StatelessWidget {
             _Divider(),
             _SwitchTile(
               icon: Icons.extension_rounded,
-              title: 'Show Active Plugins',
-              subtitle: 'Plugin chips on Dashboard',
+              title: l10n?.showActivePlugins ?? 'Show Active Plugins',
+              subtitle: l10n?.pluginChipsOnDashboard ?? 'Plugin chips on Dashboard',
               value: s.showActivePlugins,
               onChanged: s.setShowActivePlugins,
             ),
             _Divider(),
             _SegmentTile(
               icon: Icons.language_rounded,
-              title: 'Language',
+              title: l10n?.language ?? 'Language',
               options: const ['System', 'English', 'Русский'],
               selectedIndex: s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
               onChanged: (i) => s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
@@ -98,27 +126,27 @@ class AppSettingsScreen extends StatelessWidget {
           ]),
 
           // ── MAP ────────────────────────────────────────────────
-          _SectionHeader('Map'),
+          _SectionHeader(l10n?.map ?? 'Map'),
           _SettingsCard(children: [
             _SwitchTile(
               icon: Icons.my_location_rounded,
-              title: 'Auto-follow truck',
-              subtitle: 'Keep truck centered by default',
+              title: l10n?.autoFollowTruck ?? 'Auto-follow truck',
+              subtitle: l10n?.keepTruckCentered ?? 'Keep truck centered by default',
               value: s.mapAutoFollow,
               onChanged: s.setMapAutoFollow,
             ),
             _Divider(),
             _SwitchTile(
               icon: Icons.route_rounded,
-              title: 'Show route',
-              subtitle: 'Display navigation route on map',
+              title: l10n?.showRoute ?? 'Show route',
+              subtitle: l10n?.displayNavRoute ?? 'Display navigation route on map',
               value: s.mapShowRoute,
               onChanged: s.setMapShowRoute,
             ),
             _Divider(),
             _SegmentTile(
               icon: Icons.layers_rounded,
-              title: 'Map style',
+              title: l10n?.mapStyle ?? 'Map style',
               options: const ['Dark', 'Light', 'Satellite'],
               selectedIndex: s.mapTileStyle.index,
               onChanged: (i) => s.setMapTileStyle(MapTileStyle.values[i]),
@@ -126,32 +154,32 @@ class AppSettingsScreen extends StatelessWidget {
           ]),
 
           // ── 3D VIEW ────────────────────────────────────────────
-          _SectionHeader('3D View'),
+          _SectionHeader(l10n?.view3d ?? '3D View'),
           _SettingsCard(children: [
             _SwitchTile(
               icon: Icons.dark_mode_rounded,
-              title: 'Dark theme by default',
-              subtitle: 'Unity visualization theme',
+              title: l10n?.darkThemeByDefault ?? 'Dark theme by default',
+              subtitle: l10n?.unityVizTheme ?? 'Unity visualization theme',
               value: s.vizDarkTheme,
               onChanged: s.setVizDarkTheme,
             ),
             _Divider(),
             _SwitchTile(
               icon: Icons.link_rounded,
-              title: 'Auto-connect on open',
-              subtitle: 'Connect to ETS2LA when tab opens',
+              title: l10n?.autoConnectOnOpen ?? 'Auto-connect on open',
+              subtitle: l10n?.connectWhenTabOpens ?? 'Connect to ETS2LA when tab opens',
               value: s.vizAutoConnect,
               onChanged: s.setVizAutoConnect,
             ),
           ]),
 
           // ── ABOUT ──────────────────────────────────────────────
-          _SectionHeader('About'),
+          _SectionHeader(l10n?.about ?? 'About'),
           _SettingsCard(children: [
             _InfoTile(
               icon: Icons.info_outline_rounded,
-              title: 'Version',
-              value: '1.0.0',
+              title: AppLocalizations.of(context)?.version ?? 'Version',
+              value: _appVersion,
             ),
             _Divider(),
             _InfoTile(
@@ -164,7 +192,7 @@ class AppSettingsScreen extends StatelessWidget {
               icon: Icons.code_rounded,
               title: 'ETS2LA on GitHub',
               subtitle: 'github.com/ETS2LA',
-              onTap: () {},
+              onTap: () => _launchUrl('https://github.com/ETS2LA'),
             ),
           ]),
 

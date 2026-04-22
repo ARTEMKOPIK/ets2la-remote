@@ -35,7 +35,7 @@ class UpdateDialog extends StatelessWidget {
         children: [
           const Icon(Icons.system_update_alt, color: AppColors.orange, size: 28),
           const SizedBox(width: 8),
-          Text(l10n?.updateAvailable ?? 'Доступно обновление',
+          Text(l10n?.updateAvailable ?? 'Update Available',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
         ],
       ),
@@ -58,8 +58,8 @@ class UpdateDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Что нового:',
-            style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+          Text(l10n?.version ?? 'What\'s new:',
+            style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
           const SizedBox(height: 4),
           Container(
             constraints: const BoxConstraints(maxHeight: 100),
@@ -75,7 +75,7 @@ class UpdateDialog extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Скачивание... ${(progress * 100).toInt()}%',
+                    Text('${l10n?.updateNow ?? 'Downloading'}... ${(progress * 100).toInt()}%',
                       style: const TextStyle(color: AppColors.textSecondary)),
                     Text(updateInfo.formattedSize,
                       style: const TextStyle(color: AppColors.textMuted)),
@@ -98,13 +98,13 @@ class UpdateDialog extends StatelessWidget {
                 color: AppColors.successDim,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle, color: AppColors.success, size: 20),
-                  SizedBox(width: 8),
-                  Text('Скачано!',
-                    style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
+                  const Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                  const SizedBox(width: 8),
+                  Text(l10n?.installUpdate ?? 'Downloaded!',
+                    style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -118,7 +118,7 @@ class UpdateDialog extends StatelessWidget {
               context.read<UpdateProvider>().skipUpdate();
               Navigator.of(context).pop();
             },
-            child: Text(l10n?.updateLater ?? 'Напомнить позже',
+            child: Text(l10n?.updateLater ?? 'Remind Me Later',
               style: const TextStyle(color: AppColors.textMuted)),
           ),
         if (!isDownloaded)
@@ -129,12 +129,15 @@ class UpdateDialog extends StatelessWidget {
             child: isDownloading
                 ? const SizedBox(width: 20, height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textPrimary))
-                : Text(l10n?.updateNow ?? 'Обновить сейчас'),
+                : Text(l10n?.updateNow ?? 'Update Now'),
           ),
         if (isDownloaded)
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n?.installUpdate ?? 'Установить'),
+            onPressed: () {
+              context.read<UpdateProvider>().installUpdate();
+              Navigator.of(context).pop();
+            },
+            child: Text(l10n?.installUpdate ?? 'Install'),
           ),
       ],
     );

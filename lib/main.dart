@@ -16,6 +16,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocalUnityServer.instance.ensureStarted();
 
+  // Pre-load settings before building the widget tree
+  final settings = await AppSettings.create();
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -32,17 +35,18 @@ void main() async {
     ),
   );
 
-  runApp(const ETS2LARemoteApp());
+  runApp(ETS2LARemoteApp(settings: settings));
 }
 
 class ETS2LARemoteApp extends StatelessWidget {
-  const ETS2LARemoteApp({super.key});
+  final AppSettings settings;
+  const ETS2LARemoteApp({super.key, required this.settings});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppSettings()),
+        ChangeNotifierProvider.value(value: settings),
         ChangeNotifierProvider(create: (_) => ConnectionProvider()),
         ChangeNotifierProvider(create: (_) => TelemetryProvider()),
         ChangeNotifierProvider(create: (_) => UpdateProvider()),
@@ -74,7 +78,7 @@ class ETS2LARemoteApp extends StatelessWidget {
               return const Locale('en');
             },
             
-            home: const DashboardScreen(),
+            home: const ConnectScreen(),
           );
         },
       ),

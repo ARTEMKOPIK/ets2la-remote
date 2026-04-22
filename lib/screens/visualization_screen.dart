@@ -108,7 +108,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
               const SizedBox(height: 20),
               Text(_statusText, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 8),
-              Text('First launch only ~5s', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
+              Text(AppLocalizations.of(context)?.firstLaunchHint ?? 'First launch only ~5s', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
             ],
           ),
         ),
@@ -198,7 +198,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      conn.isConnected ? host : 'Reconnecting...',
+                      conn.isConnected ? host : (AppLocalizations.of(context)?.reconnecting ?? 'Reconnecting...'),
                       style: TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ],

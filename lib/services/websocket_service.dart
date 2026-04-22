@@ -89,23 +89,11 @@ class VisualizationWsService {
   void _startKeepAlive() {
     _keepAliveTimer?.cancel();
     // Only send acknowledge when there is pending data to acknowledge (throttled to 500ms)
-    _keepAliveTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+    _keepAliveTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_state == WsConnectionState.connected && _channel != null) {
         _send({'method': 'acknowledge', 'channel': 0});
       }
     });
-  }
-
-  void _resubscribe() {
-    // Re-subscribe after reconnect (but not on initial connect)
-    if (_host != null) {
-      _subscribed = false;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (_state == WsConnectionState.connected) {
-          _subscribeToChannels();
-        }
-      });
-    }
   }
 
   void _send(Map<String, dynamic> msg) {

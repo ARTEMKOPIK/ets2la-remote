@@ -15,7 +15,7 @@ class NavPosition {
     final pos = json['position'] as List?;
     return NavPosition(
       position: pos != null && pos.length >= 2
-          ? LatLng((pos[0] as num).toDouble(), (pos[1] as num).toDouble())
+          ? LatLng((pos[1] as num).toDouble(), (pos[0] as num).toDouble())
           : const LatLng(0, 0),
       bearing: (json['bearing'] as num?)?.toDouble() ?? 0,
       speedMph: (json['speedMph'] as num?)?.toDouble() ?? 0,
@@ -38,7 +38,7 @@ class NavRoute {
       final lonLats = seg['lonLats'] as List? ?? [];
       for (final ll in lonLats) {
         if (ll is List && ll.length >= 2) {
-          pts.add(LatLng((ll[0] as num).toDouble(), (ll[1] as num).toDouble()));
+          pts.add(LatLng((ll[1] as num).toDouble(), (ll[0] as num).toDouble()));
         }
       }
     }

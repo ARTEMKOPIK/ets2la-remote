@@ -444,11 +444,44 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'3D View'**
+  String get view3d;
+
   String get updateAvailable;
   String get updateNow;
   String get updateLater;
   String get installUpdate;
-  String get view3d;
+  String get whatsNew;
+  String get downloading;
+  String get downloaded;
+  String get running;
+  String get stopped;
+  String get autoConnectOnLaunch;
+  String get reconnectToLastIp;
+  String get connectionTimeout;
+  String secondsFormat(int count);
+  String get portsAdvanced;
+  String get appearance;
+  String get speedUnits;
+  String get speedometerMax;
+  String get showActivePlugins;
+  String get pluginChipsOnDashboard;
+  String get autoFollowTruck;
+  String get keepTruckCentered;
+  String get showRoute;
+  String get displayNavRoute;
+  String get mapStyle;
+  String get darkThemeByDefault;
+  String get unityVizTheme;
+  String get autoConnectOnOpen;
+  String get connectWhenTabOpens;
+  String get connection;
+  String get firewallTitle;
+  String get firewallBody;
+  String get runInPowerShell;
+  String get togglePluginsHint;
+  String get firstLaunchHint;
+  String get reconnecting;
+  String get invalidIp;
 }
 
 class _AppLocalizationsDelegate

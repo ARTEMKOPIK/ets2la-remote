@@ -26,17 +26,23 @@ class SpeedGauge extends StatefulWidget {
 
 class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateMixin {
   double _displaySpeed = 0;
-  AnimationController? _animController;
+  late AnimationController _animController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _displaySpeed = widget.speedKmh;
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _animation = AlwaysStoppedAnimation(_displaySpeed);
   }
 
   @override
   void dispose() {
-    _animController?.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -49,28 +55,22 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
   }
 
   void _animateTo(double target) {
-    _animController?.dispose();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-    final animation = Tween<double>(
+    _animController.reset();
+    _animation = Tween<double>(
       begin: _displaySpeed,
       end: target,
     ).animate(CurvedAnimation(
-      parent: _animController!,
+      parent: _animController,
       curve: Curves.linear,
-    ));
-    
-    animation.addListener(() {
-      if (mounted) {
-        setState(() {
-          _displaySpeed = animation.value;
-        });
-      }
-    });
-    
-    _animController!.forward().then((_) => _animController!.dispose());
+    ))
+      ..addListener(() {
+        if (mounted) {
+          setState(() {
+            _displaySpeed = _animation.value;
+          });
+        }
+      });
+    _animController.forward();
   }
 
   @override

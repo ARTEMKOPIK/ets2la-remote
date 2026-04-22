@@ -54,7 +54,7 @@ class _MapScreenState extends State<MapScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Map',
+          AppLocalizations.of(context)?.map ?? 'Map',
           style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600),
         ),
         actions: [

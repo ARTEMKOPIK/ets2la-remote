@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/websocket_service.dart';
 import '../services/navigation_ws_service.dart';
@@ -48,6 +47,12 @@ class ConnectionProvider extends ChangeNotifier {
   List<String> get recentHosts => _recentHosts;
   bool get isConnecting => _isConnecting;
   String? get errorMessage => _errorMessage;
+
+  void setError(String message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
+
   bool get isConnected => wsService.state == WsConnectionState.connected;
   bool get isActiveOrConnecting =>
       wsService.state == WsConnectionState.connected ||
@@ -92,7 +97,7 @@ class ConnectionProvider extends ChangeNotifier {
 
       final reachable = await apiService.ping();
       if (!reachable) {
-        _errorMessage = 'Cannot reach $host:37520\nMake sure ETS2LA is running';
+        _errorMessage = 'Cannot reach $host:${apiService.port}\nMake sure ETS2LA is running';
         _isConnecting = false;
         notifyListeners();
         return false;

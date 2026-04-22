@@ -180,9 +180,113 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copied => 'Скопировано!';
 
   @override
-  String get view3d => '3D';
-  String get updateAvailable => 'Обновление доступно ';
-  String get updateNow => 'Обновить сейчас ';
-  String get updateLater => 'Напомнить позже ';
-  String get installUpdate => 'Установить ';
+  String get view3d => '3D Вид';
+
+  @override
+  String get updateAvailable => 'Доступно обновление';
+
+  @override
+  String get updateNow => 'Обновить сейчас';
+
+  @override
+  String get updateLater => 'Напомнить позже';
+
+  @override
+  String get installUpdate => 'Установить';
+
+  @override
+  String get whatsNew => 'Что нового:';
+
+  @override
+  String get downloading => 'Скачивание';
+
+  @override
+  String get downloaded => 'Скачано!';
+
+  @override
+  String get running => 'Работает';
+
+  @override
+  String get stopped => 'Остановлен';
+
+  @override
+  String get autoConnectOnLaunch => 'Автоподключение при запуске';
+
+  @override
+  String get reconnectToLastIp => 'Подключаться к последнему IP автоматически';
+
+  @override
+  String get connectionTimeout => 'Таймаут подключения';
+
+  @override
+  String secondsFormat(int count) => '$count секунд';
+
+  @override
+  String get portsAdvanced => 'Порты (для разработчиков)';
+
+  @override
+  String get appearance => 'Внешний вид';
+
+  @override
+  String get speedUnits => 'Единицы скорости';
+
+  @override
+  String get speedometerMax => 'Макс. спидометра';
+
+  @override
+  String get showActivePlugins => 'Активные плагины';
+
+  @override
+  String get pluginChipsOnDashboard => 'Показывать плагины на панели';
+
+  @override
+  String get autoFollowTruck => 'Следить за грузовиком';
+
+  @override
+  String get keepTruckCentered => 'Держать грузовик в центре карты';
+
+  @override
+  String get showRoute => 'Показать маршрут';
+
+  @override
+  String get displayNavRoute => 'Маршрут навигации на карте';
+
+  @override
+  String get mapStyle => 'Стиль карты';
+
+  @override
+  String get darkThemeByDefault => 'Тёмная тема по умолчанию';
+
+  @override
+  String get unityVizTheme => 'Тема визуализации Unity';
+
+  @override
+  String get autoConnectOnOpen => 'Автоподключение при открытии';
+
+  @override
+  String get connectWhenTabOpens => 'Подключаться при открытии вкладки';
+
+  @override
+  String get connection => 'Подключение';
+
+  @override
+  String get firewallTitle => 'Однократная настройка ПК';
+
+  @override
+  String get firewallBody => 'Чтобы управлять автопилотом с телефона, откройте порт 37523 на ПК (Брандмауэр Windows). Делается один раз.';
+
+  @override
+  String get runInPowerShell => 'Выполните в PowerShell (Админ):';
+
+  @override
+  String get togglePluginsHint => 'Управляйте плагинами, загруженными в ETS2LA';
+
+  @override
+  String get firstLaunchHint => 'Первый запуск ~5 секунд';
+
+  @override
+  String get reconnecting => 'Переподключение...';
+
+  @override
+  String get invalidIp => 'Введите корректный IPv4 адрес';
 }

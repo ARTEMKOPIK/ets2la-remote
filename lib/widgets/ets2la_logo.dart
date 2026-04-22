@@ -44,18 +44,35 @@ class Ets2laLogo extends StatelessWidget {
 }
 
 class _LogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = size.width * 0.44;
+  Size? _cachedSize;
+  late Paint _hexPaint;
+  late Paint _orangePaint;
+  late Paint _dashPaint;
 
-    // --- 1. Draw hexagon outline ---
-    final hexPaint = Paint()
+  void _initPaints(Size size) {
+    if (_cachedSize == size) return;
+    _cachedSize = size;
+    _hexPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.width * 0.06
       ..strokeJoin = StrokeJoin.round;
+    _orangePaint = Paint()
+      ..color = AppColors.orange
+      ..style = PaintingStyle.fill;
+    _dashPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.04
+      ..strokeCap = StrokeCap.round;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    _initPaints(size);
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width * 0.44;
 
     final hexPath = Path();
     for (int i = 0; i < 6; i++) {
@@ -70,7 +87,7 @@ class _LogoPainter extends CustomPainter {
       }
     }
     hexPath.close();
-    canvas.drawPath(hexPath, hexPaint);
+    canvas.drawPath(hexPath, _hexPaint);
 
     // --- 2. Clip to hexagon interior for road art ---
     canvas.save();
@@ -97,17 +114,13 @@ class _LogoPainter extends CustomPainter {
     final innerRight = Offset(vpX + r * 0.08, vpY + r * 0.05);
 
     // --- 3. Left orange stripe ---
-    final orangePaint = Paint()
-      ..color = AppColors.orange
-      ..style = PaintingStyle.fill;
-
     final leftStripe = Path()
       ..moveTo(bottomLeft.dx, bottomLeft.dy)
       ..lineTo(cx - r * 0.15, cy + r * 0.88)
       ..lineTo(innerLeft.dx, innerLeft.dy)
       ..lineTo(innerLeft.dx - r * 0.06, innerLeft.dy)
       ..close();
-    canvas.drawPath(leftStripe, orangePaint);
+    canvas.drawPath(leftStripe, _orangePaint);
 
     // --- 4. Right orange stripe ---
     final rightStripe = Path()
@@ -116,17 +129,11 @@ class _LogoPainter extends CustomPainter {
       ..lineTo(innerRight.dx + r * 0.06, innerRight.dy)
       ..lineTo(innerRight.dx, innerRight.dy)
       ..close();
-    canvas.drawPath(rightStripe, orangePaint);
+    canvas.drawPath(rightStripe, _orangePaint);
 
     // --- 5. Dashed center lines ---
-    final dashPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.04
-      ..strokeCap = StrokeCap.round;
-
     // Draw 4 dashes perspective-shrinking
-    final dashSegments = 4;
+    const dashSegments = 4;
     for (int i = 0; i < dashSegments; i++) {
       final t0 = 0.15 + i * 0.18;
       final t1 = t0 + 0.09;
@@ -134,7 +141,7 @@ class _LogoPainter extends CustomPainter {
       final y0 = (cy + r * 0.88) + (vpY - (cy + r * 0.88)) * t0;
       final x1 = cx + (vpX - cx) * t1;
       final y1 = (cy + r * 0.88) + (vpY - (cy + r * 0.88)) * t1;
-      canvas.drawLine(Offset(x0, y0), Offset(x1, y1), dashPaint);
+      canvas.drawLine(Offset(x0, y0), Offset(x1, y1), _dashPaint);
     }
 
     canvas.restore();

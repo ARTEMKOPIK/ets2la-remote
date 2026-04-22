@@ -65,7 +65,7 @@ class UpdateService {
       if (_compareVersions(latestVersion, currentV) <= 0) return null;
 
       final body = data['body'] as String? ?? '';
-      final releaseNotes = body.isNotEmpty ? body : 'Новое обновление доступно';
+      final releaseNotes = body.isNotEmpty ? body : 'New update available';
 
       String? downloadUrl;
       int sizeBytes = 0;

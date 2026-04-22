@@ -21,9 +21,8 @@ class PagesWsService {
 
   bool get isConnected => _connected;
 
-  Future<void> connect(String host, {int port = defaultPort}) async {
+  Future<void> connect(String host) async {
     _host = host;
-    _port = port;
     _reconnectTimer?.cancel();
     await _doConnect();
   }

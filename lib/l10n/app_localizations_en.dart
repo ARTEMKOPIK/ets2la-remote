@@ -180,9 +180,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copied => 'Copied!';
 
   @override
-  String get view3d => '3D';
-  String get updateAvailable => 'Update available ';
-  String get updateNow => 'Update now ';
-  String get updateLater => 'Remind later ';
-  String get installUpdate => 'Install ';
+  String get view3d => '3D View';
+
+  @override
+  String get updateAvailable => 'Update Available';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get updateLater => 'Remind Me Later';
+
+  @override
+  String get installUpdate => 'Install Update';
+
+  @override
+  String get whatsNew => "What's new:";
+
+  @override
+  String get downloading => 'Downloading';
+
+  @override
+  String get downloaded => 'Downloaded!';
+
+  @override
+  String get running => 'Running';
+
+  @override
+  String get stopped => 'Stopped';
+
+  @override
+  String get autoConnectOnLaunch => 'Auto-connect on launch';
+
+  @override
+  String get reconnectToLastIp => 'Reconnect to last IP automatically';
+
+  @override
+  String get connectionTimeout => 'Connection timeout';
+
+  @override
+  String secondsFormat(int count) => '$count seconds';
+
+  @override
+  String get portsAdvanced => 'Ports (Advanced)';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get speedUnits => 'Speed units';
+
+  @override
+  String get speedometerMax => 'Speedometer max';
+
+  @override
+  String get showActivePlugins => 'Show Active Plugins';
+
+  @override
+  String get pluginChipsOnDashboard => 'Plugin chips on Dashboard';
+
+  @override
+  String get autoFollowTruck => 'Auto-follow truck';
+
+  @override
+  String get keepTruckCentered => 'Keep truck centered by default';
+
+  @override
+  String get showRoute => 'Show route';
+
+  @override
+  String get displayNavRoute => 'Display navigation route on map';
+
+  @override
+  String get mapStyle => 'Map style';
+
+  @override
+  String get darkThemeByDefault => 'Dark theme by default';
+
+  @override
+  String get unityVizTheme => 'Unity visualization theme';
+
+  @override
+  String get autoConnectOnOpen => 'Auto-connect on open';
+
+  @override
+  String get connectWhenTabOpens => 'Connect to ETS2LA when tab opens';
+
+  @override
+  String get connection => 'Connection';
+
+  @override
+  String get firewallTitle => 'One-time PC setup';
+
+  @override
+  String get firewallBody => 'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.';
+
+  @override
+  String get runInPowerShell => 'Run in PowerShell (Admin):';
+
+  @override
+  String get togglePluginsHint => 'Toggle plugins that are already loaded in ETS2LA';
+
+  @override
+  String get firstLaunchHint => 'First launch only ~5s';
+
+  @override
+  String get reconnecting => 'Reconnecting...';
+
+  @override
+  String get invalidIp => 'Enter a valid IPv4 address';
 }

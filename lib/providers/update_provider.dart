@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/update_service.dart';
@@ -50,7 +51,7 @@ class UpdateProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('UpdateProvider.checkForUpdate error: $e');
       _state = UpdateState.error;
-      _errorMessage = 'Ошибка проверки: $e';
+      _errorMessage = 'Check error: $e';
     }
     notifyListeners();
   }
@@ -92,7 +93,7 @@ class UpdateProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('UpdateProvider.downloadUpdate error: $e');
       _state = UpdateState.error;
-      _errorMessage = 'Ошибка скачивания: $e';
+      _errorMessage = 'Download error: $e';
       notifyListeners();
     }
   }
@@ -102,6 +103,21 @@ class UpdateProvider extends ChangeNotifier {
     _state = UpdateState.idle;
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Launch the downloaded APK for installation
+  Future<void> installUpdate() async {
+    if (_downloadedPath == null) return;
+    _state = UpdateState.installing;
+    notifyListeners();
+    try {
+      await OpenFile.open(_downloadedPath!);
+    } catch (e) {
+      debugPrint('UpdateProvider.installUpdate error: $e');
+      _state = UpdateState.error;
+      _errorMessage = 'Install error: $e';
+      notifyListeners();
+    }
   }
 
   Future<void> skipUpdate() async {

@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Toggle plugins that are already loaded in ETS2LA',
+                          AppLocalizations.of(context)?.togglePluginsHint ?? 'Toggle plugins that are already loaded in ETS2LA',
                           style: TextStyle(fontFamily: 'Roboto', 
                               fontSize: 12, color: AppColors.orange),
                         ),
@@ -130,13 +130,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   children: [
                     _StatChip(
-                      label: 'Running',
+                      label: AppLocalizations.of(context)?.running ?? 'Running',
                       count: sorted.where((p) => p.running).length,
                       color: AppColors.success,
                     ),
                     const SizedBox(width: 8),
                     _StatChip(
-                      label: 'Stopped',
+                      label: AppLocalizations.of(context)?.stopped ?? 'Stopped',
                       count: sorted.where((p) => !p.running).length,
                       color: AppColors.textSecondary,
                     ),

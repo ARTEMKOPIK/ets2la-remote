@@ -27,6 +27,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
+  bool _updateChecked = false;
 
   final _pages = const [
     _DashboardTab(),
@@ -36,17 +37,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdates());
+  }
+
+  Future<void> _checkForUpdates() async {
+    if (_updateChecked) return;
+    _updateChecked = true;
+    final upd = context.read<UpdateProvider>();
+    await upd.checkForUpdate();
+    if (upd.hasUpdate && mounted) {
+      UpdateDialog.show(context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Check for updates on first load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final upd = context.read<UpdateProvider>();
-      if (upd.state == UpdateState.idle || upd.state == UpdateState.available) {
-        upd.checkForUpdate();
-      }
-      if (upd.hasUpdate) {
-        UpdateDialog.show(context);
-      }
-    });
 
     final l10n = AppLocalizations.of(context);
     final conn = context.watch<ConnectionProvider>();
@@ -58,13 +65,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           GestureDetector(
             onTap: () => _showConnectionSheet(context),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(children: [
                 Icon(conn.isConnected ? Icons.wifi : Icons.wifi_off, color: conn.isConnected ? AppColors.orange : AppColors.textMuted, size: 20),
                 const SizedBox(width: 4),
                 Text(conn.currentHost.isNotEmpty ? conn.currentHost : '...', style: TextStyle(fontSize: 12, color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
               ]),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_rounded, size: 22),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
           ),
         ],
       ),
@@ -108,6 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _showConnectionSheet(BuildContext context) {
     final conn = context.read<ConnectionProvider>();
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -118,18 +130,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Подключение', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Text(l10n?.connect ?? 'Connection', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),
             Row(children: [
               Icon(conn.isConnected ? Icons.wifi : Icons.wifi_off, color: conn.isConnected ? AppColors.orange : AppColors.textMuted),
               const SizedBox(width: 8),
-              Text(conn.isConnected ? 'Подключено' : 'Не подключено', style: TextStyle(color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
+              Text(conn.isConnected ? (l10n?.connected ?? 'Connected') : (l10n?.disconnected ?? 'Disconnected'), style: TextStyle(color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
               if (conn.isConnected && conn.currentHost.isNotEmpty) ...[const SizedBox(width: 8), Text(conn.currentHost, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12))],
             ]),
             const SizedBox(height: 20),
             Row(children: [
-              if (conn.isConnected) Expanded(child: TextButton(onPressed: () { conn.disconnect(); Navigator.pop(ctx); }, child: const Text('Отключить'))),
-              Expanded(child: ElevatedButton(onPressed: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectScreen())); }, child: Text(conn.isConnected ? 'Изменить' : 'Подключиться'))),
+              if (conn.isConnected) Expanded(child: TextButton(onPressed: () { conn.disconnect(); Navigator.pop(ctx); }, child: Text(l10n?.disconnect ?? 'Disconnect'))),
+              Expanded(child: ElevatedButton(onPressed: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectScreen())); }, child: Text(conn.isConnected ? (l10n?.settings ?? 'Change') : (l10n?.connect ?? 'Connect')))),
             ]),
           ],
         ),
@@ -172,9 +184,11 @@ class _DashboardTab extends StatelessWidget {
       final mapPlugin = telem.plugins.where((p) => p.id == 'plugins.map').firstOrNull;
       if (mapPlugin != null && !mapPlugin.running) {
         await conn.apiService.enablePluginByName(mapPlugin.name);
+        if (!context.mounted) return;
         await Future.delayed(const Duration(milliseconds: 1500));
       }
     }
+    if (!context.mounted) return;
     final ok = await conn.pagesService.toggleSteering();
     if (context.mounted) {
       if (!ok) {
@@ -194,9 +208,11 @@ class _DashboardTab extends StatelessWidget {
           .firstOrNull;
       if (accPlugin != null && !accPlugin.running) {
         await conn.apiService.enablePluginByName(accPlugin.name);
+        if (!context.mounted) return;
         await Future.delayed(const Duration(milliseconds: 1500));
       }
     }
+    if (!context.mounted) return;
     final ok = await conn.pagesService.toggleAcc();
     if (context.mounted) {
       if (!ok) {
@@ -208,6 +224,7 @@ class _DashboardTab extends StatelessWidget {
   }
 
   void _showFirewallDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     const cmd = 'netsh advfirewall firewall add rule name="ETS2LA Pages" dir=in action=allow protocol=TCP localport=37523';
     showDialog(
       context: context,
@@ -217,7 +234,7 @@ class _DashboardTab extends StatelessWidget {
           children: [
             const Icon(Icons.shield_outlined, color: AppColors.orange, size: 22),
             const SizedBox(width: 10),
-            Text('One-time PC setup', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
+            Text(l10n?.firewallTitle ?? 'One-time PC setup', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
           ],
         ),
         content: Column(
@@ -225,11 +242,11 @@ class _DashboardTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.',
+              l10n?.firewallBody ?? 'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.',
               style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 14),
-            Text('Run in PowerShell (Admin):', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 12)),
+            Text(l10n?.runInPowerShell ?? 'Run in PowerShell (Admin):', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.all(10),
@@ -252,21 +269,6 @@ class _DashboardTab extends StatelessWidget {
     );
   }
 
-  // ignore: unused_element
-  Future<void> _togglePlugin(
-      BuildContext context, String pluginId, bool currentState) async {
-    final api = context.read<ConnectionProvider>().apiService;
-    if (currentState) {
-      await api.disablePluginById(pluginId);
-    } else {
-      await api.enablePluginById(pluginId);
-    }
-    await Future.delayed(const Duration(milliseconds: 500));
-    final telem = context.read<TelemetryProvider>();
-    final list = await api.getPlugins();
-    if (list.isNotEmpty) telem.updatePlugins(list);
-  }
-
   @override
   Widget build(BuildContext context) {
     final telem = context.watch<TelemetryProvider>();
@@ -276,53 +278,40 @@ class _DashboardTab extends StatelessWidget {
     final status = telem.autopilotStatus;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Ets2laLogoSmall(),
-        actions: [
-          // Connection indicator
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Center(
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: conn.isConnected ? AppColors.success : AppColors.error,
-                  boxShadow: [
-                    BoxShadow(
-                      color: (conn.isConnected ? AppColors.success : AppColors.error)
-                          .withOpacity(0.5),
-                      blurRadius: 6,
-                    )
-                  ],
-                ),
+      body: Column(
+        children: [
+          // Reconnect banner
+          if (!conn.isConnected && conn.currentHost.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+              color: AppColors.orangeDim,
+              child: Row(
+                children: [
+                  const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange)),
+                  const SizedBox(width: 10),
+                  Text(
+                    AppLocalizations.of(context)?.connecting ?? 'Reconnecting...',
+                    style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
+                  ),
+                ],
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AppSettingsScreen()),
-            ),
-            tooltip: 'Settings',
-          ),
-          IconButton(
-            icon: const Icon(Icons.power_settings_new_rounded),
-            onPressed: () {
-              context.read<TelemetryProvider>().reset();
-              context.read<ConnectionProvider>().disconnect();
-            },
-            tooltip: 'Disconnect',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                final api = context.read<ConnectionProvider>().apiService;
+                final telem = context.read<TelemetryProvider>();
+                final list = await api.getPlugins();
+                if (list.isNotEmpty) telem.updatePlugins(list);
+              },
+              color: AppColors.orange,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
             // Autopilot main card
             AutopilotCard(
               steeringEnabled: status.steeringEnabled,
@@ -367,8 +356,12 @@ class _DashboardTab extends StatelessWidget {
             // Active plugins status
             if (settings.showActivePlugins)
               _StatusBar(status: status),
-          ],
-        ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -394,7 +387,7 @@ class _StatusBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ACTIVE PLUGINS',
+            AppLocalizations.of(context)?.plugins ?? 'ACTIVE PLUGINS',
             style: TextStyle(fontFamily: 'Roboto', 
               fontSize: 10,
               fontWeight: FontWeight.w600,

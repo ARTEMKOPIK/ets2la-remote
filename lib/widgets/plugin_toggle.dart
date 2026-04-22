@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ets2la_remote/l10n/app_localizations.dart';
 import '../models/plugin_state.dart';
 import '../theme/app_theme.dart';
 
@@ -59,7 +60,9 @@ class PluginToggle extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isRunning ? 'Running' : 'Stopped',
+                  isRunning 
+                    ? (AppLocalizations.of(context)?.running ?? 'Running') 
+                    : (AppLocalizations.of(context)?.stopped ?? 'Stopped'),
                   style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 12,
                     color: isRunning ? AppColors.success : AppColors.textSecondary,

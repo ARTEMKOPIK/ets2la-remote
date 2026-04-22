@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+
+
+typedef AsyncCallback = Future<void> Function();
 
 class AutopilotCard extends StatefulWidget {
   final bool steeringEnabled;
   final bool accEnabled;
-  final VoidCallback? onToggleSteering;
-  final VoidCallback? onToggleAcc;
+  final AsyncCallback? onToggleSteering;
+  final AsyncCallback? onToggleAcc;
 
   const AutopilotCard({
     super.key,
@@ -60,18 +64,24 @@ class _AutopilotCardState extends State<AutopilotCard>
 
   Future<void> _handleSteering() async {
     if (_steeringLoading) return;
+    HapticFeedback.mediumImpact();
     setState(() => _steeringLoading = true);
-    widget.onToggleSteering?.call();
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) setState(() => _steeringLoading = false);
+    try {
+      await widget.onToggleSteering?.call();
+    } finally {
+      if (mounted) setState(() => _steeringLoading = false);
+    }
   }
 
   Future<void> _handleAcc() async {
     if (_accLoading) return;
+    HapticFeedback.lightImpact();
     setState(() => _accLoading = true);
-    widget.onToggleAcc?.call();
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) setState(() => _accLoading = false);
+    try {
+      await widget.onToggleAcc?.call();
+    } finally {
+      if (mounted) setState(() => _accLoading = false);
+    }
   }
 
   @override
@@ -155,7 +165,9 @@ class _AutopilotCardState extends State<AutopilotCard>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isActive ? 'Active' : 'Inactive',
+                        isActive 
+                          ? (AppLocalizations.of(context)?.enabled ?? 'Active') 
+                          : (AppLocalizations.of(context)?.disabled ?? 'Inactive'),
                         style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 26, fontWeight: FontWeight.w700,
                           color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
@@ -272,7 +284,9 @@ class _AutopilotCardState extends State<AutopilotCard>
                           ),
                         ),
                         Text(
-                          widget.accEnabled ? 'Active' : 'Inactive',
+                          widget.accEnabled 
+                            ? (AppLocalizations.of(context)?.enabled ?? 'Active') 
+                            : (AppLocalizations.of(context)?.disabled ?? 'Inactive'),
                           style: TextStyle(fontFamily: 'Roboto', 
                             fontSize: 11,
                             color: widget.accEnabled

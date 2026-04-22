@@ -95,5 +95,8 @@
   "reconnecting": "Переподключение...",
   "invalidIp": "Введите корректный IPv4 адрес",
   "checkForUpdates": "Проверить обновления",
-  "noUpdates": "У вас актуальная версия"
+  "noUpdates": "У вас актуальная версия",
+  "updatingFile": "Обновление {file}...",
+  "startingLocalServer": "Запуск локального сервера...",
+  "preparingUnity": "Подготовка Unity..."
 }

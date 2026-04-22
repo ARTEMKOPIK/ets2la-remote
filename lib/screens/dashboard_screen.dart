@@ -100,9 +100,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      // IndexedStack keeps all pages alive but wraps each in RepaintBoundary
-      // so heavy screens (Unity, Map) don't trigger Flutter repaints
-      body: IndexedStack(
+      // LazyIndexedStack keeps tabs alive after first visit
+      // so heavy screens (Unity, Map) don't initialize on startup
+      body: _LazyIndexedStack(
         index: _currentIndex,
         children: _pages
             .map((p) => RepaintBoundary(child: p))
@@ -562,6 +562,50 @@ class _PedalItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── Lazy Indexed Stack ───────────────────────────────────────────────────────
+class _LazyIndexedStack extends StatefulWidget {
+  final int index;
+  final List<Widget> children;
+
+  const _LazyIndexedStack({
+    Key? key,
+    required this.index,
+    required this.children,
+  }) : super(key: key);
+
+  @override
+  State<_LazyIndexedStack> createState() => _LazyIndexedStackState();
+}
+
+class _LazyIndexedStackState extends State<_LazyIndexedStack> {
+  late List<bool> _activated;
+
+  @override
+  void initState() {
+    super.initState();
+    _activated = List.generate(widget.children.length, (i) => i == widget.index);
+  }
+
+  @override
+  void didUpdateWidget(_LazyIndexedStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      _activated[widget.index] = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: widget.index,
+      children: List.generate(widget.children.length, (i) {
+        if (!_activated[i]) return const SizedBox.shrink();
+        return widget.children[i];
+      }),
     );
   }
 }

@@ -37,6 +37,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
   }
 
   Future<void> _ensureServer() async {
+    final l10n = AppLocalizations.of(context);
     if (LocalUnityServer.instance.isReady) {
       if (mounted) setState(() => _serverReady = true);
       return;
@@ -44,7 +45,16 @@ class _VisualizationScreenState extends State<VisualizationScreen>
     try {
       await LocalUnityServer.instance.ensureStarted(
         onProgress: (msg) {
-          if (mounted) setState(() => _statusText = msg);
+          if (mounted) {
+            String localizedMsg = msg;
+            if (msg.startsWith('Updating')) {
+              final file = msg.replaceAll('Updating ', '').replaceAll('...', '');
+              localizedMsg = l10n?.updatingFile(file) ?? msg;
+            } else if (msg == 'Starting local server...') {
+              localizedMsg = l10n?.startingLocalServer ?? msg;
+            }
+            setState(() => _statusText = localizedMsg);
+          }
         },
       );
       if (mounted) setState(() => _serverReady = true);
@@ -106,7 +116,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
             children: [
               const CircularProgressIndicator(color: AppColors.orange),
               const SizedBox(height: 20),
-              Text(_statusText, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
+              Text(_statusText == 'Preparing Unity...' ? (AppLocalizations.of(context)?.preparingUnity ?? 'Preparing Unity...') : _statusText, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 8),
               Text(AppLocalizations.of(context)?.firstLaunchHint ?? 'First launch only ~5s', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
             ],
@@ -228,7 +238,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     Icon(Icons.speed_rounded, size: 12, color: AppColors.orange),
                     const SizedBox(width: 4),
                     Text(
-                      '${telem.truckState.speedKmh.toStringAsFixed(0)} km/h',
+                      '${(settings.speedUnit == SpeedUnit.kmh ? telem.truckState.speedKmh : telem.truckState.speedKmh * 0.621371).toStringAsFixed(0)} ${settings.speedUnit == SpeedUnit.kmh ? "km/h" : "mph"}',
                       style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                   ],

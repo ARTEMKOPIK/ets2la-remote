@@ -3,6 +3,7 @@
 library;
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shelf/shelf.dart' as shelf;
@@ -67,10 +68,8 @@ class LocalUnityServer {
       _starting = false; // reset so ensureStarted can be called again if needed
     } catch (e) {
       _starting = false;
-      // Log error before rethrowing for debugging
-      // ignore: avoid_print
-      // print('[LocalServer] Failed to start: $e');
-      rethrow;
+      // Log error internally, do not rethrow since this is often called fire-and-forget
+      debugPrint('[LocalUnityServer] Failed to start: $e');
     }
   }
 

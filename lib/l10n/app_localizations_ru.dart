@@ -295,4 +295,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noUpdates => 'У вас последняя версия';
+
+  @override
+  String updatingFile(String file) => 'Обновление $file...';
+
+  @override
+  String get startingLocalServer => 'Запуск локального сервера...';
+
+  @override
+  String get preparingUnity => 'Подготовка Unity...';
 }

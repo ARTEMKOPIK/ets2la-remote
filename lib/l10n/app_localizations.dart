@@ -484,7 +484,9 @@ abstract class AppLocalizations {
   String get invalidIp;
   String get checkForUpdates;
   String get noUpdates;
-
+  String updatingFile(String file);
+  String get startingLocalServer;
+  String get preparingUnity;
 }
 
 class _AppLocalizationsDelegate

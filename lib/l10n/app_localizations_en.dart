@@ -295,4 +295,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noUpdates => 'You\'re up to date';
+
+  @override
+  String updatingFile(String file) => 'Updating $file...';
+
+  @override
+  String get startingLocalServer => 'Starting local server...';
+
+  @override
+  String get preparingUnity => 'Preparing Unity...';
 }

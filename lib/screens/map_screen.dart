@@ -27,10 +27,9 @@ class _MapScreenState extends State<MapScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final telem = context.watch<TelemetryProvider>();
+    final navPos = context.select<TelemetryProvider, NavPosition?>((p) => p.navPosition);
+    final navRoute = context.select<TelemetryProvider, NavRoute?>((p) => p.navRoute);
     final settings = context.watch<AppSettings>();
-    final navPos = telem.navPosition;
-    final navRoute = telem.navRoute;
 
     // Auto-follow — throttled to max 2fps (every 500ms) to save CPU on weak devices
     final now = DateTime.now();

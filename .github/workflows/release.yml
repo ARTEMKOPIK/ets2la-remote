@@ -9,18 +9,37 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # Skip if this push was created by the workflow itself (version bump commit)
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get version from pubspec.yaml
+      - name: Bump patch version in pubspec.yaml
         id: version
         run: |
-          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
-          BUILD=$(date +%Y%m%d%H%M)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v${VERSION}-build.${BUILD}" >> $GITHUB_OUTPUT
+          CURRENT=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          SEMVER="${CURRENT%%+*}"
+          BUILD_NUM="${CURRENT##*+}"
+          if [ "$BUILD_NUM" = "$CURRENT" ]; then
+            BUILD_NUM=0
+          fi
+          MAJOR="${SEMVER%%.*}"
+          REST="${SEMVER#*.}"
+          MINOR="${REST%%.*}"
+          PATCH="${REST#*.}"
+          NEW_PATCH=$((PATCH + 1))
+          NEW_BUILD=$((BUILD_NUM + 1))
+          NEW_SEMVER="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          NEW_VERSION="${NEW_SEMVER}+${NEW_BUILD}"
+          sed -i "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+          echo "old=${CURRENT}" >> "$GITHUB_OUTPUT"
+          echo "version=${NEW_SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "full=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${NEW_SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "Bumped ${CURRENT} -> ${NEW_VERSION}"
 
       - uses: subosito/flutter-action@v2
         with:
@@ -29,10 +48,16 @@ jobs:
       - name: Build APK
         run: flutter pub get && flutter build apk --release
 
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml
+          git commit -m "chore(release): bump version to ${{ steps.version.outputs.full }} [skip ci]"
+          git push origin HEAD:main
+
       - name: Create tag
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
           git tag "${{ steps.version.outputs.tag }}"
           git push origin "${{ steps.version.outputs.tag }}"
 

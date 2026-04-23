@@ -15,11 +15,16 @@ class MainActivity : FlutterActivity() {
     private val keepAliveChannel = "ets2la_remote/keepalive"
     private val widgetChannel = "ets2la_remote/widget"
     private val installPermissionChannel = "ets2la_remote/install_permission"
+    private val shortcutChannel = "ets2la_remote/shortcut"
     private var lock: WifiManager.MulticastLock? = null
 
     /** Last widget action received before Dart had a chance to consume it. */
     private var pendingWidgetAction: String? = null
     private var widgetChannelRef: MethodChannel? = null
+
+    /** Tab index from a launcher shortcut, waiting to be picked up by Dart. */
+    private var pendingShortcutTab: Int? = null
+    private var shortcutChannelRef: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -77,6 +82,22 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        shortcutChannelRef = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            shortcutChannel,
+        ).apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getInitialTab" -> {
+                        val tab = pendingShortcutTab
+                        pendingShortcutTab = null
+                        result.success(tab)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, installPermissionChannel)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -108,11 +129,13 @@ class MainActivity : FlutterActivity() {
             }
         // Consume the intent that started the activity (cold start from widget).
         consumeWidgetIntent(intent)
+        consumeShortcutIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         consumeWidgetIntent(intent)
+        consumeShortcutIntent(intent)
     }
 
     private fun consumeWidgetIntent(intent: Intent?) {
@@ -123,6 +146,24 @@ class MainActivity : FlutterActivity() {
             channel.invokeMethod("widgetAction", action)
         } else {
             pendingWidgetAction = action
+        }
+    }
+
+    /**
+     * Launcher static shortcuts (defined in res/xml/shortcuts.xml) pass the
+     * desired tab index as a string extra "ets2la_tab". Forward it to Dart
+     * either immediately (warm start) or buffer it for getInitialTab() to
+     * drain on cold start once the engine is up.
+     */
+    private fun consumeShortcutIntent(intent: Intent?) {
+        if (intent?.action != "com.ets2la.ets2la_remote.SHORTCUT") return
+        val raw = intent.getStringExtra("ets2la_tab") ?: return
+        val tab = raw.toIntOrNull() ?: return
+        val channel = shortcutChannelRef
+        if (channel != null) {
+            channel.invokeMethod("shortcutTab", tab)
+        } else {
+            pendingShortcutTab = tab
         }
     }
 

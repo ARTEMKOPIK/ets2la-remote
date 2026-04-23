@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
@@ -8,6 +10,7 @@ import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/update_provider.dart';
+import '../services/shortcut_service.dart';
 import '../widgets/update_dialog.dart';
 import 'app_settings_screen.dart';
 import '../theme/app_theme.dart';
@@ -29,6 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     with WidgetsBindingObserver {
   int _currentIndex = 0;
   bool _updateChecked = false;
+  StreamSubscription<int>? _shortcutSub;
 
   final _pages = const [
     _DashboardTab(),
@@ -41,14 +45,27 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Launcher shortcuts either cold-start the app (getInitialTab) or poke
+    // it while it's already running (tabRequests stream); handle both.
+    ShortcutService.instance.getInitialTab().then((tab) {
+      if (tab != null) _setTab(tab);
+    });
+    _shortcutSub = ShortcutService.instance.tabRequests.listen(_setTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tryAutoConnect();
       _checkForUpdates();
     });
   }
 
+  void _setTab(int tab) {
+    if (!mounted) return;
+    if (tab < 0 || tab >= _pages.length) return;
+    setState(() => _currentIndex = tab);
+  }
+
   @override
   void dispose() {
+    _shortcutSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

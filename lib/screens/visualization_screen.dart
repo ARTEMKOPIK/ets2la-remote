@@ -8,6 +8,7 @@ import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/local_server.dart';
 import '../theme/app_theme.dart';
+import '../utils/haptics.dart';
 
 class VisualizationScreen extends StatefulWidget {
   const VisualizationScreen({super.key});
@@ -292,7 +293,10 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     : (AppLocalizations.of(context)?.fullscreen ?? 'Fullscreen'),
                 onTap: _toggleFullscreen,
               ),
-              const SizedBox(height: 8),
+              // Widened from 8dp → 12dp. Previous spacing put hit-targets
+              // within ~2mm of each other and produced frequent misclicks
+              // when users tapped quickly in sequence.
+              const SizedBox(height: 12),
               // Theme toggle
               _CircleButton(
                 icon: _darkTheme ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -301,21 +305,21 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     : (AppLocalizations.of(context)?.darkTheme ?? 'Dark theme'),
                 onTap: _toggleTheme,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               // Zoom in
               _CircleButton(
                 icon: Icons.add_rounded,
                 label: AppLocalizations.of(context)?.zoomIn ?? 'Zoom in',
                 onTap: _zoomIn,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               // Reset camera
               _CircleButton(
                 icon: Icons.my_location_rounded,
                 label: AppLocalizations.of(context)?.resetCamera ?? 'Reset camera',
                 onTap: _resetCamera,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               // Zoom out
               _CircleButton(
                 icon: Icons.remove_rounded,
@@ -396,7 +400,16 @@ class _CircleButton extends StatelessWidget {
           color: Colors.transparent,
           shape: const CircleBorder(),
           child: InkWell(
-            onTap: onTap,
+            onTap: () {
+              // Short selection click on each tap — gives the cluster of
+              // 5 buttons a "pickable" feel without feeling heavy. Routed
+              // through AppHaptics so it honours the reduce-motion
+              // accessibility preference.
+              AppHaptics.selection(
+                Provider.of<AppSettings>(context, listen: false),
+              );
+              onTap();
+            },
             customBorder: const CircleBorder(),
             child: Container(
               width: 40, height: 40,

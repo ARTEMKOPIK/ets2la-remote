@@ -142,6 +142,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginDisabledHint => 'Plugin disabled — tap to enable';
 
   @override
+  String get portApiLabel => 'API (REST)';
+
+  @override
+  String get portVizLabel => 'Visualization (WS)';
+
+  @override
+  String get portNavLabel => 'Navigation (WS)';
+
+  @override
+  String get portPagesLabel => 'Pages (WS)';
+
+  @override
+  String get profileHintHomePc => 'Home PC';
+
+  @override
   String get error => 'Error';
 
   @override

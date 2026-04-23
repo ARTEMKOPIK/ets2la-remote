@@ -66,6 +66,12 @@ class ConnectionProvider extends ChangeNotifier {
   StreamSubscription<WsConnectionState>? _wsStateSub;
   bool _disposed = false;
 
+  /// Token that invalidates in-flight stage-flip callbacks scheduled by a
+  /// previous [connect] attempt. Each new [connect] bumps this, so stray
+  /// `Future.delayed` bodies from the prior attempt noop instead of
+  /// clobbering the current stage.
+  int _connectAttempt = 0;
+
   AppSettings? _savedSettings;
 
   void configurePorts(AppSettings settings) {
@@ -211,6 +217,9 @@ class ConnectionProvider extends ChangeNotifier {
     _isConnecting = true;
     _errorMessage = null;
     _stage = ConnectionStage.pinging;
+    // Invalidate any stage-flip callbacks scheduled by a prior attempt so
+    // they can't race past this new connect.
+    final attempt = ++_connectAttempt;
     notifyListeners();
 
     try {
@@ -246,6 +255,8 @@ class ConnectionProvider extends ChangeNotifier {
       // right as the visible work changes.
       Future.delayed(const Duration(milliseconds: 200), () {
         if (_disposed) return;
+        // Bail out if a newer connect() superseded us.
+        if (attempt != _connectAttempt) return;
         if (_stage == ConnectionStage.pinging && _isConnecting) {
           _stage = ConnectionStage.openingSocket;
           notifyListeners();
@@ -287,9 +298,16 @@ class ConnectionProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       debugPrint('ConnectionProvider.connect error: $e');
+      // The visualization WS may have succeeded before a later stage
+      // (nav / pages) threw — tear the half-connected session down so we
+      // don't leak a live socket whose state the UI can't observe.
+      wsService.disconnect();
+      navService.disconnect();
+      pagesService.disconnect();
       _errorMessage = ConnectionErrorCode.failed.name;
       _isConnecting = false;
       _stage = ConnectionStage.idle;
+      _lastPingMs = null;
       notifyListeners();
       return false;
     }
@@ -300,8 +318,15 @@ class ConnectionProvider extends ChangeNotifier {
     navService.disconnect();
     pagesService.disconnect();
     unawaited(KeepAliveService.instance.stop());
+    // Invalidate any pending stage-flip callbacks so they can't fire
+    // after disconnect and paint a stale "opening socket…" label.
+    _connectAttempt += 1;
     _currentHost = '';
     _errorMessage = null;
+    _lastPingMs = null;
+    _firewallFailStreak = 0;
+    _isConnecting = false;
+    _stage = ConnectionStage.idle;
     notifyListeners();
   }
 

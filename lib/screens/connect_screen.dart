@@ -170,7 +170,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                 autofocus: profile.name.isEmpty,
                 decoration: InputDecoration(
                   labelText: l10n?.profileName ?? 'Name',
-                  hintText: 'Home PC',
+                  hintText: l10n?.profileHintHomePc ?? 'Home PC',
                 ),
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? (l10n?.profileNameRequired ?? 'Enter a name')

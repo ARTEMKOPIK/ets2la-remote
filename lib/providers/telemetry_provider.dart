@@ -133,9 +133,13 @@ class TelemetryProvider extends ChangeNotifier {
     _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
     _hasActiveSession = false;
     _wsSub?.cancel();
+    _wsSub = null;
     _posSub?.cancel();
+    _posSub = null;
     _routeSub?.cancel();
+    _routeSub = null;
     _pluginRefreshTimer?.cancel();
+    _pluginRefreshTimer = null;
     _safeNotify();
   }
 

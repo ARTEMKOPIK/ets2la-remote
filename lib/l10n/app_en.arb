@@ -142,5 +142,11 @@
   "deleteProfile": "Delete profile",
   "edit": "Edit",
   "save": "Save",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "macAddressOptional": "MAC address (optional)",
+  "macAddressHelper": "Needed for Wake-on-LAN",
+  "invalidMac": "Invalid MAC address",
+  "wakeHost": "Wake host",
+  "wolSent": "Wake-on-LAN packet sent",
+  "wolFailed": "Failed to send Wake-on-LAN packet"
 }

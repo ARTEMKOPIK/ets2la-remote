@@ -414,4 +414,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get save => 'Save';
+
+  @override
+  String get macAddressOptional => 'MAC address (optional)';
+
+  @override
+  String get macAddressHelper => 'Needed for Wake-on-LAN';
+
+  @override
+  String get invalidMac => 'Invalid MAC address';
+
+  @override
+  String get wakeHost => 'Wake host';
+
+  @override
+  String get wolSent => 'Wake-on-LAN packet sent';
+
+  @override
+  String get wolFailed => 'Failed to send Wake-on-LAN packet';
 }

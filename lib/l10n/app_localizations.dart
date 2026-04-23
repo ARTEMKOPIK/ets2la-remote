@@ -904,6 +904,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @macAddressOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'MAC address (optional)'**
+  String get macAddressOptional;
+
+  /// No description provided for @macAddressHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for Wake-on-LAN'**
+  String get macAddressHelper;
+
+  /// No description provided for @invalidMac.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid MAC address'**
+  String get invalidMac;
+
+  /// No description provided for @wakeHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake host'**
+  String get wakeHost;
+
+  /// No description provided for @wolSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake-on-LAN packet sent'**
+  String get wolSent;
+
+  /// No description provided for @wolFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send Wake-on-LAN packet'**
+  String get wolFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

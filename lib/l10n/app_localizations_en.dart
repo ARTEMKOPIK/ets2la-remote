@@ -130,6 +130,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ok => 'OK';
 
   @override
+  String get mapStyleDark => 'Dark';
+
+  @override
+  String get mapStyleLight => 'Light';
+
+  @override
+  String get mapStyleSatellite => 'Satellite';
+
+  @override
+  String get pluginDisabledHint => 'Plugin disabled — tap to enable';
+
+  @override
   String get error => 'Error';
 
   @override

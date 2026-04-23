@@ -242,6 +242,21 @@ class _MapScreenState extends State<MapScreen>
             ),
           ),
 
+          // Tile-style quick switcher — three compact circle buttons in the
+          // top-right corner, matching Google Maps' satellite/street toggle.
+          // The full settings screen still has the same option, but most
+          // users never find it — this surfaces the feature inline.
+          Positioned(
+            top: 12,
+            right: 12,
+            child: _TileStyleSwitcher(
+              current: settings.mapTileStyle,
+              onSelect: (style) {
+                context.read<AppSettings>().setMapTileStyle(style);
+              },
+            ),
+          ),
+
           // No GPS overlay
           if (truckPos == null)
             Center(
@@ -330,6 +345,106 @@ class _MapScreenState extends State<MapScreen>
       alignment: AttributionAlignment.bottomLeft,
       showFlutterMapAttribution: false,
       attributions: items,
+    );
+  }
+}
+
+/// Compact 3-button overlay letting the user flip between map tile styles
+/// without leaving the map screen. Mirrors the dropdown in Settings →
+/// Appearance; the backing state lives in [AppSettings.mapTileStyle] so
+/// switching here persists across launches.
+class _TileStyleSwitcher extends StatelessWidget {
+  final MapTileStyle current;
+  final ValueChanged<MapTileStyle> onSelect;
+
+  const _TileStyleSwitcher({
+    required this.current,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.surfaceBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _TileStyleButton(
+            icon: Icons.dark_mode_rounded,
+            tooltip: l10n?.mapStyleDark ?? 'Dark',
+            selected: current == MapTileStyle.dark,
+            onTap: () => onSelect(MapTileStyle.dark),
+          ),
+          _TileStyleButton(
+            icon: Icons.light_mode_rounded,
+            tooltip: l10n?.mapStyleLight ?? 'Light',
+            selected: current == MapTileStyle.light,
+            onTap: () => onSelect(MapTileStyle.light),
+          ),
+          _TileStyleButton(
+            icon: Icons.satellite_alt_rounded,
+            tooltip: l10n?.mapStyleSatellite ?? 'Satellite',
+            selected: current == MapTileStyle.satellite,
+            onTap: () => onSelect(MapTileStyle.satellite),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TileStyleButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _TileStyleButton({
+    required this.icon,
+    required this.tooltip,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: tooltip,
+      selected: selected,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Container(
+            width: 36,
+            height: 36,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.orangeDim : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected
+                    ? AppColors.orange
+                    : AppColors.surfaceBorder.withValues(alpha: 0.5),
+                width: selected ? 1.2 : 0.8,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: selected ? AppColors.orange : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,9 @@
 {
   "@@locale": "ru",
+  "mapStyleDark": "Тёмная",
+  "mapStyleLight": "Светлая",
+  "mapStyleSatellite": "Спутник",
+  "pluginDisabledHint": "Плагин выключен — нажмите, чтобы включить",
   "appTitle": "ETS2LA Remote",
   "recent": "Недавние",
   "pedals": "ПЕДАЛИ",

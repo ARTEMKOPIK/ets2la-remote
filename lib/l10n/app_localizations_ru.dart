@@ -130,6 +130,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ok => 'ОК';
 
   @override
+  String get mapStyleDark => 'Тёмная';
+
+  @override
+  String get mapStyleLight => 'Светлая';
+
+  @override
+  String get mapStyleSatellite => 'Спутник';
+
+  @override
+  String get pluginDisabledHint => 'Плагин выключен — нажмите, чтобы включить';
+
+  @override
   String get error => 'Ошибка';
 
   @override

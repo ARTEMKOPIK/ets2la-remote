@@ -9,6 +9,11 @@ typedef AsyncCallback = Future<void> Function();
 class AutopilotCard extends StatefulWidget {
   final bool steeringEnabled;
   final bool accEnabled;
+  // When the backing plugin isn't running we surface a small hint under
+  // the toggle label ("Plugin disabled — tap to enable"). The parent
+  // already triggers enable on tap, this is purely informational.
+  final bool steeringPluginRunning;
+  final bool accPluginRunning;
   final AsyncCallback? onToggleSteering;
   final AsyncCallback? onToggleAcc;
 
@@ -16,6 +21,8 @@ class AutopilotCard extends StatefulWidget {
     super.key,
     required this.steeringEnabled,
     required this.accEnabled,
+    this.steeringPluginRunning = true,
+    this.accPluginRunning = true,
     this.onToggleSteering,
     this.onToggleAcc,
   });
@@ -184,6 +191,19 @@ class _AutopilotCardState extends State<AutopilotCard>
                           fontSize: 13, color: AppColors.textSecondary,
                         ),
                       ),
+                      if (!widget.steeringPluginRunning && !isActive) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          AppLocalizations.of(context)?.pluginDisabledHint ??
+                              'Plugin disabled — tap to enable',
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 11,
+                            color: AppColors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -307,6 +327,17 @@ class _AutopilotCardState extends State<AutopilotCard>
                                 : AppColors.textSecondary,
                           ),
                         ),
+                        if (!widget.accPluginRunning && !widget.accEnabled)
+                          Text(
+                            AppLocalizations.of(context)?.pluginDisabledHint ??
+                                'Plugin disabled — tap to enable',
+                            style: const TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 10,
+                              color: AppColors.orange,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                       ],
                     ),
                   ),

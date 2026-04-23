@@ -1,6 +1,10 @@
 {
   "@@locale": "en",
   "appTitle": "ETS2LA Remote",
+  "mapStyleDark": "Dark",
+  "mapStyleLight": "Light",
+  "mapStyleSatellite": "Satellite",
+  "pluginDisabledHint": "Plugin disabled — tap to enable",
   "recent": "Recent",
   "pedals": "PEDALS",
   "steeringTheTruck": "Steering the truck",

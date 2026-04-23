@@ -63,6 +63,18 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
   }
 
+  /// Is a plugin by its canonical id currently loaded-and-running on the
+  /// backend? Used to decide whether to show the "Plugin disabled — tap to
+  /// enable" hint under the autopilot/ACC toggles. Returns `true` when we
+  /// just don't know (plugin list not yet received) to avoid flashing a
+  /// red hint during the first seconds after connect.
+  bool _pluginRunning(BuildContext context, String id) {
+    final telem = context.watch<TelemetryProvider>();
+    if (telem.plugins.isEmpty) return true;
+    final p = telem.plugins.where((p) => p.id == id).firstOrNull;
+    return p?.running ?? false;
+  }
+
   /// Push the onboarding screen once per install. Runs post-frame so the
   /// app has already built its full widget tree (avoiding "pushed during
   /// build" asserts). No-op on subsequent launches.
@@ -378,6 +390,9 @@ class _DashboardTab extends StatelessWidget {
           AutopilotCard(
             steeringEnabled: status.steeringEnabled,
             accEnabled: status.accEnabled,
+            steeringPluginRunning: _pluginRunning(context, 'plugins.map'),
+            accPluginRunning:
+                _pluginRunning(context, 'plugins.adaptivecruisecontrol'),
             onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
             onToggleAcc: () => _toggleAcc(context, status.accEnabled),
           ),
@@ -489,6 +504,10 @@ class _DashboardTab extends StatelessWidget {
                 AutopilotCard(
                   steeringEnabled: status.steeringEnabled,
                   accEnabled: status.accEnabled,
+                  steeringPluginRunning:
+                      _pluginRunning(context, 'plugins.map'),
+                  accPluginRunning: _pluginRunning(
+                      context, 'plugins.adaptivecruisecontrol'),
                   onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
                   onToggleAcc: () => _toggleAcc(context, status.accEnabled),
                 ),
@@ -1052,11 +1071,26 @@ class _LazyIndexedStackState extends State<_LazyIndexedStack> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: widget.index,
+    // Respect reduce-motion: when enabled, skip the 150ms fade entirely and
+    // snap between tabs. Avoids vestibular discomfort for users who opt in.
+    final reduceMotion =
+        context.select<AppSettings, bool>((s) => s.reduceMotion);
+    return Stack(
       children: List.generate(widget.children.length, (i) {
         if (!_activated[i]) return const SizedBox.shrink();
-        return widget.children[i];
+        final active = i == widget.index;
+        return IgnorePointer(
+          ignoring: !active,
+          child: AnimatedOpacity(
+            opacity: active ? 1.0 : 0.0,
+            // Short cross-fade makes tab switches feel less abrupt without
+            // being noticeably slow. 150ms is Material's "short2" duration.
+            duration:
+                Duration(milliseconds: reduceMotion ? 0 : 150),
+            curve: Curves.easeInOut,
+            child: Offstage(offstage: !active, child: widget.children[i]),
+          ),
+        );
       }),
     );
   }

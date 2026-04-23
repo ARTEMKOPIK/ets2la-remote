@@ -341,6 +341,30 @@ abstract class AppLocalizations {
   /// **'OK'**
   String get ok;
 
+  /// No description provided for @mapStyleDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get mapStyleDark;
+
+  /// No description provided for @mapStyleLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get mapStyleLight;
+
+  /// No description provided for @mapStyleSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get mapStyleSatellite;
+
+  /// No description provided for @pluginDisabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin disabled — tap to enable'**
+  String get pluginDisabledHint;
+
   /// No description provided for @error.
   ///
   /// In en, this message translates to:

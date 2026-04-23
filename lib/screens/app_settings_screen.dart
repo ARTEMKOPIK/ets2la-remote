@@ -75,13 +75,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           _SectionHeader(l10n?.portsAdvanced ?? 'Ports (Advanced)'),
           _SettingsCard(children: [
-            _PortTile(label: 'API (REST)', value: s.portApi, onChanged: s.setPortApi),
+            _PortTile(label: l10n?.portApiLabel ?? 'API (REST)', value: s.portApi, onChanged: s.setPortApi),
             _Divider(),
-            _PortTile(label: 'Visualization (WS)', value: s.portViz, onChanged: s.setPortViz),
+            _PortTile(label: l10n?.portVizLabel ?? 'Visualization (WS)', value: s.portViz, onChanged: s.setPortViz),
             _Divider(),
-            _PortTile(label: 'Navigation (WS)', value: s.portNav, onChanged: s.setPortNav),
+            _PortTile(label: l10n?.portNavLabel ?? 'Navigation (WS)', value: s.portNav, onChanged: s.setPortNav),
             _Divider(),
-            _PortTile(label: 'Pages (WS)', value: s.portPages, onChanged: s.setPortPages),
+            _PortTile(label: l10n?.portPagesLabel ?? 'Pages (WS)', value: s.portPages, onChanged: s.setPortPages),
           ]),
           Padding(
             padding: const EdgeInsets.only(top: 6, left: 4, right: 4),
@@ -177,7 +177,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SegmentTile(
               icon: Icons.layers_rounded,
               title: l10n?.mapStyle ?? 'Map style',
-              options: const ['Dark', 'Light', 'Satellite'],
+              options: [
+                l10n?.mapStyleDark ?? 'Dark',
+                l10n?.mapStyleLight ?? 'Light',
+                l10n?.mapStyleSatellite ?? 'Satellite',
+              ],
               selectedIndex: s.mapTileStyle.index,
               onChanged: (i) => s.setMapTileStyle(MapTileStyle.values[i]),
             ),

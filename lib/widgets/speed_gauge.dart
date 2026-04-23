@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Converts a km/h reading into the display unit. Defaults to identity
@@ -118,7 +119,7 @@ class _SpeedGaugeState extends State<SpeedGauge>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Semantics(
-                        label: 'Speed',
+                        label: AppLocalizations.of(context)?.speed ?? 'Speed',
                         value:
                             '${convert(_displaySpeed).toStringAsFixed(0)} ${widget.speedUnit}',
                         excludeSemantics: true,

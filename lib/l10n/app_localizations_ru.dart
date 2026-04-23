@@ -142,6 +142,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pluginDisabledHint => 'Плагин выключен — нажмите, чтобы включить';
 
   @override
+  String get portApiLabel => 'API (REST)';
+
+  @override
+  String get portVizLabel => 'Визуализация (WS)';
+
+  @override
+  String get portNavLabel => 'Навигация (WS)';
+
+  @override
+  String get portPagesLabel => 'Страницы (WS)';
+
+  @override
+  String get profileHintHomePc => 'Домашний ПК';
+
+  @override
   String get error => 'Ошибка';
 
   @override

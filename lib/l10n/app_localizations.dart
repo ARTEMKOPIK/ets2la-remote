@@ -365,6 +365,36 @@ abstract class AppLocalizations {
   /// **'Plugin disabled — tap to enable'**
   String get pluginDisabledHint;
 
+  /// No description provided for @portApiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API (REST)'**
+  String get portApiLabel;
+
+  /// No description provided for @portVizLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualization (WS)'**
+  String get portVizLabel;
+
+  /// No description provided for @portNavLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation (WS)'**
+  String get portNavLabel;
+
+  /// No description provided for @portPagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages (WS)'**
+  String get portPagesLabel;
+
+  /// No description provided for @profileHintHomePc.
+  ///
+  /// In en, this message translates to:
+  /// **'Home PC'**
+  String get profileHintHomePc;
+
   /// No description provided for @error.
   ///
   /// In en, this message translates to:

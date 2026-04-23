@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../providers/connection_provider.dart';
@@ -17,6 +18,7 @@ class ConnectScreen extends StatefulWidget {
 class _ConnectScreenState extends State<ConnectScreen>
     with SingleTickerProviderStateMixin {
   final _ipController = TextEditingController();
+  final _ipFocus = FocusNode();
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
 
@@ -27,11 +29,22 @@ class _ConnectScreenState extends State<ConnectScreen>
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
+
+    // If there's no recent host to preselect, put focus on the IP field so
+    // the user doesn't have to tap before typing.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final conn = context.read<ConnectionProvider>();
+      if (conn.recentHosts.isEmpty) {
+        _ipFocus.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     _ipController.dispose();
+    _ipFocus.dispose();
     _fadeCtrl.dispose();
     super.dispose();
   }
@@ -131,8 +144,20 @@ class _ConnectScreenState extends State<ConnectScreen>
                   // IP Input
                   TextField(
                     controller: _ipController,
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(fontFamily: 'Roboto', 
+                    focusNode: _ipFocus,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    textInputAction: TextInputAction.done,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                      LengthLimitingTextInputFormatter(15),
+                    ],
+                    onChanged: (_) {
+                      // Clear previous error as soon as user starts editing
+                      context.read<ConnectionProvider>().clearError();
+                    },
+                    style: TextStyle(fontFamily: 'Roboto',
                       fontSize: 18,
                       color: AppColors.textPrimary,
                       letterSpacing: 1,
@@ -150,7 +175,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   // Error message
                   if (conn.errorMessage != null)
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
                       decoration: BoxDecoration(
                         color: AppColors.errorDim,
                         borderRadius: BorderRadius.circular(8),
@@ -164,9 +189,17 @@ class _ConnectScreenState extends State<ConnectScreen>
                           Expanded(
                             child: Text(
                               conn.errorMessage!,
-                              style: TextStyle(fontFamily: 'Roboto', 
+                              style: TextStyle(fontFamily: 'Roboto',
                                   fontSize: 13, color: AppColors.error),
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
+                            tooltip: AppLocalizations.of(context)?.dismiss ?? 'Dismiss',
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                            onPressed: () => context.read<ConnectionProvider>().clearError(),
                           ),
                         ],
                       ),
@@ -218,6 +251,9 @@ class _ConnectScreenState extends State<ConnectScreen>
                             _ipController.text = host;
                             _connect();
                           },
+                          onRemove: () => context
+                              .read<ConnectionProvider>()
+                              .removeRecentHost(host),
                         )),
                   ],
                 ],
@@ -233,32 +269,57 @@ class _ConnectScreenState extends State<ConnectScreen>
 class _RecentHostTile extends StatelessWidget {
   final String host;
   final VoidCallback onTap;
+  final VoidCallback onRemove;
 
-  const _RecentHostTile({required this.host, required this.onTap});
+  const _RecentHostTile({
+    required this.host,
+    required this.onTap,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
+    final removeLabel = AppLocalizations.of(context)?.removeFromRecent ?? 'Remove';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.surfaceBorder),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.surfaceBorder),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.history_rounded, size: 18, color: AppColors.textSecondary),
-            const SizedBox(width: 10),
-            Text(host,
-                style: TextStyle(fontFamily: 'Roboto', 
-                    fontSize: 14, color: AppColors.textPrimary)),
-            const Spacer(),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: AppColors.textMuted),
-          ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
+            child: Row(
+              children: [
+                const Icon(Icons.history_rounded, size: 18, color: AppColors.textSecondary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(host,
+                        style: TextStyle(fontFamily: 'Roboto',
+                            fontSize: 14, color: AppColors.textPrimary)),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded,
+                      size: 18, color: AppColors.textSecondary),
+                  tooltip: removeLabel,
+                  onPressed: onRemove,
+                  visualDensity: VisualDensity.compact,
+                ),
+                const SizedBox(width: 2),
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 12),
+              ],
+            ),
+          ),
         ),
       ),
     );

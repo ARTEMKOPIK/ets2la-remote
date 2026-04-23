@@ -108,5 +108,16 @@
   "autoFollowTooltip": "Auto-follow",
   "noPositionData": "No position data",
   "enableNavigationPlugin": "Enable NavigationSockets plugin",
-  "game": "GAME"
+  "game": "GAME",
+  "notConnected": "Not connected",
+  "copy": "Copy",
+  "copied": "Copied",
+  "ok": "OK",
+  "languageSystem": "System",
+  "ets2laOnGithub": "ETS2LA on GitHub",
+  "removeFromRecent": "Remove",
+  "loadingPlugins": "Loading plugins…",
+  "refresh": "Refresh",
+  "dismiss": "Dismiss",
+  "portsAdvancedHint": "Only change if ETS2LA uses non-default ports"
 }

@@ -84,6 +84,20 @@ class ConnectionProvider extends ChangeNotifier {
     await prefs.setStringList('recent_hosts', _recentHosts);
   }
 
+  Future<void> removeRecentHost(String host) async {
+    if (!_recentHosts.contains(host)) return;
+    _recentHosts.remove(host);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recent_hosts', _recentHosts);
+  }
+
+  void clearError() {
+    if (_errorMessage == null) return;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<bool> connect(String host) async {
     _isConnecting = true;
     _errorMessage = null;

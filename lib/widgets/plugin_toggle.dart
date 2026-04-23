@@ -19,9 +19,11 @@ class PluginToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tap = (onToggle == null || isLoading)
+        ? null
+        : () => onToggle!(!isRunning);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
@@ -31,8 +33,15 @@ class PluginToggle extends StatelessWidget {
               : AppColors.surfaceBorder,
         ),
       ),
-      child: Row(
-        children: [
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: tap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
           // Emoji icon
           Container(
             width: 40,
@@ -82,7 +91,10 @@ class PluginToggle extends StatelessWidget {
               value: isRunning,
               onChanged: onToggle,
             ),
-        ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -102,5 +102,16 @@
   "autoFollowTooltip": "Автоследование",
   "noPositionData": "Нет данных позиции",
   "enableNavigationPlugin": "Включите плагин NavigationSockets",
-  "game": "ИГРА"
+  "game": "ИГРА",
+  "notConnected": "Нет соединения",
+  "copy": "Копировать",
+  "copied": "Скопировано",
+  "ok": "OK",
+  "languageSystem": "Системный",
+  "ets2laOnGithub": "ETS2LA на GitHub",
+  "removeFromRecent": "Удалить",
+  "loadingPlugins": "Загрузка плагинов…",
+  "refresh": "Обновить",
+  "dismiss": "Скрыть",
+  "portsAdvancedHint": "Меняйте, только если ETS2LA использует нестандартные порты"
 }

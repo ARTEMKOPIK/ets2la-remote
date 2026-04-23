@@ -83,6 +83,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _Divider(),
             _PortTile(label: 'Pages (WS)', value: s.portPages, onChanged: s.setPortPages),
           ]),
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 4, right: 4),
+            child: Text(
+              l10n?.portsAdvancedHint ?? 'Only change if ETS2LA uses non-default ports',
+              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+            ),
+          ),
 
           // ── APPEARANCE ─────────────────────────────────────────
           _SectionHeader(l10n?.appearance ?? 'Appearance'),
@@ -114,16 +121,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SegmentTile(
               icon: Icons.language_rounded,
               title: l10n?.language ?? 'Language',
-              options: const ['System', 'English', 'Русский'],
+              options: [l10n?.languageSystem ?? 'System', 'English', 'Русский'],
               selectedIndex: s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
               onChanged: (i) => s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                'Current: ${s.language ?? "system"}',
-                style: const TextStyle(color: Colors.grey, fontSize: 10),
-              ),
             ),
           ]),
 
@@ -192,7 +192,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _Divider(),
             _TapTile(
               icon: Icons.code_rounded,
-              title: 'ETS2LA on GitHub',
+              title: l10n?.ets2laOnGithub ?? 'ETS2LA on GitHub',
               subtitle: 'github.com/ETS2LA',
               onTap: () => _launchUrl('https://github.com/ETS2LA'),
             ),
@@ -266,24 +266,27 @@ class _SwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppColors.orange),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
-                if (subtitle != null)
-                  Text(subtitle!, style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
-              ],
+    return InkWell(
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppColors.orange),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  if (subtitle != null)
+                    Text(subtitle!, style: const TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
+                ],
+              ),
             ),
-          ),
-          Switch(value: value, onChanged: onChanged),
-        ],
+            Switch(value: value, onChanged: onChanged),
+          ],
+        ),
       ),
     );
   }
@@ -409,20 +412,26 @@ class _PortTile extends StatelessWidget {
           Icon(Icons.settings_ethernet_rounded, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
           Expanded(child: Text(label, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-          GestureDetector(
-            onTap: () => _editPort(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.surfaceBorder),
-              ),
-              child: Text(
-                '$value',
-                style: TextStyle(fontFamily: 'Roboto', 
-                  fontSize: 13, fontWeight: FontWeight.w600,
-                  color: AppColors.orange, fontFeatures: const [FontFeature.tabularFigures()],
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _editPort(context),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 40, minWidth: 64),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.surfaceBorder),
+                ),
+                child: Text(
+                  '$value',
+                  style: const TextStyle(fontFamily: 'Roboto',
+                    fontSize: 13, fontWeight: FontWeight.w600,
+                    color: AppColors.orange, fontFeatures: [FontFeature.tabularFigures()],
+                  ),
                 ),
               ),
             ),
@@ -442,9 +451,18 @@ class _PortTile extends StatelessWidget {
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(5),
+          ],
           autofocus: true,
-          style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontSize: 18),
+          onSubmitted: (_) {
+            final v = int.tryParse(ctrl.text);
+            if (v != null && v > 0 && v < 65536) onChanged(v);
+            Navigator.pop(context);
+          },
+          style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontSize: 18),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),

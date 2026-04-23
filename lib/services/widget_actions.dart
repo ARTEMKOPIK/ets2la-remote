@@ -8,6 +8,8 @@
 ///     running and receives `onNewIntent`).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 

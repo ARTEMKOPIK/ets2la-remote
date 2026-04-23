@@ -707,6 +707,159 @@ abstract class AppLocalizations {
   /// **'Map data'**
   String get mapAttributionTitle;
 
+  /// No description provided for @waitingForGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for telemetry'**
+  String get waitingForGameTitle;
+
+  /// No description provided for @waitingForGameBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch ETS2 or ATS, then enable the Map plugin in ETS2LA to start seeing data here.'**
+  String get waitingForGameBody;
+
+  /// Countdown shown in the reconnecting banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting in {seconds}s'**
+  String reconnectingIn(int seconds);
+
+  /// No description provided for @reconnectNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry now'**
+  String get reconnectNow;
+
+  /// No description provided for @stageConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get stageConnecting;
+
+  /// No description provided for @stagePinging.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinging backend…'**
+  String get stagePinging;
+
+  /// No description provided for @stageOpeningSocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening socket…'**
+  String get stageOpeningSocket;
+
+  /// No description provided for @stageSubscribing.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribing to telemetry…'**
+  String get stageSubscribing;
+
+  /// No description provided for @firstRunWelcomeTitle.
+  String get firstRunWelcomeTitle;
+
+  /// No description provided for @firstRunWelcomeBody.
+  String get firstRunWelcomeBody;
+
+  /// No description provided for @firstRunLaunchTitle.
+  String get firstRunLaunchTitle;
+
+  /// No description provided for @firstRunLaunchBody.
+  String get firstRunLaunchBody;
+
+  /// No description provided for @firstRunNetworkTitle.
+  String get firstRunNetworkTitle;
+
+  /// No description provided for @firstRunNetworkBody.
+  String get firstRunNetworkBody;
+
+  /// No description provided for @getStarted.
+  String get getStarted;
+
+  /// No description provided for @next.
+  String get next;
+
+  /// No description provided for @skipOnboarding.
+  String get skipOnboarding;
+
+  /// No description provided for @whyNotFound.
+  String get whyNotFound;
+
+  /// No description provided for @mdnsHelpTitle.
+  String get mdnsHelpTitle;
+
+  /// No description provided for @mdnsHelpBody.
+  String get mdnsHelpBody;
+
+  /// No description provided for @saveAsProfileQuestion.
+  String get saveAsProfileQuestion;
+
+  /// No description provided for @pluginDisabled.
+  String get pluginDisabled;
+
+  /// No description provided for @pluginStarting.
+  String get pluginStarting;
+
+  /// No description provided for @sparklineStatsTitle.
+  String get sparklineStatsTitle;
+
+  /// No description provided for @sparklineAvg.
+  String get sparklineAvg;
+
+  /// No description provided for @sparklineMax.
+  String get sparklineMax;
+
+  /// No description provided for @sparklineMin.
+  String get sparklineMin;
+
+  /// No description provided for @accentColorLabel.
+  String get accentColorLabel;
+
+  /// No description provided for @accentOrange.
+  String get accentOrange;
+
+  /// No description provided for @accentBlue.
+  String get accentBlue;
+
+  /// No description provided for @accentGreen.
+  String get accentGreen;
+
+  /// No description provided for @accentPurple.
+  String get accentPurple;
+
+  /// No description provided for @highContrast.
+  String get highContrast;
+
+  /// No description provided for @highContrastHint.
+  String get highContrastHint;
+
+  /// No description provided for @reduceMotion.
+  String get reduceMotion;
+
+  /// No description provided for @reduceMotionHint.
+  String get reduceMotionHint;
+
+  /// No description provided for @accessibility.
+  String get accessibility;
+
+  /// No description provided for @pingLabel.
+  String get pingLabel;
+
+  /// No description provided for @disconnectHint.
+  String get disconnectHint;
+
+  /// No description provided for @holdToDisconnect.
+  String get holdToDisconnect;
+
+  /// No description provided for @mapTileDark.
+  String get mapTileDark;
+
+  /// No description provided for @mapTileLight.
+  String get mapTileLight;
+
+  /// No description provided for @mapTileSatellite.
+  String get mapTileSatellite;
+
   /// No description provided for @runInPowerShell.
   ///
   /// In en, this message translates to:

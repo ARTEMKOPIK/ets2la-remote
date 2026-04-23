@@ -317,6 +317,144 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mapAttributionTitle => 'Источники карты';
 
   @override
+  String get waitingForGameTitle => 'Ждём телеметрию';
+
+  @override
+  String get waitingForGameBody =>
+      'Запусти ETS2 или ATS и включи плагин Map в ETS2LA — данные появятся здесь.';
+
+  @override
+  String reconnectingIn(int seconds) => 'Переподключение через ${seconds} с';
+
+  @override
+  String get reconnectNow => 'Повторить';
+
+  @override
+  String get stageConnecting => 'Подключение…';
+
+  @override
+  String get stagePinging => 'Проверка сервера…';
+
+  @override
+  String get stageOpeningSocket => 'Открываем сокет…';
+
+  @override
+  String get stageSubscribing => 'Подписка на телеметрию…';
+
+  @override
+  String get firstRunWelcomeTitle => 'Добро пожаловать в ETS2LA Remote';
+
+  @override
+  String get firstRunWelcomeBody =>
+      'Управляй автопилотом и смотри телеметрию грузовика прямо с телефона.';
+
+  @override
+  String get firstRunLaunchTitle => 'Запусти ETS2LA на ПК';
+
+  @override
+  String get firstRunLaunchBody =>
+      'Перед подключением убедись, что ETS2LA запущен на компьютере. Приложение общается с его WebSocket-API.';
+
+  @override
+  String get firstRunNetworkTitle => 'Одна Wi-Fi сеть';
+
+  @override
+  String get firstRunNetworkBody =>
+      'Телефон и ПК должны быть в одной локальной сети. Нажми «Найти в сети» для автопоиска или введи IP вручную.';
+
+  @override
+  String get getStarted => 'Начать';
+
+  @override
+  String get next => 'Далее';
+
+  @override
+  String get skipOnboarding => 'Пропустить';
+
+  @override
+  String get whyNotFound => 'Почему не находит ПК?';
+
+  @override
+  String get mdnsHelpTitle => 'ETS2LA не виден в сети';
+
+  @override
+  String get mdnsHelpBody =>
+      '• Проверь, что ETS2LA запущен на ПК\n'
+      '• Оба устройства должны быть в одной Wi-Fi (не гостевой)\n'
+      '• Некоторые роутеры блокируют mDNS — в этом случае введи IP ПК вручную\n'
+      '• Если используешь VPN — выключи его\n'
+      '• Windows Defender может блокировать порт — см. команду для фаервола в настройках';
+
+  @override
+  String get saveAsProfileQuestion => 'Сохранить это подключение как профиль?';
+
+  @override
+  String get pluginDisabled => 'Плагин выключен — нажми, чтобы включить';
+
+  @override
+  String get pluginStarting => 'Включаем плагин…';
+
+  @override
+  String get sparklineStatsTitle => 'Последние 60 секунд';
+
+  @override
+  String get sparklineAvg => 'Сред';
+
+  @override
+  String get sparklineMax => 'Макс';
+
+  @override
+  String get sparklineMin => 'Мин';
+
+  @override
+  String get accentColorLabel => 'Акцентный цвет';
+
+  @override
+  String get accentOrange => 'Оранжевый';
+
+  @override
+  String get accentBlue => 'Синий';
+
+  @override
+  String get accentGreen => 'Зелёный';
+
+  @override
+  String get accentPurple => 'Фиолетовый';
+
+  @override
+  String get highContrast => 'Высокий контраст';
+
+  @override
+  String get highContrastHint => 'Более чёткие границы элементов';
+
+  @override
+  String get reduceMotion => 'Меньше анимации';
+
+  @override
+  String get reduceMotionHint => 'Отключить переходы и вибрацию';
+
+  @override
+  String get accessibility => 'Доступность';
+
+  @override
+  String get pingLabel => 'Пинг';
+
+  @override
+  String get disconnectHint => 'Удерживай имя хоста, чтобы отключиться';
+
+  @override
+  String get holdToDisconnect => 'Удерживай для отключения';
+
+  @override
+  String get mapTileDark => 'Тёмная';
+
+  @override
+  String get mapTileLight => 'Светлая';
+
+  @override
+  String get mapTileSatellite => 'Спутник';
+
+  @override
   String get runInPowerShell => 'Выполните в PowerShell (Админ):';
 
   @override

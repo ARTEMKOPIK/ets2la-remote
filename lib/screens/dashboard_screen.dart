@@ -341,6 +341,7 @@ class _DashboardTab extends StatelessWidget {
                     size: gaugeSize,
                     speedUnit: settings.speedUnitLabel,
                     maxSpeed: settings.gaugeMaxValue,
+                    convertFromKmh: settings.speedFromKmh,
                   );
                 },
               ),
@@ -407,6 +408,7 @@ class _DashboardTab extends StatelessWidget {
                       size: gaugeSize,
                       speedUnit: settings.speedUnitLabel,
                       maxSpeed: settings.gaugeMaxValue,
+                      convertFromKmh: settings.speedFromKmh,
                     ),
                   ),
                 ),
@@ -668,7 +670,7 @@ class _SpeedSparklineCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${telem.truckState.speedKmh.round()} $speedUnitLabel',
+                '${context.read<AppSettings>().speedDisplay(telem.truckState.speedKmh)} $speedUnitLabel',
                 style: const TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 13,

@@ -34,10 +34,18 @@ class AppColors {
   static const Color gaugeDanger = Color(0xFFEF4444);
 }
 
+/// Canonical text style family. Every `TextStyle(fontFamily: 'Roboto', …)`
+/// in the codebase is a legacy of when there was no theme-level default;
+/// new code should prefer [kAppFontFamily] (or just omit the font and let
+/// [AppTheme.dark] inject it). Exposed as a constant so that swapping the
+/// font later is a one-line change.
+const String kAppFontFamily = 'Roboto';
+
 class AppTheme {
   static ThemeData get dark {
     return ThemeData(
       brightness: Brightness.dark,
+      fontFamily: kAppFontFamily,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.orange,

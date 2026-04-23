@@ -16,4 +16,9 @@
     <string name="notification_action_autopilot">Autopilot</string>
     <string name="notification_action_acc">ACC</string>
     <string name="notification_action_disconnect">Disconnect</string>
+    <string name="notification_channel_name">Connection</string>
+    <string name="notification_channel_description">Keeps the connection to ETS2LA alive while the screen is off.</string>
+    <string name="notification_title">ETS2LA Remote</string>
+    <string name="notification_body_connected">Connected</string>
+    <string name="notification_body_connected_to">Connected to %1$s</string>
 </resources>

@@ -16,4 +16,9 @@
     <string name="notification_action_autopilot">Автопилот</string>
     <string name="notification_action_acc">Круиз</string>
     <string name="notification_action_disconnect">Отключить</string>
+    <string name="notification_channel_name">Подключение</string>
+    <string name="notification_channel_description">Держит соединение с ETS2LA активным, пока экран выключен.</string>
+    <string name="notification_title">ETS2LA Remote</string>
+    <string name="notification_body_connected">Подключено</string>
+    <string name="notification_body_connected_to">Подключено к %1$s</string>
 </resources>

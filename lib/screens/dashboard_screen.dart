@@ -16,6 +16,7 @@ import '../utils/toast.dart';
 import '../widgets/update_dialog.dart';
 import '../widgets/whats_new_dialog.dart';
 import 'app_settings_screen.dart';
+import 'onboarding_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/speed_gauge.dart';
 import '../widgets/autopilot_card.dart';
@@ -56,9 +57,25 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
     _shortcutSub = ShortcutService.instance.tabRequests.listen(_setTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowOnboarding();
       _tryAutoConnect();
       _checkForUpdates();
     });
+  }
+
+  /// Push the onboarding screen once per install. Runs post-frame so the
+  /// app has already built its full widget tree (avoiding "pushed during
+  /// build" asserts). No-op on subsequent launches.
+  void _maybeShowOnboarding() {
+    if (!mounted) return;
+    final settings = context.read<AppSettings>();
+    if (settings.hasSeenOnboarding) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const OnboardingScreen(),
+      ),
+    );
   }
 
   void _setTab(int tab) {

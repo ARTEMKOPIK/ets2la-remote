@@ -20,6 +20,7 @@ jobs:
       - name: Bump patch version in pubspec.yaml
         id: version
         run: |
+          git fetch --tags --force
           CURRENT=$(grep '^version:' pubspec.yaml | sed 's/version: //')
           SEMVER="${CURRENT%%+*}"
           BUILD_NUM="${CURRENT##*+}"
@@ -32,6 +33,12 @@ jobs:
           PATCH="${REST#*.}"
           NEW_PATCH=$((PATCH + 1))
           NEW_BUILD=$((BUILD_NUM + 1))
+          # Skip over any semver tags that already exist (e.g. created manually)
+          while git rev-parse --verify --quiet "refs/tags/v${MAJOR}.${MINOR}.${NEW_PATCH}" >/dev/null; do
+            echo "Tag v${MAJOR}.${MINOR}.${NEW_PATCH} already exists, skipping"
+            NEW_PATCH=$((NEW_PATCH + 1))
+            NEW_BUILD=$((NEW_BUILD + 1))
+          done
           NEW_SEMVER="${MAJOR}.${MINOR}.${NEW_PATCH}"
           NEW_VERSION="${NEW_SEMVER}+${NEW_BUILD}"
           sed -i "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml

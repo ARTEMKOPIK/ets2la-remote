@@ -390,4 +390,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gotIt => 'Got it';
+
+  @override
+  String get collectingData => 'Collecting data…';
 }

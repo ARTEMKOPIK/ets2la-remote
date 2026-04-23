@@ -624,6 +624,85 @@ class _StatusBar extends StatelessWidget {
   }
 }
 
+// ─── Speed Sparkline Card ───────────────────────────────────────
+class _SpeedSparklineCard extends StatelessWidget {
+  final double maxSpeed;
+  final String speedUnitLabel;
+
+  const _SpeedSparklineCard({
+    required this.maxSpeed,
+    required this.speedUnitLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final telem = context.watch<TelemetryProvider>();
+    final history = telem.speedHistory;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.surfaceBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                (AppLocalizations.of(context)?.speed ?? 'SPEED').toUpperCase(),
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${telem.truckState.speedKmh.round()} $speedUnitLabel',
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          history.length < 2
+              ? SizedBox(
+                  height: 56,
+                  child: Center(
+                    child: Text(
+                      AppLocalizations.of(context)?.collectingData ??
+                          'Collecting data…',
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                )
+              : RepaintBoundary(
+                  child: TelemetrySparkline(
+                    values: history,
+                    color: AppColors.orange,
+                    maxY: maxSpeed,
+                    height: 56,
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─── Pedals Card ────────────────────────────────────────────────
 class _PedalsCard extends StatelessWidget {
   final double throttle;

@@ -509,7 +509,7 @@ class _DashboardTab extends StatelessWidget {
             label: Text(l10n?.copy ?? 'Copy',
                 style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary)),
             onPressed: () async {
-              await Clipboard.setData(const ClipboardData(text: cmd));
+              await Clipboard.setData(ClipboardData(text: cmd));
               if (!ctx.mounted) return;
               ScaffoldMessenger.of(ctx).showSnackBar(
                 SnackBar(

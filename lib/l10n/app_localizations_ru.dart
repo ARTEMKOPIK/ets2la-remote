@@ -390,4 +390,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gotIt => 'Понятно';
+
+  @override
+  String get collectingData => 'Сбор данных…';
 }

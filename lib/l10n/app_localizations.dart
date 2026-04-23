@@ -856,6 +856,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it'**
   String get gotIt;
+
+  /// No description provided for @collectingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Collecting data…'**
+  String get collectingData;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

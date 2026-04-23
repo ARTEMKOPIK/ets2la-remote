@@ -19,18 +19,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _togglePlugin(PluginInfo plugin, bool currentState) async {
     final api = context.read<ConnectionProvider>().apiService;
+    final l10n = AppLocalizations.of(context);
     setState(() => _loadingPlugins.add(plugin.id));
 
+    bool ok = false;
     try {
       // Use plugin.name (exact description.name from API) — works regardless of language
       if (currentState) {
-        await api.disablePluginByName(plugin.name);
+        ok = await api.disablePluginByName(plugin.name);
       } else {
-        await api.enablePluginByName(plugin.name);
+        ok = await api.enablePluginByName(plugin.name);
       }
     } finally {
       if (mounted) setState(() => _loadingPlugins.remove(plugin.id));
     }
+
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          !ok
+              ? (l10n?.pluginToggleFailed ?? 'Failed to toggle plugin')
+              : (currentState
+                  ? (l10n?.pluginDisabled ?? 'Plugin disabled')
+                  : (l10n?.pluginEnabled ?? 'Plugin enabled')),
+          style: const TextStyle(fontFamily: 'Roboto', fontSize: 13),
+        ),
+        backgroundColor: ok ? AppColors.toastSuccess : AppColors.toastError,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+      ),
+    );
 
     // Refresh plugin list
     final telem = context.read<TelemetryProvider>();

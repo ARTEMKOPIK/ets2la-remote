@@ -24,6 +24,10 @@ class AppColors {
   static const Color errorDim = Color(0x22EF4444);
   static const Color warning = Color(0xFFF59E0B);
 
+  // Toasts / snackbars (muted variants for readability on dark backgrounds)
+  static const Color toastSuccess = Color(0xFF166534);
+  static const Color toastError = Color(0xFF7F1D1D);
+
   // Gauge
   static const Color gaugeTrack = Color(0xFF1F1F1F);
   static const Color gaugeActive = Color(0xFFF97316);

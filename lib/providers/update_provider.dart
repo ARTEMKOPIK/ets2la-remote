@@ -62,19 +62,23 @@ class UpdateProvider extends ChangeNotifier {
     _downloadProgress = 0.0;
     notifyListeners();
 
+    final client = http.Client();
+    IOSink? sink;
     try {
       final tempDir = await getTemporaryDirectory();
       final fileName = 'ets2la-${_updateInfo!.version}.apk';
       final file = File('${tempDir.path}/$fileName');
 
       final req = http.Request('GET', Uri.parse(_updateInfo!.downloadUrl));
-      final res = await http.Client().send(req);
+      final res = await client.send(req);
 
-      if (res.statusCode != 200) throw Exception('HTTP ${res.statusCode}');
+      if (res.statusCode != 200) {
+        throw Exception('HTTP ${res.statusCode}');
+      }
 
       final contentLength = res.contentLength ?? _updateInfo!.sizeBytes;
       int received = 0;
-      final sink = file.openWrite();
+      sink = file.openWrite();
 
       await for (final chunk in res.stream) {
         sink.add(chunk);
@@ -85,7 +89,10 @@ class UpdateProvider extends ChangeNotifier {
         }
       }
 
+      await sink.flush();
       await sink.close();
+      sink = null;
+
       _downloadedPath = file.path;
       _state = UpdateState.downloaded;
       notifyListeners();
@@ -94,6 +101,9 @@ class UpdateProvider extends ChangeNotifier {
       _state = UpdateState.error;
       _errorMessage = 'Download error: $e';
       notifyListeners();
+    } finally {
+      await sink?.close();
+      client.close();
     }
   }
 

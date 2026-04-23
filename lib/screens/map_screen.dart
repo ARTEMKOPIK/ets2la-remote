@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -113,7 +115,7 @@ class _MapScreenState extends State<MapScreen>
                       width: 48,
                       height: 48,
                       child: Transform.rotate(
-                        angle: bearing * (3.14159 / 180),
+                        angle: bearing * (math.pi / 180),
                         child: Container(
                           decoration: BoxDecoration(
                             color: AppColors.orange,

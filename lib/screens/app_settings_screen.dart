@@ -574,7 +574,7 @@ class _CheckUpdateTileState extends State<_CheckUpdateTile> {
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
             ],
           ),
-          backgroundColor: const Color(0xFF166534),
+          backgroundColor: AppColors.toastSuccess,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(16),

@@ -8,6 +8,21 @@ import '../providers/settings_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
 
+/// Convert a [ConnectionErrorCode] name (or arbitrary message) into a
+/// localized display string. Keeps provider decoupled from the widget tree.
+String _localizedError(BuildContext context, String code) {
+  final l10n = AppLocalizations.of(context);
+  switch (code) {
+    case 'unreachable':
+      return l10n?.cannotReachServer ?? 'Cannot reach server';
+    case 'failed':
+      return l10n?.connectionFailed ?? 'Connection failed';
+    case 'invalidHost':
+      return l10n?.invalidHost ?? 'Enter a valid IP address or hostname';
+  }
+  return code;
+}
+
 class ConnectScreen extends StatefulWidget {
   const ConnectScreen({super.key});
 
@@ -52,13 +67,22 @@ class _ConnectScreenState extends State<ConnectScreen>
   static final _ipRegex = RegExp(
     r'^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$',
   );
+  // Hostname per RFC 1123 — letters, digits, hyphens, dots; must start/end
+  // with alphanumeric per label. Accepts things like `mypc.local`,
+  // `ets2la-desktop`, `host-01.lan`.
+  static final _hostnameRegex = RegExp(
+    r'^(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$',
+  );
+
+  static bool _isValidHost(String host) =>
+      _ipRegex.hasMatch(host) || _hostnameRegex.hasMatch(host);
 
   Future<void> _connect() async {
     final host = _ipController.text.trim();
     if (host.isEmpty) return;
-    if (!_ipRegex.hasMatch(host)) {
+    if (!_isValidHost(host)) {
       final conn = context.read<ConnectionProvider>();
-      conn.setError(AppLocalizations.of(context)?.invalidIp ?? 'Enter a valid IPv4 address');
+      conn.setError(ConnectionErrorCode.invalidHost.name);
       return;
     }
 
@@ -141,17 +165,17 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ),
                   const SizedBox(height: 32),
 
-                  // IP Input
+                  // IP / hostname input
                   TextField(
                     controller: _ipController,
                     focusNode: _ipFocus,
                     autocorrect: false,
                     enableSuggestions: false,
                     textInputAction: TextInputAction.done,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: TextInputType.url,
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                      LengthLimitingTextInputFormatter(15),
+                      FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9.\-]')),
+                      LengthLimitingTextInputFormatter(253),
                     ],
                     onChanged: (_) {
                       // Clear previous error as soon as user starts editing
@@ -163,7 +187,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                       letterSpacing: 1,
                     ),
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)?.enterIp ?? 'IP Address',
+                      labelText: AppLocalizations.of(context)?.hostnameOrIp ?? 'IP or hostname',
                       hintText: '192.168.1.100',
                       prefixIcon: const Icon(Icons.router_rounded,
                           color: AppColors.textSecondary),
@@ -188,7 +212,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              conn.errorMessage!,
+                              _localizedError(context, conn.errorMessage!),
                               style: TextStyle(fontFamily: 'Roboto',
                                   fontSize: 13, color: AppColors.error),
                             ),

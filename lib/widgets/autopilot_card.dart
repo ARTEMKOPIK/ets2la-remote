@@ -63,22 +63,24 @@ class _AutopilotCardState extends State<AutopilotCard>
   }
 
   Future<void> _handleSteering() async {
-    if (_steeringLoading) return;
+    final cb = widget.onToggleSteering;
+    if (cb == null || _steeringLoading) return;
     HapticFeedback.mediumImpact();
     setState(() => _steeringLoading = true);
     try {
-      await widget.onToggleSteering?.call();
+      await cb();
     } finally {
       if (mounted) setState(() => _steeringLoading = false);
     }
   }
 
   Future<void> _handleAcc() async {
-    if (_accLoading) return;
+    final cb = widget.onToggleAcc;
+    if (cb == null || _accLoading) return;
     HapticFeedback.lightImpact();
     setState(() => _accLoading = true);
     try {
-      await widget.onToggleAcc?.call();
+      await cb();
     } finally {
       if (mounted) setState(() => _accLoading = false);
     }

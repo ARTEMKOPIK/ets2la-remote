@@ -1,5 +1,4 @@
 import 'dart:convert';
-// CI trigger
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';

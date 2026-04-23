@@ -10,7 +10,6 @@ import '../providers/update_provider.dart';
 import '../widgets/update_dialog.dart';
 import 'app_settings_screen.dart';
 import '../theme/app_theme.dart';
-import '../widgets/ets2la_logo.dart';
 import '../widgets/speed_gauge.dart';
 import '../widgets/autopilot_card.dart';
 import '../widgets/metric_card.dart';
@@ -215,7 +214,7 @@ class _DashboardTab extends StatelessWidget {
       if (!ok) {
         _showFirewallDialog(context);
       } else {
-        _showToast(context, currentState ? (AppLocalizations.of(context)?.autopilotOff ?? 'Autopilot OFF') : (AppLocalizations.of(context)?.autopilotOn ?? 'Autopilot ON ✓'), success: true);
+        _showToast(context, currentState ? (AppLocalizations.of(context)?.autopilotOff ?? 'Autopilot OFF') : (AppLocalizations.of(context)?.autopilotOn ?? 'Autopilot ON'), success: true);
       }
     }
   }
@@ -239,7 +238,7 @@ class _DashboardTab extends StatelessWidget {
       if (!ok) {
         _showFirewallDialog(context);
       } else {
-        _showToast(context, currentState ? (AppLocalizations.of(context)?.accOff ?? 'ACC OFF') : (AppLocalizations.of(context)?.accOn ?? 'ACC ON ✓'), success: true);
+        _showToast(context, currentState ? (AppLocalizations.of(context)?.accOff ?? 'ACC OFF') : (AppLocalizations.of(context)?.accOn ?? 'ACC ON'), success: true);
       }
     }
   }
@@ -486,7 +485,7 @@ class _PedalsCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'GAME',
+                  AppLocalizations.of(context)?.game ?? 'GAME',
                   style: TextStyle(fontFamily: 'Roboto', 
                     fontSize: 9, color: AppColors.textSecondary,
                     letterSpacing: 1.5, fontWeight: FontWeight.w600,
@@ -572,10 +571,9 @@ class _LazyIndexedStack extends StatefulWidget {
   final List<Widget> children;
 
   const _LazyIndexedStack({
-    Key? key,
     required this.index,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   State<_LazyIndexedStack> createState() => _LazyIndexedStackState();

@@ -49,7 +49,9 @@ class _MapScreenState extends State<MapScreen>
 
     final truckPos = navPos?.position;
     final bearing = navPos?.bearing ?? 0.0;
-    final speedKmh = (navPos?.speedKmh ?? 0).toStringAsFixed(0);
+    final speedKmh = navPos?.speedKmh ?? 0;
+    final speedText = settings.speedDisplay(speedKmh);
+    final speedUnitLabel = settings.speedUnitLabel;
 
     return Scaffold(
       appBar: AppBar(
@@ -64,7 +66,7 @@ class _MapScreenState extends State<MapScreen>
               color: (_autoFollowOverride ?? settings.mapAutoFollow) ? AppColors.orange : AppColors.textSecondary,
             ),
             onPressed: () => setState(() => _autoFollowOverride = !(_autoFollowOverride ?? settings.mapAutoFollow)),
-            tooltip: 'Auto-follow',
+            tooltip: AppLocalizations.of(context)?.autoFollowTooltip ?? 'Auto-follow',
           ),
         ],
       ),
@@ -157,7 +159,7 @@ class _MapScreenState extends State<MapScreen>
                       const Icon(Icons.speed_rounded, size: 14, color: AppColors.orange),
                       const SizedBox(width: 4),
                       Text(
-                        '$speedKmh km/h',
+                        '$speedText $speedUnitLabel',
                         style: TextStyle(fontFamily: 'Roboto', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -201,13 +203,13 @@ class _MapScreenState extends State<MapScreen>
                         color: AppColors.textSecondary, size: 40),
                     const SizedBox(height: 8),
                     Text(
-                      'No position data',
+                      AppLocalizations.of(context)?.noPositionData ?? 'No position data',
                       style: TextStyle(fontFamily: 'Roboto', 
                           color: AppColors.textSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Enable NavigationSockets plugin',
+                      AppLocalizations.of(context)?.enableNavigationPlugin ?? 'Enable NavigationSockets plugin',
                       style: TextStyle(fontFamily: 'Roboto', 
                           color: AppColors.textMuted, fontSize: 12),
                     ),

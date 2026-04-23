@@ -19,6 +19,11 @@ class TelemetryProvider extends ChangeNotifier {
   StreamSubscription? _posSub;
   StreamSubscription? _routeSub;
   Timer? _pluginRefreshTimer;
+  bool _disposed = false;
+
+  void _safeNotify() {
+    if (!_disposed) notifyListeners();
+  }
 
   void init(
     VisualizationWsService wsService,
@@ -31,13 +36,13 @@ class TelemetryProvider extends ChangeNotifier {
     _posSub?.cancel();
     _posSub = navService.positionStream.listen((pos) {
       navPosition = pos;
-      notifyListeners();
+      _safeNotify();
     });
 
     _routeSub?.cancel();
     _routeSub = navService.routeStream.listen((route) {
       navRoute = route;
-      notifyListeners();
+      _safeNotify();
     });
   }
 
@@ -54,18 +59,18 @@ class TelemetryProvider extends ChangeNotifier {
         break;
       case 3:
         truckState = TruckState.fromJson(data);
-        notifyListeners();
+        _safeNotify();
         break;
       case 7:
         autopilotStatus = AutopilotStatus.fromJson(data);
-        notifyListeners();
+        _safeNotify();
         break;
     }
   }
 
   void updatePlugins(List<PluginInfo> list) {
     plugins = list;
-    notifyListeners();
+    _safeNotify();
   }
 
   void reset() {
@@ -79,22 +84,24 @@ class TelemetryProvider extends ChangeNotifier {
     _posSub?.cancel();
     _routeSub?.cancel();
     _pluginRefreshTimer?.cancel();
-    notifyListeners();
+    _safeNotify();
   }
 
   void startPluginRefresh(VisualizationWsService wsService, NavigationWsService navService, ApiService apiService) {
     // Cancel existing timer first
     _pluginRefreshTimer?.cancel();
-    
+
     // Only start if connected
     if (wsService.state == WsConnectionState.connected) {
       _pluginRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+        if (_disposed) return;
         // Check connection before fetching
         if (wsService.state == WsConnectionState.connected) {
           final list = await apiService.getPlugins();
+          if (_disposed) return;
           if (list.isNotEmpty) {
             plugins = list;
-            notifyListeners();
+            _safeNotify();
           }
         } else {
           // Stop timer when disconnected
@@ -105,9 +112,10 @@ class TelemetryProvider extends ChangeNotifier {
 
       // Initial fetch
       apiService.getPlugins().then((list) {
+        if (_disposed) return;
         if (list.isNotEmpty) {
           plugins = list;
-          notifyListeners();
+          _safeNotify();
         }
       });
     }
@@ -120,6 +128,7 @@ class TelemetryProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _wsSub?.cancel();
     _posSub?.cancel();
     _routeSub?.cancel();

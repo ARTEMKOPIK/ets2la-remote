@@ -98,5 +98,9 @@
   "noUpdates": "У вас актуальная версия",
   "updatingFile": "Обновление {file}...",
   "startingLocalServer": "Запуск локального сервера...",
-  "preparingUnity": "Подготовка Unity..."
+  "preparingUnity": "Подготовка Unity...",
+  "autoFollowTooltip": "Автоследование",
+  "noPositionData": "Нет данных позиции",
+  "enableNavigationPlugin": "Включите плагин NavigationSockets",
+  "game": "ИГРА"
 }

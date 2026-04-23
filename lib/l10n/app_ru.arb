@@ -147,5 +147,13 @@
   "updateDownloadFailed": "Не удалось скачать обновление",
   "updateInstallFailed": "Ошибка установки",
   "updateCheckFailed": "Не удалось проверить обновления",
-  "networkOffline": "Нет подключения к интернету"
+  "networkOffline": "Нет подключения к интернету",
+  "fullscreen": "Во весь экран",
+  "exitFullscreen": "Выйти из полного экрана",
+  "lightTheme": "Светлая тема",
+  "darkTheme": "Тёмная тема",
+  "zoomIn": "Приблизить",
+  "zoomOut": "Отдалить",
+  "resetCamera": "Сбросить камеру",
+  "mapAttributionTitle": "Источники карты"
 }

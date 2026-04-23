@@ -195,9 +195,17 @@ class ConnectionProvider extends ChangeNotifier {
       // ports are reachable (firewall rules per-port, or the API endpoint
       // briefly 404s during backend startup). We still attempt the real
       // visualization WS handshake and treat *that* as the source of truth.
-      final reachable = await apiService.ping();
-
-      await wsService.connect(cleanHost);
+      //
+      // Run both probes concurrently: the WS handshake is what ultimately
+      // gates success, and the ping is only consulted to distinguish
+      // "backend down" vs "backend up but WS refused" in the error message.
+      // Serialising them doubled the perceived connect latency on slow
+      // networks for no functional benefit.
+      final results = await Future.wait([
+        apiService.ping(),
+        wsService.connect(cleanHost).then((_) => true).catchError((_) => false),
+      ]);
+      final reachable = results[0];
       if (wsService.state != WsConnectionState.connected) {
         _errorMessage = reachable
             ? ConnectionErrorCode.failed.name

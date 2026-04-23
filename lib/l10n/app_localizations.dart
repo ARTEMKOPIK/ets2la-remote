@@ -659,6 +659,54 @@ abstract class AppLocalizations {
   /// **'You appear to be offline'**
   String get networkOffline;
 
+  /// No description provided for @fullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get fullscreen;
+
+  /// No description provided for @exitFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit fullscreen'**
+  String get exitFullscreen;
+
+  /// No description provided for @lightTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light theme'**
+  String get lightTheme;
+
+  /// No description provided for @darkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get darkTheme;
+
+  /// No description provided for @zoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get zoomIn;
+
+  /// No description provided for @zoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get zoomOut;
+
+  /// No description provided for @resetCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset camera'**
+  String get resetCamera;
+
+  /// No description provided for @mapAttributionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Map data'**
+  String get mapAttributionTitle;
+
   /// No description provided for @runInPowerShell.
   ///
   /// In en, this message translates to:

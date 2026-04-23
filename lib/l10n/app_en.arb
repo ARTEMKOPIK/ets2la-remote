@@ -122,5 +122,9 @@
   "loadingPlugins": "Loading plugins…",
   "refresh": "Refresh",
   "dismiss": "Dismiss",
-  "portsAdvancedHint": "Only change if ETS2LA uses non-default ports"
+  "portsAdvancedHint": "Only change if ETS2LA uses non-default ports",
+  "findEts2la": "Find ETS2LA on LAN",
+  "scanning": "Scanning…",
+  "noHostsFound": "No ETS2LA found on LAN",
+  "foundOnLan": "Found on LAN"
 }

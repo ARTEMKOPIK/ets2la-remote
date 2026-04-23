@@ -357,4 +357,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pluginToggleFailed => 'Не удалось переключить плагин';
+
+  @override
+  String get findEts2la => 'Найти ETS2LA в сети';
+
+  @override
+  String get scanning => 'Поиск…';
+
+  @override
+  String get noHostsFound => 'ETS2LA не найден в сети';
+
+  @override
+  String get foundOnLan => 'Найдено в сети';
 }

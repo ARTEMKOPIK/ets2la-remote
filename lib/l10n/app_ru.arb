@@ -115,5 +115,9 @@
   "loadingPlugins": "Загрузка плагинов…",
   "refresh": "Обновить",
   "dismiss": "Скрыть",
-  "portsAdvancedHint": "Меняйте, только если ETS2LA использует нестандартные порты"
+  "portsAdvancedHint": "Меняйте, только если ETS2LA использует нестандартные порты",
+  "findEts2la": "Найти ETS2LA в сети",
+  "scanning": "Поиск…",
+  "noHostsFound": "ETS2LA не найден в сети",
+  "foundOnLan": "Найдено в сети"
 }

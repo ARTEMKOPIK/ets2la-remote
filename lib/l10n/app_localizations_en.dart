@@ -357,4 +357,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginToggleFailed => 'Failed to toggle plugin';
+
+  @override
+  String get findEts2la => 'Find ETS2LA on LAN';
+
+  @override
+  String get scanning => 'Scanning…';
+
+  @override
+  String get noHostsFound => 'No ETS2LA found on LAN';
+
+  @override
+  String get foundOnLan => 'Found on LAN';
 }

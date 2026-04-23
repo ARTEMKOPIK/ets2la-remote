@@ -790,6 +790,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to toggle plugin'**
   String get pluginToggleFailed;
+
+  /// No description provided for @findEts2la.
+  ///
+  /// In en, this message translates to:
+  /// **'Find ETS2LA on LAN'**
+  String get findEts2la;
+
+  /// No description provided for @scanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning…'**
+  String get scanning;
+
+  /// No description provided for @noHostsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No ETS2LA found on LAN'**
+  String get noHostsFound;
+
+  /// No description provided for @foundOnLan.
+  ///
+  /// In en, this message translates to:
+  /// **'Found on LAN'**
+  String get foundOnLan;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

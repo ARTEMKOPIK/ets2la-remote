@@ -54,11 +54,28 @@ class ETS2LARemoteApp extends StatelessWidget {
       ],
       child: Consumer<AppSettings>(
         builder: (context, settings, child) {
+          // Reduce-motion: swap in a no-op page-transition builder so
+          // route pushes are instantaneous. Also drives `AnimatedSwitcher`
+          // duration choices across the app via `AppSettings.reduceMotion`.
+          final theme = AppTheme.build(
+            accent: settings.accentColor,
+            highContrast: settings.highContrast,
+          );
+          final themed = settings.reduceMotion
+              ? theme.copyWith(
+                  pageTransitionsTheme: const PageTransitionsTheme(
+                    builders: {
+                      TargetPlatform.android: _NoTransitionsBuilder(),
+                      TargetPlatform.iOS: _NoTransitionsBuilder(),
+                    },
+                  ),
+                )
+              : theme;
           return MaterialApp(
             title: 'ETS2LA Remote',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.dark,
-            
+            theme: themed,
+
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -78,11 +95,29 @@ class ETS2LARemoteApp extends StatelessWidget {
               }
               return const Locale('en');
             },
-            
+
             home: const DashboardScreen(),
           );
         },
       ),
     );
+  }
+}
+
+/// Page-transition builder that returns the child unchanged — used when
+/// `AppSettings.reduceMotion` is on. Matches the contract of
+/// [PageTransitionsBuilder] so it can drop into a [PageTransitionsTheme].
+class _NoTransitionsBuilder extends PageTransitionsBuilder {
+  const _NoTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }

@@ -11,9 +11,12 @@ import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/update_provider.dart';
 import '../services/shortcut_service.dart';
+import '../utils/haptics.dart';
+import '../utils/toast.dart';
 import '../widgets/update_dialog.dart';
 import '../widgets/whats_new_dialog.dart';
 import 'app_settings_screen.dart';
+import 'onboarding_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/speed_gauge.dart';
 import '../widgets/autopilot_card.dart';
@@ -54,9 +57,25 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
     _shortcutSub = ShortcutService.instance.tabRequests.listen(_setTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowOnboarding();
       _tryAutoConnect();
       _checkForUpdates();
     });
+  }
+
+  /// Push the onboarding screen once per install. Runs post-frame so the
+  /// app has already built its full widget tree (avoiding "pushed during
+  /// build" asserts). No-op on subsequent launches.
+  void _maybeShowOnboarding() {
+    if (!mounted) return;
+    final settings = context.read<AppSettings>();
+    if (settings.hasSeenOnboarding) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const OnboardingScreen(),
+      ),
+    );
   }
 
   void _setTab(int tab) {
@@ -152,7 +171,20 @@ class _DashboardScreenState extends State<DashboardScreen>
           _ConnectionChip(
             connected: conn.isConnected,
             host: conn.currentHost,
+            pingMs: conn.lastPingMs,
             onTap: () => _showConnectionSheet(context),
+            onLongPress: conn.isConnected
+                ? () {
+                  // Long-press provides the fastest path to disconnect
+                  // without opening the connection sheet — particularly
+                  // handy when the user is already one-handing the phone
+                  // while driving. Vibration confirms the action.
+                    AppHaptics.medium(
+                      Provider.of<AppSettings>(context, listen: false),
+                    );
+                    conn.disconnect();
+                  }
+                : null,
           ),
           IconButton(
             icon: const Icon(Icons.settings_rounded, size: 22),
@@ -232,6 +264,19 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
+/// Is a plugin by its canonical id currently loaded-and-running on the
+/// backend? Returns `true` when we just don't know (plugin list not yet
+/// received) to avoid flashing a red "Plugin disabled" hint during the
+/// first seconds after connect.
+bool _pluginRunning(BuildContext context, String id) {
+  final telem = context.watch<TelemetryProvider>();
+  if (telem.plugins.isEmpty) return true;
+  for (final p in telem.plugins) {
+    if (p.id == id) return p.running;
+  }
+  return false;
+}
+
 class _DashboardTab extends StatelessWidget {
   const _DashboardTab();
 
@@ -261,6 +306,10 @@ class _DashboardTab extends StatelessWidget {
 
   Future<void> _toggleSteering(BuildContext context, bool currentState) async {
     final conn = context.read<ConnectionProvider>();
+    final settings = context.read<AppSettings>();
+    // Medium-impact haptic fires on intent, not on result, so the user gets
+    // immediate feedback even while the plugin-enable round-trip runs.
+    unawaited(AppHaptics.medium(settings));
     if (!currentState) {
       final telem = context.read<TelemetryProvider>();
       final mapPlugin = telem.plugins.where((p) => p.id == 'plugins.map').firstOrNull;
@@ -274,15 +323,28 @@ class _DashboardTab extends StatelessWidget {
     final ok = await conn.pagesService.toggleSteering();
     if (context.mounted) {
       if (!ok) {
-        _showFirewallDialog(context);
+        // Debounce the firewall dialog — one random glitch shouldn't
+        // throw a "fix your firewall" wall of text at the user.
+        if (conn.registerPagesFailureShouldShowDialog()) {
+          _showFirewallDialog(context);
+        } else {
+          context.showErrorToast(
+              AppLocalizations.of(context)?.connectionFailed ??
+                  'Connection failed');
+        }
       } else {
-        _showToast(context, currentState ? (AppLocalizations.of(context)?.autopilotOff ?? 'Autopilot OFF') : (AppLocalizations.of(context)?.autopilotOn ?? 'Autopilot ON'), success: true);
+        conn.resetFirewallFailStreak();
+        context.showSuccessToast(currentState
+            ? (AppLocalizations.of(context)?.autopilotOff ?? 'Autopilot OFF')
+            : (AppLocalizations.of(context)?.autopilotOn ?? 'Autopilot ON'));
       }
     }
   }
 
   Future<void> _toggleAcc(BuildContext context, bool currentState) async {
     final conn = context.read<ConnectionProvider>();
+    final settings = context.read<AppSettings>();
+    unawaited(AppHaptics.medium(settings));
     if (!currentState) {
       final telem = context.read<TelemetryProvider>();
       final accPlugin = telem.plugins
@@ -298,9 +360,18 @@ class _DashboardTab extends StatelessWidget {
     final ok = await conn.pagesService.toggleAcc();
     if (context.mounted) {
       if (!ok) {
-        _showFirewallDialog(context);
+        if (conn.registerPagesFailureShouldShowDialog()) {
+          _showFirewallDialog(context);
+        } else {
+          context.showErrorToast(
+              AppLocalizations.of(context)?.connectionFailed ??
+                  'Connection failed');
+        }
       } else {
-        _showToast(context, currentState ? (AppLocalizations.of(context)?.accOff ?? 'ACC OFF') : (AppLocalizations.of(context)?.accOn ?? 'ACC ON'), success: true);
+        conn.resetFirewallFailStreak();
+        context.showSuccessToast(currentState
+            ? (AppLocalizations.of(context)?.accOff ?? 'ACC OFF')
+            : (AppLocalizations.of(context)?.accOn ?? 'ACC ON'));
       }
     }
   }
@@ -320,6 +391,9 @@ class _DashboardTab extends StatelessWidget {
           AutopilotCard(
             steeringEnabled: status.steeringEnabled,
             accEnabled: status.accEnabled,
+            steeringPluginRunning: _pluginRunning(context, 'plugins.map'),
+            accPluginRunning:
+                _pluginRunning(context, 'plugins.adaptivecruisecontrol'),
             onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
             onToggleAcc: () => _toggleAcc(context, status.accEnabled),
           ),
@@ -431,6 +505,10 @@ class _DashboardTab extends StatelessWidget {
                 AutopilotCard(
                   steeringEnabled: status.steeringEnabled,
                   accEnabled: status.accEnabled,
+                  steeringPluginRunning:
+                      _pluginRunning(context, 'plugins.map'),
+                  accPluginRunning: _pluginRunning(
+                      context, 'plugins.adaptivecruisecontrol'),
                   onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
                   onToggleAcc: () => _toggleAcc(context, status.accEnabled),
                 ),
@@ -560,6 +638,57 @@ class _DashboardTab extends StatelessWidget {
                 ],
               ),
             ),
+          // "Waiting for telemetry" banner — shown once we're connected but
+          // the game isn't yet streaming data. TruckState.time stays 0 until
+          // the first real telemetry payload arrives, so it's a reliable
+          // "is the simulator actually sending data" signal without having
+          // to plumb a separate flag through.
+          if (conn.isConnected && state.time == 0)
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border(
+                  bottom: BorderSide(color: AppColors.surfaceBorder),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.hourglass_empty_rounded,
+                      size: 16, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)?.waitingForGameTitle ??
+                              'Waiting for telemetry',
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context)?.waitingForGameBody ??
+                              'Launch ETS2 or ATS and enable the Map plugin in ETS2LA.',
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -641,6 +770,62 @@ class _SpeedSparklineCard extends StatelessWidget {
     required this.speedUnitLabel,
   });
 
+  void _showStats(BuildContext context, List<double> historyKmh) {
+    if (historyKmh.isEmpty) return;
+    final settings = context.read<AppSettings>();
+    // Last-60s stats. speedHistory is sampled at ~1Hz and capped at 60
+    // samples by TelemetryProvider, so the full buffer is already the
+    // "last 60 seconds" window.
+    double sum = 0, max = historyKmh.first, min = historyKmh.first;
+    for (final v in historyKmh) {
+      sum += v;
+      if (v > max) max = v;
+      if (v < min) min = v;
+    }
+    final avg = sum / historyKmh.length;
+    final l10n = AppLocalizations.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n?.sparklineStatsTitle ?? 'Last 60 seconds',
+              style: const TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _StatRow(
+              label: l10n?.sparklineAvg ?? 'Avg',
+              value: '${settings.speedDisplay(avg)} $speedUnitLabel',
+            ),
+            const SizedBox(height: 8),
+            _StatRow(
+              label: l10n?.sparklineMax ?? 'Max',
+              value: '${settings.speedDisplay(max)} $speedUnitLabel',
+            ),
+            const SizedBox(height: 8),
+            _StatRow(
+              label: l10n?.sparklineMin ?? 'Min',
+              value: '${settings.speedDisplay(min)} $speedUnitLabel',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final telem = context.watch<TelemetryProvider>();
@@ -696,12 +881,21 @@ class _SpeedSparklineCard extends StatelessWidget {
                     ),
                   ),
                 )
-              : RepaintBoundary(
-                  child: TelemetrySparkline(
-                    values: history,
-                    color: AppColors.orange,
-                    maxY: maxSpeed,
-                    height: 56,
+              : Semantics(
+                  button: true,
+                  label: AppLocalizations.of(context)?.sparklineStatsTitle ??
+                      'Last 60 seconds',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _showStats(context, history),
+                    child: RepaintBoundary(
+                      child: TelemetrySparkline(
+                        values: history,
+                        color: AppColors.orange,
+                        maxY: maxSpeed,
+                        height: 56,
+                      ),
+                    ),
                   ),
                 ),
         ],
@@ -878,11 +1072,26 @@ class _LazyIndexedStackState extends State<_LazyIndexedStack> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: widget.index,
+    // Respect reduce-motion: when enabled, skip the 150ms fade entirely and
+    // snap between tabs. Avoids vestibular discomfort for users who opt in.
+    final reduceMotion =
+        context.select<AppSettings, bool>((s) => s.reduceMotion);
+    return Stack(
       children: List.generate(widget.children.length, (i) {
         if (!_activated[i]) return const SizedBox.shrink();
-        return widget.children[i];
+        final active = i == widget.index;
+        return IgnorePointer(
+          ignoring: !active,
+          child: AnimatedOpacity(
+            opacity: active ? 1.0 : 0.0,
+            // Short cross-fade makes tab switches feel less abrupt without
+            // being noticeably slow. 150ms is Material's "short2" duration.
+            duration:
+                Duration(milliseconds: reduceMotion ? 0 : 150),
+            curve: Curves.easeInOut,
+            child: Offstage(offstage: !active, child: widget.children[i]),
+          ),
+        );
       }),
     );
   }
@@ -891,13 +1100,25 @@ class _LazyIndexedStackState extends State<_LazyIndexedStack> {
 class _ConnectionChip extends StatelessWidget {
   final bool connected;
   final String host;
+  final int? pingMs;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   const _ConnectionChip({
     required this.connected,
     required this.host,
     required this.onTap,
+    this.pingMs,
+    this.onLongPress,
   });
+
+  /// Bucketed colour for a measured latency — green under 60ms feels
+  /// LAN-fast, amber up to 200ms is "fine", red above is visibly laggy.
+  Color _pingColor(int ms) {
+    if (ms <= 60) return AppColors.success;
+    if (ms <= 200) return AppColors.orange;
+    return AppColors.error;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -906,33 +1127,95 @@ class _ConnectionChip extends StatelessWidget {
         ? (host.isNotEmpty ? host : (l10n?.connected ?? 'Connected'))
         : (l10n?.notConnected ?? 'Not connected');
     final color = connected ? AppColors.orange : AppColors.textMuted;
+    final showPing = connected && pingMs != null;
     return Semantics(
       button: true,
-      label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(connected ? Icons.wifi : Icons.wifi_off, color: color, size: 20),
-              const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 120),
-                child: Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: color),
-                  overflow: TextOverflow.ellipsis,
+      label: showPing
+          ? '$label, ${l10n?.pingLabel ?? "Ping"} ${pingMs}ms'
+          : label,
+      child: Tooltip(
+        message:
+            connected ? (l10n?.disconnectHint ?? 'Hold to disconnect') : label,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(connected ? Icons.wifi : Icons.wifi_off,
+                    color: color, size: 20),
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 120),
+                  child: Text(
+                    label,
+                    style: TextStyle(fontSize: 12, color: color),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+                if (showPing) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: _pingColor(pingMs!).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '${pingMs}ms',
+                      style: TextStyle(
+                        fontFamily: 'RobotoMono',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: _pingColor(pingMs!),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'RobotoMono',
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -944,38 +1227,47 @@ class _PluginChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: active ? AppColors.successDim : AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: active
-              ? AppColors.success.withOpacity(0.3)
-              : AppColors.surfaceBorder,
+    // Plugin chips are read-only status indicators — wrapping them in a
+    // Semantics node (with `button: false`) prevents TalkBack announcing
+    // them as tappable. Visually they carry their own colour, so we also
+    // bake the active/inactive state into the label for screen readers.
+    return Semantics(
+      button: false,
+      label: '$name, ${active ? "active" : "inactive"}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: active ? AppColors.successDim : AppColors.surfaceElevated,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: active
+                ? AppColors.success.withOpacity(0.3)
+                : AppColors.surfaceBorder,
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 5,
-            height: 5,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active ? AppColors.success : AppColors.textMuted,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 5,
+              height: 5,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: active ? AppColors.success : AppColors.textMuted,
+              ),
             ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            name,
-            style: TextStyle(fontFamily: 'Roboto', 
-              fontSize: 11,
-              color: active ? AppColors.success : AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+            const SizedBox(width: 5),
+            Text(
+              name,
+              style: TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 11,
+                color: active ? AppColors.success : AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

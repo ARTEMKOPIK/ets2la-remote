@@ -14,6 +14,22 @@ import '../services/wake_on_lan_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
 
+/// Localized label for a [ConnectionStage]. Matches the short on-button
+/// progress text to the user's current language so the flow feels native.
+String _stageLabel(BuildContext context, ConnectionStage stage) {
+  final l10n = AppLocalizations.of(context);
+  switch (stage) {
+    case ConnectionStage.pinging:
+      return l10n?.stagePinging ?? 'Pinging…';
+    case ConnectionStage.openingSocket:
+      return l10n?.stageOpeningSocket ?? 'Opening socket…';
+    case ConnectionStage.subscribing:
+      return l10n?.stageSubscribing ?? 'Subscribing…';
+    case ConnectionStage.idle:
+      return l10n?.stageConnecting ?? 'Connecting…';
+  }
+}
+
 /// Convert a [ConnectionErrorCode] name (or arbitrary message) into a
 /// localized display string. Keeps provider decoupled from the widget tree.
 String _localizedError(BuildContext context, String code) {
@@ -234,6 +250,63 @@ class _ConnectScreenState extends State<ConnectScreen>
     }
   }
 
+  /// Explain why mDNS discovery may have failed. Shown after an empty
+  /// LAN scan so the user has a concrete checklist instead of just
+  /// "nothing was found".
+  Future<void> _showMdnsHelpDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.help_outline_rounded,
+                color: AppColors.orange, size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                l10n?.mdnsHelpTitle ?? "ETS2LA not visible on the network",
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Text(
+            l10n?.mdnsHelpBody ??
+                '• Make sure ETS2LA is running on your PC\n'
+                    '• Both devices must be on the same Wi-Fi (not guest)\n'
+                    '• Some routers block mDNS — enter the IP manually\n'
+                    '• If you use a VPN, disconnect it first\n'
+                    '• Windows Defender may block the port — see firewall command in Settings',
+            style: const TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l10n?.ok ?? 'OK',
+              style: const TextStyle(color: AppColors.orange),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _wakeProfile(ConnectionProfile profile) async {
     final mac = profile.mac;
     final l10n = AppLocalizations.of(context);
@@ -283,10 +356,86 @@ class _ConnectScreenState extends State<ConnectScreen>
     if (ok && mounted) {
       telem.init(conn.wsService, conn.navService, conn.apiService);
       telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
+      // Suggest saving as a profile once we've confirmed the host actually
+      // works. Only fires when the host isn't already saved as a profile,
+      // so repeat-connects to known hosts don't pester the user.
+      await _maybeSuggestSaveProfile(host);
+      if (!mounted) return;
       // If we were pushed on top of Dashboard, just pop back
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
+    }
+  }
+
+  /// One-shot prompt: "You just connected to 192.168.1.5 — want to save it
+  /// as a profile?". Intentionally lightweight (bottom-sheet with two
+  /// options) so declining is one tap away.
+  Future<void> _maybeSuggestSaveProfile(String host) async {
+    if (!mounted) return;
+    final conn = context.read<ConnectionProvider>();
+    final already = conn.profiles.any((p) => p.host == host);
+    if (already) return;
+    final l10n = AppLocalizations.of(context);
+    final save = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n?.saveAsProfileQuestion ??
+                  'Save this connection as a profile?',
+              style: const TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              host,
+              style: const TextStyle(
+                fontFamily: 'RobotoMono',
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(l10n?.cancel ?? 'Not now'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(l10n?.save ?? 'Save'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (save == true && mounted) {
+      await _showProfileDialog(ConnectionProfile(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        name: '',
+        host: host,
+      ));
     }
   }
 
@@ -443,20 +592,41 @@ class _ConnectScreenState extends State<ConnectScreen>
                     ),
                   const SizedBox(height: 8),
 
-                  // Connect button
+                  // Connect button — while connecting, shows the current
+                  // coarse-grained stage (Pinging / Opening socket /
+                  // Subscribing) so the user has a clearer signal than a
+                  // bare spinner when things take a few seconds.
                   SizedBox(
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
                       onPressed: conn.isConnecting ? null : _connect,
                       child: conn.isConnecting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  child: Text(
+                                    _stageLabel(context, conn.stage),
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             )
                           : Text(
                               AppLocalizations.of(context)?.connect ?? 'Connect',
@@ -502,20 +672,49 @@ class _ConnectScreenState extends State<ConnectScreen>
                         border:
                             Border.all(color: AppColors.surfaceBorder),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.info_outline_rounded,
-                              size: 16, color: AppColors.textMuted),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              AppLocalizations.of(context)
-                                      ?.scanFinishedNoHosts ??
-                                  "No ETS2LA found. Check it's running and on the same Wi-Fi.",
-                              style: const TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary),
+                          Row(
+                            children: [
+                              const Icon(Icons.info_outline_rounded,
+                                  size: 16, color: AppColors.textMuted),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)
+                                          ?.scanFinishedNoHosts ??
+                                      "No ETS2LA found. Check it's running and on the same Wi-Fi.",
+                                  style: const TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              icon: const Icon(Icons.help_outline_rounded,
+                                  size: 16, color: AppColors.orange),
+                              label: Text(
+                                AppLocalizations.of(context)?.whyNotFound ??
+                                    'Why not found?',
+                                style: const TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 12,
+                                    color: AppColors.orange),
+                              ),
+                              onPressed: () => _showMdnsHelpDialog(context),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6),
+                                minimumSize: Size.zero,
+                                tapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ),
                           ),
                         ],

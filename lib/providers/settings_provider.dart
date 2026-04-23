@@ -5,6 +5,17 @@ enum SpeedUnit { kmh, mph }
 enum GaugeMaxSpeed { s160, s200, s250 }
 enum MapTileStyle { dark, light, satellite }
 
+/// Accent colour options exposed in Settings. The underlying hex values
+/// live in [AppColors.accentFor] so that changing a palette value in one
+/// place re-skins the whole app.
+enum AccentColor { orange, blue, green, purple }
+
+/// User-facing preference for whether the app should be skinned with a
+/// higher-contrast palette (thicker borders, brighter foregrounds). This
+/// is independent of the system `highContrast` flag on purpose: the
+/// system flag is coarse, and most users who want the extra contrast
+/// also want the accent colour preserved.
+
 class AppSettings extends ChangeNotifier {
   // ── Connection ────────────────────────────────────────────────
   bool _autoConnect = false;
@@ -88,6 +99,17 @@ class AppSettings extends ChangeNotifier {
   bool get vizDarkTheme => _vizDarkTheme;
   bool get vizAutoConnect => _vizAutoConnect;
 
+  // ── Appearance / Accessibility ────────────────────────────────
+  AccentColor _accentColor = AccentColor.orange;
+  bool _highContrast = false;
+  bool _reduceMotion = false;
+  bool _hasSeenOnboarding = false;
+
+  AccentColor get accentColor => _accentColor;
+  bool get highContrast => _highContrast;
+  bool get reduceMotion => _reduceMotion;
+  bool get hasSeenOnboarding => _hasSeenOnboarding;
+
   // ─────────────────────────────────────────────────────────────
 
   bool _isReady = false;
@@ -123,6 +145,11 @@ class AppSettings extends ChangeNotifier {
     _mapShowRoute = p.getBool('mapShowRoute') ?? true;
     _vizDarkTheme = p.getBool('vizDarkTheme') ?? true;
     _vizAutoConnect = p.getBool('vizAutoConnect') ?? true;
+    _accentColor =
+        _safeEnum(AccentColor.values, p.getInt('accentColor'), AccentColor.orange);
+    _highContrast = p.getBool('highContrast') ?? false;
+    _reduceMotion = p.getBool('reduceMotion') ?? false;
+    _hasSeenOnboarding = p.getBool('hasSeenOnboarding') ?? false;
     _isReady = true;
     notifyListeners();
   }
@@ -167,6 +194,10 @@ class AppSettings extends ChangeNotifier {
       await p.setBool('mapShowRoute', _mapShowRoute);
       await p.setBool('vizDarkTheme', _vizDarkTheme);
       await p.setBool('vizAutoConnect', _vizAutoConnect);
+      await p.setInt('accentColor', _accentColor.index);
+      await p.setBool('highContrast', _highContrast);
+      await p.setBool('reduceMotion', _reduceMotion);
+      await p.setBool('hasSeenOnboarding', _hasSeenOnboarding);
     } catch (e) {
       debugPrint('AppSettings._save error: $e');
     }
@@ -187,4 +218,13 @@ class AppSettings extends ChangeNotifier {
   void setMapShowRoute(bool v) { _mapShowRoute = v; _save(); notifyListeners(); }
   void setVizDarkTheme(bool v) { _vizDarkTheme = v; _save(); notifyListeners(); }
   void setVizAutoConnect(bool v) { _vizAutoConnect = v; _save(); notifyListeners(); }
+  void setAccentColor(AccentColor v) { _accentColor = v; _save(); notifyListeners(); }
+  void setHighContrast(bool v) { _highContrast = v; _save(); notifyListeners(); }
+  void setReduceMotion(bool v) { _reduceMotion = v; _save(); notifyListeners(); }
+  void markOnboardingSeen() {
+    if (_hasSeenOnboarding) return;
+    _hasSeenOnboarding = true;
+    _save();
+    notifyListeners();
+  }
 }

@@ -15,6 +15,16 @@ import 'settings_provider.dart';
 /// to translated strings so error messages respect the user's language.
 enum ConnectionErrorCode { unreachable, failed, invalidHost }
 
+/// Coarse-grained stages of a connection attempt. Used to drive an inline
+/// progress label in the Connect button so the user sees what's happening
+/// during the (sometimes multi-second) connect flow.
+enum ConnectionStage {
+  idle,
+  pinging,
+  openingSocket,
+  subscribing,
+}
+
 class ConnectionProvider extends ChangeNotifier {
   ConnectionProvider() : super() {
     // Ports will be set in connect() using AppSettings
@@ -90,12 +100,39 @@ class ConnectionProvider extends ChangeNotifier {
   List<ConnectionProfile> _profiles = [];
   bool _isConnecting = false;
   String? _errorMessage;
+  ConnectionStage _stage = ConnectionStage.idle;
+  int? _lastPingMs;
+  int _firewallFailStreak = 0;
+  static const int _firewallFailThreshold = 2;
 
   String get currentHost => _currentHost;
   List<String> get recentHosts => _recentHosts;
   List<ConnectionProfile> get profiles => List.unmodifiable(_profiles);
   bool get isConnecting => _isConnecting;
   String? get errorMessage => _errorMessage;
+
+  /// Current stage of an in-flight connect attempt. `idle` when no connect
+  /// is in progress.
+  ConnectionStage get stage => _stage;
+
+  /// Latency of the last successful API ping, or null if we haven't pinged
+  /// yet / the last ping failed. Used to paint the AppBar latency chip.
+  int? get lastPingMs => _lastPingMs;
+
+  /// Update the Pages-WS failure streak and return whether the UI should
+  /// now show the firewall-help dialog. We debounce the dialog to two
+  /// consecutive failures so transient glitches don't throw it in the
+  /// user's face. Call [resetFirewallFailStreak] on a successful Pages WS
+  /// message.
+  bool registerPagesFailureShouldShowDialog() {
+    _firewallFailStreak += 1;
+    return _firewallFailStreak >= _firewallFailThreshold;
+  }
+
+  void resetFirewallFailStreak() {
+    if (_firewallFailStreak == 0) return;
+    _firewallFailStreak = 0;
+  }
 
   void setError(String message) {
     _errorMessage = message;
@@ -173,6 +210,7 @@ class ConnectionProvider extends ChangeNotifier {
   Future<bool> connect(String host) async {
     _isConnecting = true;
     _errorMessage = null;
+    _stage = ConnectionStage.pinging;
     notifyListeners();
 
     try {
@@ -201,34 +239,57 @@ class ConnectionProvider extends ChangeNotifier {
       // "backend down" vs "backend up but WS refused" in the error message.
       // Serialising them doubled the perceived connect latency on slow
       // networks for no functional benefit.
+      final pingStart = DateTime.now();
+      // Publish the "opening socket" stage halfway through the race: the
+      // ping probe is usually decided within a few hundred ms while the
+      // WS handshake dominates total time, so the user sees the stage flip
+      // right as the visible work changes.
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (_disposed) return;
+        if (_stage == ConnectionStage.pinging && _isConnecting) {
+          _stage = ConnectionStage.openingSocket;
+          notifyListeners();
+        }
+      });
       final results = await Future.wait([
         apiService.ping(),
         wsService.connect(cleanHost).then((_) => true).catchError((_) => false),
       ]);
       final reachable = results[0];
+      if (reachable) {
+        _lastPingMs = DateTime.now().difference(pingStart).inMilliseconds;
+      } else {
+        _lastPingMs = null;
+      }
       if (wsService.state != WsConnectionState.connected) {
         _errorMessage = reachable
             ? ConnectionErrorCode.failed.name
             : ConnectionErrorCode.unreachable.name;
         _isConnecting = false;
+        _stage = ConnectionStage.idle;
         notifyListeners();
         return false;
       }
 
+      _stage = ConnectionStage.subscribing;
+      notifyListeners();
       await navService.connect(cleanHost);
       await pagesService.connect(cleanHost);
       await _saveHost(cleanHost);
       // Promote the process so Android doesn't kill the WebSocket when the
       // screen turns off; no-op on non-Android platforms.
       unawaited(KeepAliveService.instance.start(cleanHost));
+      resetFirewallFailStreak();
 
       _isConnecting = false;
+      _stage = ConnectionStage.idle;
       notifyListeners();
       return true;
     } catch (e) {
       debugPrint('ConnectionProvider.connect error: $e');
       _errorMessage = ConnectionErrorCode.failed.name;
       _isConnecting = false;
+      _stage = ConnectionStage.idle;
       notifyListeners();
       return false;
     }

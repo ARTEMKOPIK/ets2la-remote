@@ -125,6 +125,34 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               selectedIndex: s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
               onChanged: (i) => s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
             ),
+            _Divider(),
+            _AccentPickerTile(
+              current: s.accentColor,
+              onChanged: s.setAccentColor,
+              label: l10n?.accentColorLabel ?? 'Accent color',
+            ),
+          ]),
+
+          // ── ACCESSIBILITY ─────────────────────────────────────
+          _SectionHeader(l10n?.accessibility ?? 'Accessibility'),
+          _SettingsCard(children: [
+            _SwitchTile(
+              icon: Icons.contrast_rounded,
+              title: l10n?.highContrast ?? 'High contrast',
+              subtitle: l10n?.highContrastHint ??
+                  'Stronger borders for better visibility',
+              value: s.highContrast,
+              onChanged: s.setHighContrast,
+            ),
+            _Divider(),
+            _SwitchTile(
+              icon: Icons.motion_photos_off_rounded,
+              title: l10n?.reduceMotion ?? 'Reduce motion',
+              subtitle:
+                  l10n?.reduceMotionHint ?? 'Disable transitions and haptics',
+              value: s.reduceMotion,
+              onChanged: s.setReduceMotion,
+            ),
           ]),
 
           // ── MAP ────────────────────────────────────────────────
@@ -607,6 +635,78 @@ class _CheckUpdateTileState extends State<_CheckUpdateTile> {
               const Icon(Icons.refresh_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Compact 4-swatch accent-color picker. Doesn't try to be a full colour
+/// wheel — the palette is fixed in [AccentColor] so users can't pick an
+/// accent that clashes with the surface backgrounds.
+class _AccentPickerTile extends StatelessWidget {
+  final AccentColor current;
+  final ValueChanged<AccentColor> onChanged;
+  final String label;
+
+  const _AccentPickerTile({
+    required this.current,
+    required this.onChanged,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          const Icon(Icons.palette_rounded,
+              size: 20, color: AppColors.orange),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 14,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: AccentColor.values.map((c) {
+              final selected = c == current;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: Semantics(
+                  selected: selected,
+                  button: true,
+                  label: c.name,
+                  child: GestureDetector(
+                    onTap: () => onChanged(c),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.accentFor(c),
+                        border: Border.all(
+                          color: selected
+                              ? AppColors.textPrimary
+                              : AppColors.surfaceBorder,
+                          width: selected ? 2 : 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

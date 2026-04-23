@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import '../models/truck_state.dart';
 import '../models/plugin_state.dart';
 import '../models/telemetry.dart';
+// NOTE: TruckTransform used to live here and was parsed from channel 1. The
+// mobile UI never renders the truck mesh, so we stopped subscribing to that
+// channel in VisualizationWsService and removed the field.
 import '../services/websocket_service.dart';
 import '../services/navigation_ws_service.dart';
 import '../services/api_service.dart';
 
 class TelemetryProvider extends ChangeNotifier {
   TruckState truckState = const TruckState();
-  TruckTransform truckTransform = const TruckTransform();
   AutopilotStatus autopilotStatus = const AutopilotStatus();
   NavPosition? navPosition;
   NavRoute? navRoute;
@@ -54,9 +56,6 @@ class TelemetryProvider extends ChangeNotifier {
     if (data == null || data is! Map<String, dynamic>) return;
 
     switch (channel) {
-      case 1:
-        truckTransform = TruckTransform.fromJson(data);
-        break;
       case 3:
         truckState = TruckState.fromJson(data);
         _safeNotify();
@@ -75,7 +74,6 @@ class TelemetryProvider extends ChangeNotifier {
 
   void reset() {
     truckState = const TruckState();
-    truckTransform = const TruckTransform();
     autopilotStatus = const AutopilotStatus();
     navPosition = null;
     navRoute = null;

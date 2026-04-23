@@ -42,8 +42,16 @@ class UpdateProvider extends ChangeNotifier {
     try {
       final updateInfo = await UpdateService.checkForUpdate();
       if (updateInfo != null) {
-        _updateInfo = updateInfo;
-        _state = UpdateState.available;
+        // "Remind me later" persists a version the user chose to skip; honour
+        // that choice until a newer release appears.
+        final prefs = await SharedPreferences.getInstance();
+        final skipped = prefs.getString('update_skipped_version');
+        if (skipped != null && skipped == updateInfo.version) {
+          _state = UpdateState.idle;
+        } else {
+          _updateInfo = updateInfo;
+          _state = UpdateState.available;
+        }
       } else {
         _state = UpdateState.idle;
       }

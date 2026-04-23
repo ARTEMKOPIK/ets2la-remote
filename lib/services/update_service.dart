@@ -79,7 +79,13 @@ class UpdateService {
 
       final res = await http.get(
         Uri.parse(_apiUrl),
-        headers: {'Accept': 'application/vnd.github+json'},
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          // GitHub's REST API requires a User-Agent header; without it we
+          // occasionally get a 403 even when we're well under the unauth
+          // rate limit.
+          'User-Agent': '$_repoOwner-$_repoName',
+        },
       ).timeout(const Duration(seconds: 10));
 
       if (res.statusCode != 200) return null;

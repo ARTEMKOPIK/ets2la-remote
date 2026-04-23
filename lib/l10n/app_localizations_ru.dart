@@ -392,6 +392,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gotIt => 'Понятно';
 
   @override
+  String get collectingData => 'Сбор данных…';
+
+  @override
   String get profiles => 'Профили';
 
   @override

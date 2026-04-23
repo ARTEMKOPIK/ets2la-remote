@@ -857,6 +857,12 @@ abstract class AppLocalizations {
   /// **'Got it'**
   String get gotIt;
 
+  /// No description provided for @collectingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Collecting data…'**
+  String get collectingData;
+
   /// No description provided for @profiles.
   ///
   /// In en, this message translates to:

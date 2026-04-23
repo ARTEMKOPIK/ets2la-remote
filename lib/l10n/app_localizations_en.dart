@@ -392,6 +392,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gotIt => 'Got it';
 
   @override
+  String get collectingData => 'Collecting data…';
+
+  @override
   String get profiles => 'Profiles';
 
   @override

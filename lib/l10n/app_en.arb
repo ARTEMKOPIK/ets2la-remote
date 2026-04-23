@@ -134,6 +134,7 @@
   "installPermissionHint": "Android blocks third-party installs by default. Allow \"Install unknown apps\" for ETS2LA Remote, then tap Install again.",
   "whatsNewTitle": "What's new",
   "gotIt": "Got it",
+  "collectingData": "Collecting data…",
   "profiles": "Profiles",
   "profileName": "Name",
   "profileNameRequired": "Enter a name",

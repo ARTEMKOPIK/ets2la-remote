@@ -114,18 +114,34 @@ class UpdateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Launch the downloaded APK for installation
-  Future<void> installUpdate() async {
-    if (_downloadedPath == null) return;
+  /// Launch the downloaded APK for installation.
+  ///
+  /// Returns true only when Android's package installer was actually
+  /// launched. Callers (e.g. the update dialog) use this to decide whether
+  /// to close themselves — when install can't be launched, the dialog
+  /// stays open so the user sees the error instead of the screen silently
+  /// returning to the dashboard.
+  Future<bool> installUpdate() async {
+    if (_downloadedPath == null) return false;
     _state = UpdateState.installing;
+    _errorMessage = null;
     notifyListeners();
     try {
-      await OpenFile.open(_downloadedPath!);
+      final result = await OpenFile.open(_downloadedPath!);
+      if (result.type != ResultType.done) {
+        _state = UpdateState.error;
+        _errorMessage =
+            result.message.isNotEmpty ? result.message : 'Install failed';
+        notifyListeners();
+        return false;
+      }
+      return true;
     } catch (e) {
       debugPrint('UpdateProvider.installUpdate error: $e');
       _state = UpdateState.error;
       _errorMessage = 'Install error: $e';
       notifyListeners();
+      return false;
     }
   }
 

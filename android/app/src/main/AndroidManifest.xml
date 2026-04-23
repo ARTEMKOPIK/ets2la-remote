@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Required so the "Install update" button can hand the downloaded APK
+         to Android's package installer. Without this, on Android 8+ the
+         PackageInstaller intent is rejected silently and the update dialog
+         appears to "do nothing" after download. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
         android:label="ETS2LA Remote"
         android:name="${applicationName}"

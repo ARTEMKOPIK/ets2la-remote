@@ -25,8 +25,12 @@ class UpdateDialog extends StatelessWidget {
 
     final isMandatory = updateInfo.isMandatory;
     final isDownloading = upd.state == UpdateState.downloading;
-    final isDownloaded = upd.state == UpdateState.downloaded;
+    final isDownloaded = upd.state == UpdateState.downloaded ||
+        upd.state == UpdateState.installing ||
+        (upd.state == UpdateState.error && upd.downloadedPath != null);
     final progress = upd.downloadProgress;
+    final errorMessage =
+        upd.state == UpdateState.error ? upd.errorMessage : null;
 
     final displayVer = updateInfo.displayVersion;
     final buildDate = updateInfo.buildDate;
@@ -117,6 +121,33 @@ class UpdateDialog extends StatelessWidget {
               ),
             ),
           ],
+          // Install / download failure
+          if (errorMessage != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.error.withOpacity(0.35)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.error_outline_rounded,
+                      color: AppColors.error, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      errorMessage,
+                      style: const TextStyle(
+                          color: AppColors.error, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           // Downloaded success
           if (isDownloaded) ...[
             const SizedBox(height: 16),
@@ -164,9 +195,16 @@ class UpdateDialog extends StatelessWidget {
               SizedBox(
                 height: 46,
                 child: ElevatedButton(
-                  onPressed: () {
-                    context.read<UpdateProvider>().installUpdate();
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    final navigator = Navigator.of(context);
+                    final ok =
+                        await context.read<UpdateProvider>().installUpdate();
+                    // Only close the dialog when the installer actually
+                    // launched. Otherwise we'd silently drop the user back
+                    // to the dashboard with no feedback about what went
+                    // wrong (missing REQUEST_INSTALL_PACKAGES grant, no
+                    // installer available, etc.).
+                    if (ok && navigator.mounted) navigator.pop();
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -14,11 +14,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Possible widget actions. Strings must match the ACTION_* constants in
-/// `AutopilotWidgetProvider.kt`.
+/// `AutopilotWidgetProvider.kt` and `KeepAliveService.kt`.
 class WidgetAction {
   static const String toggleSteering =
       'com.ets2la.ets2la_remote.TOGGLE_STEERING';
   static const String toggleAcc = 'com.ets2la.ets2la_remote.TOGGLE_ACC';
+  static const String disconnect = 'com.ets2la.ets2la_remote.DISCONNECT';
 }
 
 typedef WidgetActionHandler = Future<void> Function(String action);

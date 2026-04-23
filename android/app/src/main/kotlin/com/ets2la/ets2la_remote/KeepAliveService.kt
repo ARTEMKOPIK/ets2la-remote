@@ -29,6 +29,9 @@ class KeepAliveService : Service() {
         const val ACTION_UPDATE = "ets2la.UPDATE"
         const val ACTION_STOP = "ets2la.STOP"
 
+        /** Forwarded to Dart via EXTRA_WIDGET_ACTION; consumed by ConnectionProvider. */
+        const val ACTION_DISCONNECT = "com.ets2la.ets2la_remote.DISCONNECT"
+
         const val EXTRA_HOST = "host"
         const val EXTRA_TITLE = "title"
         const val EXTRA_BODY = "body"
@@ -113,7 +116,46 @@ class KeepAliveService : Service() {
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pending)
+            .addAction(
+                0,
+                getString(R.string.notification_action_autopilot),
+                widgetActionPendingIntent(
+                    AutopilotWidgetProvider.ACTION_TOGGLE_STEERING,
+                ),
+            )
+            .addAction(
+                0,
+                getString(R.string.notification_action_acc),
+                widgetActionPendingIntent(
+                    AutopilotWidgetProvider.ACTION_TOGGLE_ACC,
+                ),
+            )
+            .addAction(
+                0,
+                getString(R.string.notification_action_disconnect),
+                widgetActionPendingIntent(ACTION_DISCONNECT),
+            )
             .build()
+    }
+
+    /**
+     * Build a PendingIntent that launches MainActivity carrying the given
+     * widget-action extra. We piggyback on AutopilotWidgetProvider's
+     * EXTRA_WIDGET_ACTION channel — MainActivity already knows how to drain
+     * that extra and forward it to Dart via the widget MethodChannel.
+     */
+    private fun widgetActionPendingIntent(action: String): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            this.action = action
+            putExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION, action)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        return PendingIntent.getActivity(
+            this,
+            action.hashCode(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
     }
 
     @Suppress("DEPRECATION")

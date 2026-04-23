@@ -71,10 +71,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.plugins ?? 'Plugins', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.plugins ?? 'Plugins', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
+            tooltip: AppLocalizations.of(context)?.refresh ?? 'Refresh',
             onPressed: () async {
               final list = await conn.apiService.getPlugins();
               if (list.isNotEmpty && mounted) {
@@ -89,11 +90,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.extension_off_rounded,
-                      color: AppColors.textSecondary, size: 48),
-                  const SizedBox(height: 12),
-                  Text(AppLocalizations.of(context)?.noPlugins ?? 'No plugins found',
-                      style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary)),
+                  if (conn.isConnected) ...[
+                    const SizedBox(
+                      width: 32, height: 32,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.orange),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      AppLocalizations.of(context)?.loadingPlugins ?? 'Loading plugins…',
+                      style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary),
+                    ),
+                  ] else ...[
+                    const Icon(Icons.extension_off_rounded,
+                        color: AppColors.textSecondary, size: 48),
+                    const SizedBox(height: 12),
+                    Text(AppLocalizations.of(context)?.noPlugins ?? 'No plugins found',
+                        style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary)),
+                  ],
                 ],
               ),
             )
@@ -149,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       plugin: plugin,
                       isRunning: plugin.running,
                       isLoading: _loadingPlugins.contains(plugin.id),
-                      onToggle: (val) => _togglePlugin(plugin, plugin.running),
+                      onToggle: (_) => _togglePlugin(plugin, plugin.running),
                     )),
               ],
             ),

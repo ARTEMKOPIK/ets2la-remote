@@ -127,7 +127,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancel => 'Отмена';
 
   @override
-  String get ok => 'ОК';
+  String get ok => 'OK';
 
   @override
   String get error => 'Ошибка';
@@ -172,7 +172,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firewallCmd => 'Выполните на ПК:';
 
   @override
-  String get copied => 'Скопировано!';
+  String get copied => 'Скопировано';
 
   @override
   String get view3d => '3D Вид';
@@ -315,4 +315,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get game => 'ИГРА';
+
+  @override
+  String get notConnected => 'Нет соединения';
+
+  @override
+  String get copy => 'Копировать';
+
+  @override
+  String get languageSystem => 'Системный';
+
+  @override
+  String get ets2laOnGithub => 'ETS2LA на GitHub';
+
+  @override
+  String get removeFromRecent => 'Удалить';
+
+  @override
+  String get loadingPlugins => 'Загрузка плагинов…';
+
+  @override
+  String get refresh => 'Обновить';
+
+  @override
+  String get dismiss => 'Скрыть';
+
+  @override
+  String get portsAdvancedHint => 'Меняйте, только если ETS2LA использует нестандартные порты';
 }

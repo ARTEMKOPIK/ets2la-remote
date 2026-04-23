@@ -428,7 +428,7 @@ abstract class AppLocalizations {
   /// No description provided for @copied.
   ///
   /// In en, this message translates to:
-  /// **'Copied!'**
+  /// **'Copied'**
   String get copied;
 
   /// No description provided for @view3d.
@@ -706,6 +706,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GAME'**
   String get game;
+
+  /// No description provided for @notConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get notConnected;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get languageSystem;
+
+  /// No description provided for @ets2laOnGithub.
+  ///
+  /// In en, this message translates to:
+  /// **'ETS2LA on GitHub'**
+  String get ets2laOnGithub;
+
+  /// No description provided for @removeFromRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeFromRecent;
+
+  /// No description provided for @loadingPlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading plugins…'**
+  String get loadingPlugins;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismiss;
+
+  /// No description provided for @portsAdvancedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only change if ETS2LA uses non-default ports'**
+  String get portsAdvancedHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

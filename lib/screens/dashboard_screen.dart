@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'connect_screen.dart';
 import 'package:provider/provider.dart';
@@ -82,19 +83,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('ETS2LA'),
         actions: [
-          GestureDetector(
+          _ConnectionChip(
+            connected: conn.isConnected,
+            host: conn.currentHost,
             onTap: () => _showConnectionSheet(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(children: [
-                Icon(conn.isConnected ? Icons.wifi : Icons.wifi_off, color: conn.isConnected ? AppColors.orange : AppColors.textMuted, size: 20),
-                const SizedBox(width: 4),
-                Text(conn.currentHost.isNotEmpty ? conn.currentHost : '...', style: TextStyle(fontSize: 12, color: conn.isConnected ? AppColors.orange : AppColors.textMuted)),
-              ]),
-            ),
           ),
           IconButton(
             icon: const Icon(Icons.settings_rounded, size: 22),
+            tooltip: l10n?.settings ?? 'Settings',
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
           ),
         ],
@@ -254,7 +250,10 @@ class _DashboardTab extends StatelessWidget {
           children: [
             const Icon(Icons.shield_outlined, color: AppColors.orange, size: 22),
             const SizedBox(width: 10),
-            Text(l10n?.firewallTitle ?? 'One-time PC setup', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
+            Expanded(
+              child: Text(l10n?.firewallTitle ?? 'One-time PC setup',
+                  style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16)),
+            ),
           ],
         ),
         content: Column(
@@ -263,10 +262,11 @@ class _DashboardTab extends StatelessWidget {
           children: [
             Text(
               l10n?.firewallBody ?? 'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.',
-              style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13),
+              style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 14),
-            Text(l10n?.runInPowerShell ?? 'Run in PowerShell (Admin):', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 12)),
+            Text(l10n?.runInPowerShell ?? 'Run in PowerShell (Admin):',
+                style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.all(10),
@@ -277,13 +277,33 @@ class _DashboardTab extends StatelessWidget {
               ),
               child: SelectableText(
                 cmd,
-                style: TextStyle(fontFamily: "RobotoMono", color: AppColors.orange, fontSize: 11),
+                style: const TextStyle(fontFamily: 'RobotoMono', color: AppColors.orange, fontSize: 11),
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('OK', style: TextStyle(fontFamily: 'Roboto', color: AppColors.orange))),
+          TextButton.icon(
+            icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.textSecondary),
+            label: Text(l10n?.copy ?? 'Copy',
+                style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary)),
+            onPressed: () async {
+              await Clipboard.setData(const ClipboardData(text: cmd));
+              if (!ctx.mounted) return;
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(ctx)?.copied ?? 'Copied'),
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n?.ok ?? 'OK',
+                style: const TextStyle(fontFamily: 'Roboto', color: AppColors.orange)),
+          ),
         ],
       ),
     );
@@ -344,13 +364,24 @@ class _DashboardTab extends StatelessWidget {
             // Speed gauge — isolated repaint
             Center(
               child: RepaintBoundary(
-                child: SpeedGauge(
-                  speedKmh: state.speedKmh,
-                  limitKmh: state.speedLimitKmh,
-                  targetAccKmh: state.targetSpeedKmh,
-                  size: MediaQuery.of(context).size.width * 0.82,
-                  speedUnit: settings.speedUnitLabel,
-                  maxSpeed: settings.gaugeMaxValue,
+                child: Builder(
+                  builder: (context) {
+                    final mq = MediaQuery.of(context);
+                    // Cap gauge by both width and height to avoid landscape overflow.
+                    final gaugeSize = [
+                      mq.size.width * 0.82,
+                      mq.size.height * 0.45,
+                      420.0,
+                    ].reduce((a, b) => a < b ? a : b);
+                    return SpeedGauge(
+                      speedKmh: state.speedKmh,
+                      limitKmh: state.speedLimitKmh,
+                      targetAccKmh: state.targetSpeedKmh,
+                      size: gaugeSize,
+                      speedUnit: settings.speedUnitLabel,
+                      maxSpeed: settings.gaugeMaxValue,
+                    );
+                  },
                 ),
               ),
             ),
@@ -604,6 +635,55 @@ class _LazyIndexedStackState extends State<_LazyIndexedStack> {
         if (!_activated[i]) return const SizedBox.shrink();
         return widget.children[i];
       }),
+    );
+  }
+}
+
+class _ConnectionChip extends StatelessWidget {
+  final bool connected;
+  final String host;
+  final VoidCallback onTap;
+
+  const _ConnectionChip({
+    required this.connected,
+    required this.host,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final label = connected
+        ? (host.isNotEmpty ? host : (l10n?.connected ?? 'Connected'))
+        : (l10n?.notConnected ?? 'Not connected');
+    final color = connected ? AppColors.orange : AppColors.textMuted;
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(connected ? Icons.wifi : Icons.wifi_off, color: color, size: 20),
+              const SizedBox(width: 6),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 120),
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: color),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

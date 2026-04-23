@@ -172,7 +172,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firewallCmd => 'Run this on PC:';
 
   @override
-  String get copied => 'Copied!';
+  String get copied => 'Copied';
 
   @override
   String get view3d => '3D View';
@@ -315,4 +315,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get game => 'GAME';
+
+  @override
+  String get notConnected => 'Not connected';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get ets2laOnGithub => 'ETS2LA on GitHub';
+
+  @override
+  String get removeFromRecent => 'Remove';
+
+  @override
+  String get loadingPlugins => 'Loading plugins…';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get portsAdvancedHint => 'Only change if ETS2LA uses non-default ports';
 }

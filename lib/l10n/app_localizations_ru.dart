@@ -267,7 +267,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firewallTitle => 'Однократная настройка ПК';
 
   @override
-  String get firewallBody => 'Чтобы управлять автопилотом с телефона, откройте порт 37523 на ПК (Брандмауэр Windows). Делается один раз.';
+  String firewallBody(int port) {
+    return 'Чтобы управлять автопилотом с телефона, откройте порт $port на ПК (Брандмауэр Windows). Делается один раз.';
+  }
+
+  @override
+  String get autopilotLabel => 'АВТОПИЛОТ';
+
+  @override
+  String get steeringLabel => 'РУЛЬ';
+
+  @override
+  String get accLabel => 'КРУИЗ';
+
+  @override
+  String get updateDownloadFailed => 'Не удалось скачать обновление';
+
+  @override
+  String get updateInstallFailed => 'Ошибка установки';
+
+  @override
+  String get updateCheckFailed => 'Не удалось проверить обновления';
+
+  @override
+  String get networkOffline => 'Нет подключения к интернету';
 
   @override
   String get runInPowerShell => 'Выполните в PowerShell (Админ):';

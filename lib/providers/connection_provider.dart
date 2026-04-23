@@ -73,8 +73,11 @@ class ConnectionProvider extends ChangeNotifier {
       apiService.setPort(apiPort);
       apiService.setTimeoutSeconds(settings.connectionTimeout);
       wsService.setPort(vizPort);
+      wsService.setReadyTimeoutSeconds(settings.connectionTimeout);
       navService.setPort(navPort);
+      navService.setReadyTimeoutSeconds(settings.connectionTimeout);
       pagesService.setPort(pagesPort);
+      pagesService.setReadyTimeoutSeconds(settings.connectionTimeout);
     }
   }
   final VisualizationWsService wsService = VisualizationWsService();
@@ -173,11 +176,13 @@ class ConnectionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Strip port if user accidentally included it (e.g. "192.168.0.46:37522" → "192.168.0.46")
-      String cleanHost = host.trim();
-      if (cleanHost.contains(':')) {
-        cleanHost = cleanHost.split(':').first.trim();
-      }
+      // Strip a trailing ":port" only when the host is a plain IPv4 or a
+      // hostname. IPv6 addresses contain multiple colons (and are written in
+      // [brackets]:port form when carrying a port), so we must not split on
+      // the first colon for them — that would mangle `::1` into the empty
+      // string. Unbracketed IPv6 is passed through untouched; ports for it
+      // always come from settings anyway.
+      final cleanHost = _stripAccidentalPort(host.trim());
       _currentHost = cleanHost;
       apiService.setHost(cleanHost);
       // Apply ports from settings on each connect
@@ -229,6 +234,28 @@ class ConnectionProvider extends ChangeNotifier {
     _currentHost = '';
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Remove a trailing `:port` from a user-entered host, but only when the
+  /// input is unambiguously an IPv4 address or hostname. IPv6 addresses
+  /// contain multiple `:` and must not be split.
+  ///
+  /// Examples:
+  ///   `192.168.0.5:37522` → `192.168.0.5`
+  ///   `ets2la.local:8080` → `ets2la.local`
+  ///   `[2001:db8::1]:37522` → `2001:db8::1`
+  ///   `2001:db8::1` → `2001:db8::1` (unchanged)
+  static String _stripAccidentalPort(String input) {
+    if (input.isEmpty) return input;
+    if (input.startsWith('[')) {
+      final close = input.indexOf(']');
+      if (close > 0) return input.substring(1, close);
+      return input;
+    }
+    final colonCount = ':'.allMatches(input).length;
+    if (colonCount > 1) return input;
+    if (colonCount == 1) return input.split(':').first.trim();
+    return input;
   }
 
   @override

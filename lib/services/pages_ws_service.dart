@@ -17,10 +17,16 @@ class PagesWsService {
   WebSocketChannel? _channel;
   String? _host;
   int _port = defaultPort;
+  int _readyTimeoutSeconds = 5;
   bool _connected = false;
   bool _connecting = false;
   Timer? _reconnectTimer;
   final ReconnectBackoff _backoff = ReconnectBackoff();
+
+  /// Timeout for the WebSocket handshake. Clamped to [1, 60] s.
+  void setReadyTimeoutSeconds(int seconds) {
+    _readyTimeoutSeconds = seconds.clamp(1, 60);
+  }
 
   bool get isConnected => _connected;
 
@@ -37,7 +43,8 @@ class PagesWsService {
     try {
       final uri = Uri.parse('ws://$_host:$_port');
       _channel = WebSocketChannel.connect(uri);
-      await _channel!.ready.timeout(const Duration(seconds: 5));
+      await _channel!.ready
+          .timeout(Duration(seconds: _readyTimeoutSeconds));
       _connected = true;
       _backoff.reset();
       _channel!.stream.listen(

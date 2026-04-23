@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/install_permission_service.dart';
@@ -204,10 +204,10 @@ class UpdateProvider extends ChangeNotifier {
     }
 
     try {
-      final result = await OpenFile.open(_downloadedPath!);
+      final result = await OpenFilex.open(_downloadedPath!);
       if (result.type != ResultType.done) {
         _state = UpdateState.error;
-        // open_file surfaces the missing grant through a permission-denied
+        // open_filex surfaces the missing grant through a permission-denied
         // message; if we see one, treat it as the same case we already
         // handle up-front instead of showing raw text to the user.
         final msg = result.message;

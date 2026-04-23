@@ -457,7 +457,11 @@ class _DashboardTab extends StatelessWidget {
 
   void _showFirewallDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    const cmd = 'netsh advfirewall firewall add rule name="ETS2LA Pages" dir=in action=allow protocol=TCP localport=37523';
+    // Use the port the user actually runs the Pages server on; falling
+    // back to the default only if AppSettings hasn't initialised yet.
+    final pagesPort = context.read<AppSettings>().portPages;
+    final cmd =
+        'netsh advfirewall firewall add rule name="ETS2LA Pages" dir=in action=allow protocol=TCP localport=$pagesPort';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -477,7 +481,8 @@ class _DashboardTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n?.firewallBody ?? 'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.',
+              l10n?.firewallBody(pagesPort) ??
+                  'To control autopilot from your phone, open port $pagesPort on your PC (Windows Firewall). This is done once.',
               style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 14),

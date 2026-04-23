@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -15,7 +16,12 @@
         android:label="ETS2LA Remote"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="33">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,11 +37,12 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Long-press-launcher shortcuts (see res/xml/shortcuts.xml). -->
-            <intent-filter>
-                <action android:name="com.ets2la.ets2la_remote.SHORTCUT"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
+            <!-- Launcher shortcuts (res/xml/shortcuts.xml) target this
+                 activity explicitly via android:targetClass / targetPackage,
+                 so no custom action intent-filter is needed here. Omitting it
+                 also closes the "any app can fabricate a widget-action extra
+                 and toggle autopilot" hole that existed when the filter had
+                 category.DEFAULT. -->
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts"/>
@@ -57,9 +64,14 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_autopilot_info"/>
         </receiver>
+        <!-- Wearable message receiver. Google Play Services needs this
+             exported so its system process can deliver MESSAGE_RECEIVED, but
+             we require the BIND_WEARABLE_LISTENER_SERVICE signature-level
+             permission so only play-services can bind to us. -->
         <service
             android:name=".WearMessageListenerService"
-            android:exported="true">
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.BIND_WEARABLE_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ets2la"/>

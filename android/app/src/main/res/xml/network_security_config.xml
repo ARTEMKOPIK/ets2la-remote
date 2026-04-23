@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app only talks cleartext to loopback (for the local Unity HTTP
+    server) and to the RFC1918 / link-local ranges where the ETS2LA PC
+    backend lives on a LAN. Any public-internet traffic (GitHub update
+    API, APK download) already uses HTTPS, so we deny cleartext by
+    default and opt-in only for the known local ranges.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+
+    <!-- Loopback: our in-process shelf server for Unity WebGL assets. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+
+    <!-- RFC1918 private ranges (typical home / office LANs). -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- 10.0.0.0/8 -->
+        <domain includeSubdomains="true">10.0.0.0</domain>
+        <!-- 172.16.0.0/12 — enumerated because Android matches by exact
+             domain, not CIDR. Covers all /16s inside 172.16.0.0/12. -->
+        <domain includeSubdomains="true">172.16.0.0</domain>
+        <domain includeSubdomains="true">172.17.0.0</domain>
+        <domain includeSubdomains="true">172.18.0.0</domain>
+        <domain includeSubdomains="true">172.19.0.0</domain>
+        <domain includeSubdomains="true">172.20.0.0</domain>
+        <domain includeSubdomains="true">172.21.0.0</domain>
+        <domain includeSubdomains="true">172.22.0.0</domain>
+        <domain includeSubdomains="true">172.23.0.0</domain>
+        <domain includeSubdomains="true">172.24.0.0</domain>
+        <domain includeSubdomains="true">172.25.0.0</domain>
+        <domain includeSubdomains="true">172.26.0.0</domain>
+        <domain includeSubdomains="true">172.27.0.0</domain>
+        <domain includeSubdomains="true">172.28.0.0</domain>
+        <domain includeSubdomains="true">172.29.0.0</domain>
+        <domain includeSubdomains="true">172.30.0.0</domain>
+        <domain includeSubdomains="true">172.31.0.0</domain>
+        <!-- 192.168.0.0/16 -->
+        <domain includeSubdomains="true">192.168.0.0</domain>
+        <!-- Link-local 169.254.0.0/16 (auto-IP, some router fallbacks). -->
+        <domain includeSubdomains="true">169.254.0.0</domain>
+    </domain-config>
+
+    <!-- mDNS / Bonjour names (e.g. `ets2la.local`). -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">local</domain>
+    </domain-config>
+</network-security-config>

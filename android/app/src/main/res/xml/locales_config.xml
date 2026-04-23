@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Declared languages so the Android 13+ per-app language picker
+    (Settings → Languages → ETS2LA Remote) lists our supported locales.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en"/>
+    <locale android:name="ru"/>
+</locale-config>

@@ -15,11 +15,18 @@ class TelemetryProvider extends ChangeNotifier {
   AutopilotStatus autopilotStatus = const AutopilotStatus();
   NavPosition? navPosition;
   NavRoute? navRoute;
-  List<PluginInfo> plugins = [];
+  List<PluginInfo> plugins = <PluginInfo>[];
+
+  /// True while a connection was established at least once in this session.
+  /// Used to guard background plugin-refresh callbacks from clobbering the
+  /// live list after the user manually disconnects.
+  bool _hasActiveSession = false;
+  bool get hasActiveSession => _hasActiveSession;
 
   /// Rolling ring buffer of the last ~60s of km/h samples for the sparkline
   /// on the dashboard. Capped so we never grow unboundedly.
   static const int _historyCap = 120;
+  static const Duration _sampleInterval = Duration(milliseconds: 500);
   final List<double> _speedHistory = <double>[];
   DateTime _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -36,11 +43,15 @@ class TelemetryProvider extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
+  /// Wire the provider to live WS/REST services. Idempotent: re-calling
+  /// this swaps the subscriptions without tearing down the provider state,
+  /// so telemetry keeps flowing across reconnects.
   void init(
     VisualizationWsService wsService,
     NavigationWsService navService,
     ApiService apiService,
   ) {
+    _hasActiveSession = true;
     _wsSub?.cancel();
     _wsSub = wsService.dataStream.listen(_handleWsMessage);
 
@@ -81,7 +92,7 @@ class TelemetryProvider extends ChangeNotifier {
   /// regardless of backend tick rate.
   void _recordSpeedSample() {
     final now = DateTime.now();
-    if (now.difference(_lastSpeedSample).inMilliseconds < 500) return;
+    if (now.difference(_lastSpeedSample) < _sampleInterval) return;
     _lastSpeedSample = now;
     _speedHistory.add(truckState.speedKmh);
     if (_speedHistory.length > _historyCap) {
@@ -89,8 +100,26 @@ class TelemetryProvider extends ChangeNotifier {
     }
   }
 
+  /// Replace the known plugin list. Always publishes the new list — even an
+  /// empty one — because the caller has already decided that the response
+  /// was authoritative. Use [tryUpdatePluginsFromBackend] for the common
+  /// "poll and only commit when the backend actually answered" flow.
   void updatePlugins(List<PluginInfo> list) {
-    plugins = list;
+    plugins = List.unmodifiable(list);
+    _safeNotify();
+  }
+
+  /// Commit [list] as the current plugin state only if it represents a real
+  /// backend response (non-empty) OR we already had plugins cached and the
+  /// empty result is trustworthy (caller says [authoritative] is `true`).
+  /// This prevents a transient network hiccup from collapsing the UI to
+  /// "no plugins" for five seconds until the next poll.
+  void tryUpdatePluginsFromBackend(
+    List<PluginInfo> list, {
+    bool authoritative = false,
+  }) {
+    if (list.isEmpty && !authoritative && plugins.isNotEmpty) return;
+    plugins = List.unmodifiable(list);
     _safeNotify();
   }
 
@@ -99,9 +128,10 @@ class TelemetryProvider extends ChangeNotifier {
     autopilotStatus = const AutopilotStatus();
     navPosition = null;
     navRoute = null;
-    plugins = [];
+    plugins = const <PluginInfo>[];
     _speedHistory.clear();
     _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
+    _hasActiveSession = false;
     _wsSub?.cancel();
     _posSub?.cancel();
     _routeSub?.cancel();
@@ -109,38 +139,38 @@ class TelemetryProvider extends ChangeNotifier {
     _safeNotify();
   }
 
-  void startPluginRefresh(VisualizationWsService wsService, NavigationWsService navService, ApiService apiService) {
+  void startPluginRefresh(
+    VisualizationWsService wsService,
+    NavigationWsService navService,
+    ApiService apiService,
+  ) {
     // Cancel existing timer first
     _pluginRefreshTimer?.cancel();
 
     // Only start if connected
-    if (wsService.state == WsConnectionState.connected) {
-      _pluginRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
-        if (_disposed) return;
-        // Check connection before fetching
-        if (wsService.state == WsConnectionState.connected) {
-          final list = await apiService.getPlugins();
-          if (_disposed) return;
-          if (list.isNotEmpty) {
-            plugins = list;
-            _safeNotify();
-          }
-        } else {
-          // Stop timer when disconnected
-          _pluginRefreshTimer?.cancel();
-          _pluginRefreshTimer = null;
-        }
-      });
+    if (wsService.state != WsConnectionState.connected) return;
 
-      // Initial fetch
-      apiService.getPlugins().then((list) {
-        if (_disposed) return;
-        if (list.isNotEmpty) {
-          plugins = list;
-          _safeNotify();
-        }
-      });
-    }
+    _pluginRefreshTimer =
+        Timer.periodic(const Duration(seconds: 5), (_) async {
+      if (_disposed) return;
+      // Check connection before fetching — and bail out if the user
+      // disconnected while we were waiting for the poll tick.
+      if (wsService.state != WsConnectionState.connected ||
+          !_hasActiveSession) {
+        _pluginRefreshTimer?.cancel();
+        _pluginRefreshTimer = null;
+        return;
+      }
+      final list = await apiService.getPlugins();
+      if (_disposed || !_hasActiveSession) return;
+      tryUpdatePluginsFromBackend(list);
+    });
+
+    // Initial fetch
+    apiService.getPlugins().then((list) {
+      if (_disposed || !_hasActiveSession) return;
+      tryUpdatePluginsFromBackend(list);
+    });
   }
 
   void stopPluginRefresh() {

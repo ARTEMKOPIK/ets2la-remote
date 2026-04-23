@@ -267,7 +267,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firewallTitle => 'One-time PC setup';
 
   @override
-  String get firewallBody => 'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.';
+  String firewallBody(int port) {
+    return 'To control autopilot from your phone, open port $port on your PC (Windows Firewall). This is done once.';
+  }
+
+  @override
+  String get autopilotLabel => 'AUTOPILOT';
+
+  @override
+  String get steeringLabel => 'STEERING';
+
+  @override
+  String get accLabel => 'ACC';
+
+  @override
+  String get updateDownloadFailed => 'Update download failed';
+
+  @override
+  String get updateInstallFailed => 'Install failed';
+
+  @override
+  String get updateCheckFailed => 'Couldn\'t check for updates';
+
+  @override
+  String get networkOffline => 'You appear to be offline';
 
   @override
   String get runInPowerShell => 'Run in PowerShell (Admin):';

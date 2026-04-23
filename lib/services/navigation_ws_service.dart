@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/telemetry.dart';
+import 'reconnect_backoff.dart';
 
 class NavigationWsService {
   int _port = 62840; // Default, can be overridden
@@ -14,6 +15,7 @@ class NavigationWsService {
   String? _host;
   Timer? _reconnectTimer;
   bool _connected = false;
+  final ReconnectBackoff _backoff = ReconnectBackoff();
 
   final _positionController = StreamController<NavPosition>.broadcast();
   final _routeController = StreamController<NavRoute>.broadcast();
@@ -25,6 +27,7 @@ class NavigationWsService {
   Future<void> connect(String host) async {
     _host = host;
     _reconnectTimer?.cancel();
+    _backoff.reset();
     await _doConnect();
   }
 
@@ -34,6 +37,7 @@ class NavigationWsService {
       _channel = WebSocketChannel.connect(uri);
       await _channel!.ready.timeout(const Duration(seconds: 5));
       _connected = true;
+      _backoff.reset();
 
       // Subscribe to channels
       _channel!.sink.add(jsonEncode([
@@ -92,7 +96,7 @@ class NavigationWsService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+    _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && !_connected) _doConnect();
     });
   }
@@ -101,6 +105,7 @@ class NavigationWsService {
     _reconnectTimer?.cancel();
     _host = null;
     _connected = false;
+    _backoff.reset();
     _channel?.sink.close();
     _channel = null;
   }

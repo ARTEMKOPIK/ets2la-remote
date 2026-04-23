@@ -5,6 +5,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'reconnect_backoff.dart';
 
 class PagesWsService {
   static const int defaultPort = 37523;
@@ -18,12 +19,14 @@ class PagesWsService {
   int _port = defaultPort;
   bool _connected = false;
   Timer? _reconnectTimer;
+  final ReconnectBackoff _backoff = ReconnectBackoff();
 
   bool get isConnected => _connected;
 
   Future<void> connect(String host) async {
     _host = host;
     _reconnectTimer?.cancel();
+    _backoff.reset();
     await _doConnect();
   }
 
@@ -33,6 +36,7 @@ class PagesWsService {
       _channel = WebSocketChannel.connect(uri);
       await _channel!.ready.timeout(const Duration(seconds: 5));
       _connected = true;
+      _backoff.reset();
       _channel!.stream.listen(
         (_) {}, // we don't need responses
         onDone: _onDisconnected,
@@ -84,7 +88,7 @@ class PagesWsService {
     _channel?.sink.close();
     _channel = null;
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 3), () {
+    _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && !_connected) _doConnect();
     });
   }
@@ -93,6 +97,7 @@ class PagesWsService {
     _reconnectTimer?.cancel();
     _host = null;
     _connected = false;
+    _backoff.reset();
     _channel?.sink.close();
     _channel = null;
   }

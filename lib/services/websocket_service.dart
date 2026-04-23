@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'reconnect_backoff.dart';
 
 enum WsConnectionState { disconnected, connecting, connected, error }
 
@@ -22,6 +23,7 @@ class VisualizationWsService {
   Timer? _keepAliveTimer;
   int _lastAck = 0;
   bool _subscribed = false;
+  final ReconnectBackoff _backoff = ReconnectBackoff();
 
   final _stateController = StreamController<WsConnectionState>.broadcast();
   Stream<WsConnectionState> get stateStream => _stateController.stream;
@@ -34,6 +36,7 @@ class VisualizationWsService {
     _reconnectTimer?.cancel();
     _keepAliveTimer?.cancel();
     _subscribed = false;
+    _backoff.reset();
     await _doConnect();
   }
 
@@ -67,8 +70,9 @@ class VisualizationWsService {
 
       // THEN set state and subscribe
       _setState(WsConnectionState.connected);
+      _backoff.reset();
       _subscribeToChannels();
-      
+
       // Start keep-alive timer
       _startKeepAlive();
     } catch (e) {
@@ -115,7 +119,7 @@ class VisualizationWsService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 3), () {
+    _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && _state == WsConnectionState.disconnected) {
         _doConnect();
       }
@@ -132,6 +136,7 @@ class VisualizationWsService {
     _keepAliveTimer?.cancel();
     _host = null;
     _subscribed = false;
+    _backoff.reset();
     _channel?.sink.close();
     _channel = null;
     // Do NOT close _controller — it's persistent, TelemetryProvider stays subscribed

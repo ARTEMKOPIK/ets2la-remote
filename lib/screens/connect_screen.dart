@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/lan_discovery_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
 
@@ -36,6 +37,9 @@ class _ConnectScreenState extends State<ConnectScreen>
   final _ipFocus = FocusNode();
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
+
+  bool _scanning = false;
+  List<DiscoveredHost> _discovered = const [];
 
   @override
   void initState() {
@@ -76,6 +80,21 @@ class _ConnectScreenState extends State<ConnectScreen>
 
   static bool _isValidHost(String host) =>
       _ipRegex.hasMatch(host) || _hostnameRegex.hasMatch(host);
+
+  Future<void> _scanLan() async {
+    if (_scanning) return;
+    setState(() {
+      _scanning = true;
+      _discovered = const [];
+    });
+    try {
+      final hosts = await LanDiscoveryService().scan();
+      if (!mounted) return;
+      setState(() => _discovered = hosts);
+    } finally {
+      if (mounted) setState(() => _scanning = false);
+    }
+  }
 
   Future<void> _connect() async {
     final host = _ipController.text.trim();
@@ -252,6 +271,60 @@ class _ConnectScreenState extends State<ConnectScreen>
                             ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+
+                  // Find on LAN
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _scanning ? null : _scanLan,
+                      icon: _scanning
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: AppColors.orange),
+                            )
+                          : const Icon(Icons.wifi_find_rounded,
+                              color: AppColors.orange),
+                      label: Text(
+                        _scanning
+                            ? (AppLocalizations.of(context)?.scanning ?? 'Scanning…')
+                            : (AppLocalizations.of(context)?.findEts2la ?? 'Find ETS2LA on LAN'),
+                        style: const TextStyle(fontFamily: 'Roboto', fontSize: 14),
+                      ),
+                    ),
+                  ),
+
+                  // Discovered hosts
+                  if (_discovered.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            AppLocalizations.of(context)?.foundOnLan ?? 'Found on LAN',
+                            style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 12,
+                                color: AppColors.textMuted),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ..._discovered.map((h) => _DiscoveredHostTile(
+                          host: h,
+                          onTap: () {
+                            _ipController.text = h.address;
+                            _connect();
+                          },
+                        )),
+                  ],
+
                   const SizedBox(height: 24),
 
                   // Recent hosts
@@ -282,6 +355,65 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ],
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DiscoveredHostTile extends StatelessWidget {
+  final DiscoveredHost host;
+  final VoidCallback onTap;
+
+  const _DiscoveredHostTile({required this.host, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.orange.withOpacity(0.35)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
+            child: Row(
+              children: [
+                const Icon(Icons.wifi_tethering_rounded,
+                    size: 18, color: AppColors.orange),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        host.instance.isEmpty ? host.address : host.instance,
+                        style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            color: AppColors.textPrimary),
+                      ),
+                      Text(
+                        '${host.address}:${host.port}',
+                        style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 12,
+                            color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: AppColors.textMuted),
+              ],
             ),
           ),
         ),

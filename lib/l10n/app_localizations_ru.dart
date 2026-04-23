@@ -390,4 +390,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gotIt => 'Понятно';
+
+  @override
+  String get profiles => 'Профили';
+
+  @override
+  String get profileName => 'Название';
+
+  @override
+  String get profileNameRequired => 'Введите название';
+
+  @override
+  String get saveAsProfile => 'Сохранить как профиль';
+
+  @override
+  String get deleteProfile => 'Удалить профиль';
+
+  @override
+  String get edit => 'Изменить';
+
+  @override
+  String get save => 'Сохранить';
 }

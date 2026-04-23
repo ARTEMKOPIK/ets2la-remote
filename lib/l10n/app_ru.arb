@@ -126,5 +126,13 @@
   "allowInstall": "Разрешить установку",
   "installPermissionHint": "Android по умолчанию блокирует установку из сторонних источников. Включите «Установка неизвестных приложений» для ETS2LA Remote и снова нажмите «Установить».",
   "whatsNewTitle": "Что нового",
-  "gotIt": "Понятно"
+  "gotIt": "Понятно",
+  "profiles": "Профили",
+  "profileName": "Название",
+  "profileNameRequired": "Введите название",
+  "saveAsProfile": "Сохранить как профиль",
+  "deleteProfile": "Удалить профиль",
+  "edit": "Изменить",
+  "save": "Сохранить",
+  "cancel": "Отмена"
 }

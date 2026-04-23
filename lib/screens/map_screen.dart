@@ -368,7 +368,7 @@ class _TileStyleSwitcher extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.92),
+        color: AppColors.surface.withOpacity(0.92),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.surfaceBorder),
       ),
@@ -433,7 +433,7 @@ class _TileStyleButton extends StatelessWidget {
               border: Border.all(
                 color: selected
                     ? AppColors.orange
-                    : AppColors.surfaceBorder.withValues(alpha: 0.5),
+                    : AppColors.surfaceBorder.withOpacity(0.5),
                 width: selected ? 1.2 : 0.8,
               ),
             ),

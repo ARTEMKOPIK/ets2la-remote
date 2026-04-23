@@ -63,18 +63,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
   }
 
-  /// Is a plugin by its canonical id currently loaded-and-running on the
-  /// backend? Used to decide whether to show the "Plugin disabled — tap to
-  /// enable" hint under the autopilot/ACC toggles. Returns `true` when we
-  /// just don't know (plugin list not yet received) to avoid flashing a
-  /// red hint during the first seconds after connect.
-  bool _pluginRunning(BuildContext context, String id) {
-    final telem = context.watch<TelemetryProvider>();
-    if (telem.plugins.isEmpty) return true;
-    final p = telem.plugins.where((p) => p.id == id).firstOrNull;
-    return p?.running ?? false;
-  }
-
   /// Push the onboarding screen once per install. Runs post-frame so the
   /// app has already built its full widget tree (avoiding "pushed during
   /// build" asserts). No-op on subsequent launches.
@@ -274,6 +262,19 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
     );
   }
+}
+
+/// Is a plugin by its canonical id currently loaded-and-running on the
+/// backend? Returns `true` when we just don't know (plugin list not yet
+/// received) to avoid flashing a red "Plugin disabled" hint during the
+/// first seconds after connect.
+bool _pluginRunning(BuildContext context, String id) {
+  final telem = context.watch<TelemetryProvider>();
+  if (telem.plugins.isEmpty) return true;
+  for (final p in telem.plugins) {
+    if (p.id == id) return p.running;
+  }
+  return false;
 }
 
 class _DashboardTab extends StatelessWidget {
@@ -1163,7 +1164,7 @@ class _ConnectionChip extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 5, vertical: 1),
                     decoration: BoxDecoration(
-                      color: _pingColor(pingMs!).withValues(alpha: 0.15),
+                      color: _pingColor(pingMs!).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -1240,7 +1241,7 @@ class _PluginChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: active
-                ? AppColors.success.withValues(alpha: 0.3)
+                ? AppColors.success.withOpacity(0.3)
                 : AppColors.surfaceBorder,
           ),
         ),

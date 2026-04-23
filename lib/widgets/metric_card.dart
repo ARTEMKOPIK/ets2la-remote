@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../utils/text_scale.dart';
 
 class MetricCard extends StatelessWidget {
   final String label;
@@ -144,11 +145,20 @@ class _PedalBar extends StatelessWidget {
       children: [
         SizedBox(
           width: 46, // wider to prevent BRAKE wrapping
-          child: Text(
-            label,
-            style: TextStyle(fontFamily: 'Roboto', fontSize: 10, color: AppColors.textSecondary, letterSpacing: 1),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
+          child: ClampedTextScale(
+            // Largest system font pushes this past the pill; cap it.
+            max: 1.1,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 10,
+                color: AppColors.textSecondary,
+                letterSpacing: 1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+            ),
           ),
         ),
         Expanded(

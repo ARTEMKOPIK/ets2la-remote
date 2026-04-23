@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ETS2LA</string>
+    <string name="title">ETS2LA Remote</string>
+    <string name="toggle_autopilot">Автопилот</string>
+    <string name="toggle_acc">Круиз</string>
+    <string name="sent">Отправлено</string>
+    <string name="no_phone">Телефон не подключён</string>
+</resources>

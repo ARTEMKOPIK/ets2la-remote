@@ -1,12 +1,10 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id "dev.flutter.flutter-gradle-plugin"
 }
 
-// Load signing config from android/key.properties when present.
-// CI writes this file from GitHub Secrets; locally it's gitignored.
+// Reuse the phone app's release signing if present so paired-device install
+// from the Play Store works as a single multi-APK release.
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -15,9 +13,16 @@ if (keystorePropertiesFile.exists()) {
 def hasReleaseSigning = keystoreProperties.containsKey("storeFile")
 
 android {
-    namespace = "com.ets2la.ets2la_remote"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.ets2la.ets2la_remote.wear"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.ets2la.ets2la_remote"
+        minSdk = 30 // Wear OS 3+
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -26,14 +31,6 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        applicationId = "com.ets2la.ets2la_remote"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
     }
 
     signingConfigs {
@@ -49,20 +46,22 @@ android {
 
     buildTypes {
         release {
-            // Use a stable release keystore when available (CI / local with key.properties),
-            // otherwise fall back to the debug key so `flutter run --release` still works locally.
             signingConfig = hasReleaseSigning ? signingConfigs.release : signingConfigs.debug
         }
     }
 }
 
-flutter {
-    source = "../.."
+repositories {
+    google()
+    mavenCentral()
 }
 
 dependencies {
-    // Wearable Data Layer — receives MessageClient pings from the Wear OS
-    // companion in :wear. The phone's WearMessageListenerService forwards
-    // them into Flutter via MainActivity intents.
+    implementation "androidx.core:core-ktx:1.13.1"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.activity:activity-ktx:1.9.2"
     implementation "com.google.android.gms:play-services-wearable:18.2.0"
+    implementation "androidx.wear:wear:1.3.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1"
 }

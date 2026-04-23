@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/websocket_service.dart';
@@ -10,8 +12,13 @@ class ConnectionProvider extends ChangeNotifier {
   ConnectionProvider() : super() {
     // Ports will be set in connect() using AppSettings
     _loadRecentHosts();
-    wsService.stateStream.listen((_) => notifyListeners());
+    _wsStateSub = wsService.stateStream.listen((_) {
+      if (!_disposed) notifyListeners();
+    });
   }
+
+  StreamSubscription<WsConnectionState>? _wsStateSub;
+  bool _disposed = false;
 
   AppSettings? _savedSettings;
 
@@ -130,6 +137,8 @@ class ConnectionProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
+    _wsStateSub?.cancel();
     wsService.dispose();
     navService.dispose();
     pagesService.dispose();

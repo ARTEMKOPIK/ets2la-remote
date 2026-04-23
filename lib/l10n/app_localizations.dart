@@ -62,8 +62,7 @@ import 'app_localizations_ru.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +82,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -113,7 +110,7 @@ abstract class AppLocalizations {
   /// No description provided for @pedals.
   ///
   /// In en, this message translates to:
-  /// **'Pedals'**
+  /// **'PEDALS'**
   String get pedals;
 
   /// No description provided for @steeringTheTruck.
@@ -247,12 +244,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ACC'**
   String get acc;
-
-  /// No description provided for @accShort.
-  ///
-  /// In en, this message translates to:
-  /// **'ACC'**
-  String get accShort;
 
   /// No description provided for @speed.
   ///
@@ -446,51 +437,278 @@ abstract class AppLocalizations {
   /// **'3D View'**
   String get view3d;
 
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Available'**
   String get updateAvailable;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
   String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind Me Later'**
   String get updateLater;
+
+  /// No description provided for @installUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Update'**
   String get installUpdate;
+
+  /// No description provided for @whatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new:'**
   String get whatsNew;
+
+  /// No description provided for @downloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading'**
   String get downloading;
+
+  /// No description provided for @downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded!'**
   String get downloaded;
+
+  /// No description provided for @running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
   String get running;
+
+  /// No description provided for @stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
   String get stopped;
+
+  /// No description provided for @autoConnectOnLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-connect on launch'**
   String get autoConnectOnLaunch;
+
+  /// No description provided for @reconnectToLastIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect to last IP automatically'**
   String get reconnectToLastIp;
+
+  /// No description provided for @connectionTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timeout'**
   String get connectionTimeout;
-  String secondsFormat(int count);
+
+  /// No description provided for @secondsFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} seconds'**
+  String secondsFormat(Object count);
+
+  /// No description provided for @portsAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports (Advanced)'**
   String get portsAdvanced;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
   String get appearance;
+
+  /// No description provided for @speedUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed units'**
   String get speedUnits;
+
+  /// No description provided for @speedometerMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Speedometer max'**
   String get speedometerMax;
+
+  /// No description provided for @showActivePlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Active Plugins'**
   String get showActivePlugins;
+
+  /// No description provided for @pluginChipsOnDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin chips on Dashboard'**
   String get pluginChipsOnDashboard;
+
+  /// No description provided for @autoFollowTruck.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-follow truck'**
   String get autoFollowTruck;
+
+  /// No description provided for @keepTruckCentered.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep truck centered by default'**
   String get keepTruckCentered;
+
+  /// No description provided for @showRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Show route'**
   String get showRoute;
+
+  /// No description provided for @displayNavRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Display navigation route on map'**
   String get displayNavRoute;
+
+  /// No description provided for @mapStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Map style'**
   String get mapStyle;
+
+  /// No description provided for @darkThemeByDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme by default'**
   String get darkThemeByDefault;
+
+  /// No description provided for @unityVizTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Unity visualization theme'**
   String get unityVizTheme;
+
+  /// No description provided for @autoConnectOnOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-connect on open'**
   String get autoConnectOnOpen;
+
+  /// No description provided for @connectWhenTabOpens.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to ETS2LA when tab opens'**
   String get connectWhenTabOpens;
+
+  /// No description provided for @connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
   String get connection;
+
+  /// No description provided for @firewallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time PC setup'**
   String get firewallTitle;
+
+  /// No description provided for @firewallBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.'**
   String get firewallBody;
+
+  /// No description provided for @runInPowerShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Run in PowerShell (Admin):'**
   String get runInPowerShell;
+
+  /// No description provided for @togglePluginsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle plugins that are already loaded in ETS2LA'**
   String get togglePluginsHint;
+
+  /// No description provided for @firstLaunchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'First launch only ~5s'**
   String get firstLaunchHint;
+
+  /// No description provided for @reconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting...'**
   String get reconnecting;
+
+  /// No description provided for @invalidIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid IPv4 address'**
   String get invalidIp;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
   String get checkForUpdates;
+
+  /// No description provided for @noUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re up to date'**
   String get noUpdates;
+
+  /// No description provided for @updatingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating {file}...'**
   String updatingFile(String file);
+
+  /// No description provided for @startingLocalServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting local server...'**
   String get startingLocalServer;
+
+  /// No description provided for @preparingUnity.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing Unity...'**
   String get preparingUnity;
+
+  /// No description provided for @autoFollowTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-follow'**
+  String get autoFollowTooltip;
+
+  /// No description provided for @noPositionData.
+  ///
+  /// In en, this message translates to:
+  /// **'No position data'**
+  String get noPositionData;
+
+  /// No description provided for @enableNavigationPlugin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable NavigationSockets plugin'**
+  String get enableNavigationPlugin;
+
+  /// No description provided for @game.
+  ///
+  /// In en, this message translates to:
+  /// **'GAME'**
+  String get game;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -499,25 +717,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'ru'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ru'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'ru':
-      return AppLocalizationsRu();
+    case 'en': return AppLocalizationsEn();
+    case 'ru': return AppLocalizationsRu();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

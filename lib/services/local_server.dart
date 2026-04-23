@@ -19,8 +19,6 @@ class LocalUnityServer {
   HttpServer? _server;
   bool _ready = false;
   bool _starting = false;
-  // ignore: unused_field
-  String? _dirPath;
 
   bool get isReady => _ready;
 
@@ -44,7 +42,6 @@ class LocalUnityServer {
       final appDir = await getApplicationSupportDirectory();
       final outDir = Directory('${appDir.path}/unity_viz');
       if (!await outDir.exists()) await outDir.create(recursive: true);
-      _dirPath = outDir.path;
 
       // Re-extract if version changed
       final versionFile = File('${outDir.path}/version.txt');

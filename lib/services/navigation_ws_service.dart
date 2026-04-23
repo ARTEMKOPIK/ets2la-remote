@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -63,7 +62,6 @@ class NavigationWsService {
   }
 
   void _handleMessage(Map<String, dynamic> msg) {
-    final id = msg['id'] as int?;
     final result = msg['result'] as Map<String, dynamic>?;
     if (result == null) return;
 
@@ -73,7 +71,7 @@ class NavigationWsService {
     final data = result['data'];
     if (data == null || data is! Map<String, dynamic>) return;
 
-    switch (id) {
+    switch (msg['id'] as int?) {
       case 1: // onPositionUpdate
         _positionController.add(NavPosition.fromJson(data));
         break;

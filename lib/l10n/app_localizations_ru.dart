@@ -1,5 +1,3 @@
-// ignore: unused_import
-import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -15,7 +13,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get recent => 'Недавние';
 
   @override
-  String get pedals => 'Педали';
+  String get pedals => 'ПЕДАЛИ';
 
   @override
   String get steeringTheTruck => 'Управление автомобилем';
@@ -82,9 +80,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get acc => 'Круиз';
-
-  @override
-  String get accShort => 'Круиз';
 
   @override
   String get speed => 'Скорость';
@@ -219,7 +214,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get connectionTimeout => 'Таймаут подключения';
 
   @override
-  String secondsFormat(int count) => '$count секунд';
+  String secondsFormat(Object count) {
+    return '$count секунд';
+  }
 
   @override
   String get portsAdvanced => 'Порты (для разработчиков)';
@@ -294,14 +291,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get checkForUpdates => 'Проверить обновления';
 
   @override
-  String get noUpdates => 'У вас последняя версия';
+  String get noUpdates => 'У вас актуальная версия';
 
   @override
-  String updatingFile(String file) => 'Обновление $file...';
+  String updatingFile(String file) {
+    return 'Обновление $file...';
+  }
 
   @override
   String get startingLocalServer => 'Запуск локального сервера...';
 
   @override
   String get preparingUnity => 'Подготовка Unity...';
+
+  @override
+  String get autoFollowTooltip => 'Автоследование';
+
+  @override
+  String get noPositionData => 'Нет данных позиции';
+
+  @override
+  String get enableNavigationPlugin => 'Включите плагин NavigationSockets';
+
+  @override
+  String get game => 'ИГРА';
 }

@@ -104,5 +104,9 @@
     }
   },
   "startingLocalServer": "Starting local server...",
-  "preparingUnity": "Preparing Unity..."
+  "preparingUnity": "Preparing Unity...",
+  "autoFollowTooltip": "Auto-follow",
+  "noPositionData": "No position data",
+  "enableNavigationPlugin": "Enable NavigationSockets plugin",
+  "game": "GAME"
 }

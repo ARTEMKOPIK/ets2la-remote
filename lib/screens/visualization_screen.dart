@@ -181,7 +181,6 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                 }
               }
             },
-            // debugPrint('[3DView] ${msg.message}'), // removed for production
           ),
         ),
 

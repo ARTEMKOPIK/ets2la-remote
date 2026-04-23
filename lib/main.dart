@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,7 +15,7 @@ import 'services/local_server.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  LocalUnityServer.instance.ensureStarted();
+  unawaited(LocalUnityServer.instance.ensureStarted());
 
   // Pre-load settings before building the widget tree
   final settings = await AppSettings.create();

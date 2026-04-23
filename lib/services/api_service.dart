@@ -62,35 +62,6 @@ class ApiService {
   /// Disable plugin by its exact description.name
   Future<bool> disablePluginByName(String name) => disablePlugin(name);
 
-  /// Legacy: enable by id — uses folder-based fallback
-  Future<bool> enablePluginById(String id) {
-    final name = _idToFolderName(id);
-    return enablePlugin(name);
-  }
-
-  Future<bool> disablePluginById(String id) {
-    final name = _idToFolderName(id);
-    return disablePlugin(name);
-  }
-
-  String _idToFolderName(String id) {
-    // Derive the folder name portion: "plugins.adaptivecruisecontrol" -> "AdaptiveCruiseControl"
-    const map = {
-      'map': 'Map',
-      'adaptivecruisecontrol': 'AdaptiveCruiseControl',
-      'collisionavoidance': 'CollisionAvoidance',
-      'ar': 'AR',
-      'hud': 'HUD',
-      'tts': 'TTS',
-      'eventlistener': 'EventListener',
-      'discordrichpresence': 'DiscordRichPresence',
-      'visualizationsockets': 'VisualizationSockets',
-      'navigationsockets': 'NavigationSockets',
-    };
-    final raw = id.split('.').last;
-    return map[raw] ?? raw;
-  }
-
   Future<bool> enablePlugin(String name) async {
     try {
       final res = await http

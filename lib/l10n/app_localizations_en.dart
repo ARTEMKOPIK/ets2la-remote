@@ -1,5 +1,3 @@
-// ignore: unused_import
-import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -15,7 +13,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recent => 'Recent';
 
   @override
-  String get pedals => 'Pedals';
+  String get pedals => 'PEDALS';
 
   @override
   String get steeringTheTruck => 'Steering the truck';
@@ -82,9 +80,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get acc => 'ACC';
-
-  @override
-  String get accShort => 'ACC';
 
   @override
   String get speed => 'Speed';
@@ -195,7 +190,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get installUpdate => 'Install Update';
 
   @override
-  String get whatsNew => "What's new:";
+  String get whatsNew => 'What\'s new:';
 
   @override
   String get downloading => 'Downloading';
@@ -219,7 +214,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionTimeout => 'Connection timeout';
 
   @override
-  String secondsFormat(int count) => '$count seconds';
+  String secondsFormat(Object count) {
+    return '$count seconds';
+  }
 
   @override
   String get portsAdvanced => 'Ports (Advanced)';
@@ -297,11 +294,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noUpdates => 'You\'re up to date';
 
   @override
-  String updatingFile(String file) => 'Updating $file...';
+  String updatingFile(String file) {
+    return 'Updating $file...';
+  }
 
   @override
   String get startingLocalServer => 'Starting local server...';
 
   @override
   String get preparingUnity => 'Preparing Unity...';
+
+  @override
+  String get autoFollowTooltip => 'Auto-follow';
+
+  @override
+  String get noPositionData => 'No position data';
+
+  @override
+  String get enableNavigationPlugin => 'Enable NavigationSockets plugin';
+
+  @override
+  String get game => 'GAME';
 }

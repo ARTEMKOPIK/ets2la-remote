@@ -135,5 +135,11 @@
   "deleteProfile": "Удалить профиль",
   "edit": "Изменить",
   "save": "Сохранить",
-  "cancel": "Отмена"
+  "cancel": "Отмена",
+  "macAddressOptional": "MAC-адрес (необязательно)",
+  "macAddressHelper": "Нужен для Wake-on-LAN",
+  "invalidMac": "Неверный MAC-адрес",
+  "wakeHost": "Разбудить ПК",
+  "wolSent": "Пакет Wake-on-LAN отправлен",
+  "wolFailed": "Не удалось отправить пакет Wake-on-LAN"
 }

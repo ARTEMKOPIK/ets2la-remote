@@ -414,4 +414,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get save => 'Сохранить';
+
+  @override
+  String get macAddressOptional => 'MAC-адрес (необязательно)';
+
+  @override
+  String get macAddressHelper => 'Нужен для Wake-on-LAN';
+
+  @override
+  String get invalidMac => 'Неверный MAC-адрес';
+
+  @override
+  String get wakeHost => 'Разбудить ПК';
+
+  @override
+  String get wolSent => 'Пакет Wake-on-LAN отправлен';
+
+  @override
+  String get wolFailed => 'Не удалось отправить пакет Wake-on-LAN';
 }

@@ -7,6 +7,7 @@ import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/lan_discovery_service.dart';
+import '../services/wake_on_lan_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
 
@@ -108,6 +109,7 @@ class _ConnectScreenState extends State<ConnectScreen>
     final l10n = AppLocalizations.of(context);
     final nameCtrl = TextEditingController(text: profile.name);
     final hostCtrl = TextEditingController(text: profile.host);
+    final macCtrl = TextEditingController(text: profile.mac ?? '');
     final formKey = GlobalKey<FormState>();
 
     final saved = await showDialog<bool>(
@@ -157,6 +159,24 @@ class _ConnectScreenState extends State<ConnectScreen>
                   return null;
                 },
               ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: macCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n?.macAddressOptional ?? 'MAC address (optional)',
+                  hintText: 'AA:BB:CC:11:22:33',
+                  helperText: l10n?.macAddressHelper ??
+                      'Needed for Wake-on-LAN',
+                ),
+                validator: (v) {
+                  final s = (v ?? '').trim();
+                  if (s.isEmpty) return null;
+                  if (!WakeOnLanService.isValidMac(s)) {
+                    return l10n?.invalidMac ?? 'Invalid MAC address';
+                  }
+                  return null;
+                },
+              ),
             ],
           ),
         ),
@@ -180,17 +200,51 @@ class _ConnectScreenState extends State<ConnectScreen>
       ),
     );
 
+    final newName = nameCtrl.text.trim();
+    final newHost = hostCtrl.text.trim();
+    final newMac = macCtrl.text.trim();
     nameCtrl.dispose();
     hostCtrl.dispose();
+    macCtrl.dispose();
 
     if (saved == true && mounted) {
       await context.read<ConnectionProvider>().saveProfile(
             profile.copyWith(
-              name: nameCtrl.text.trim(),
-              host: hostCtrl.text.trim(),
+              name: newName,
+              host: newHost,
+              mac: newMac.isEmpty ? null : newMac,
             ),
           );
     }
+  }
+
+  Future<void> _wakeProfile(ConnectionProfile profile) async {
+    final mac = profile.mac;
+    final l10n = AppLocalizations.of(context);
+    if (mac == null || mac.isEmpty) return;
+    final ok = await WakeOnLanService.instance.wake(mac);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor:
+            ok ? AppColors.toastSuccess : AppColors.toastError,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+        content: Text(
+          ok
+              ? (l10n?.wolSent ?? 'Wake-on-LAN packet sent')
+              : (l10n?.wolFailed ?? 'Failed to send Wake-on-LAN packet'),
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _connect() async {
@@ -504,6 +558,10 @@ class _ConnectScreenState extends State<ConnectScreen>
                           onRemove: () => context
                               .read<ConnectionProvider>()
                               .removeProfile(profile.id),
+                          onWake: (profile.mac != null &&
+                                  profile.mac!.isNotEmpty)
+                              ? () => _wakeProfile(profile)
+                              : null,
                         )),
                   ],
 
@@ -685,12 +743,14 @@ class _ProfileTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onRemove;
+  final VoidCallback? onWake;
 
   const _ProfileTile({
     required this.profile,
     required this.onTap,
     required this.onEdit,
     required this.onRemove,
+    this.onWake,
   });
 
   @override
@@ -740,6 +800,14 @@ class _ProfileTile extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onWake != null)
+                  IconButton(
+                    icon: const Icon(Icons.power_settings_new_rounded,
+                        size: 18, color: AppColors.orange),
+                    tooltip: l10n?.wakeHost ?? 'Wake host',
+                    onPressed: onWake,
+                    visualDensity: VisualDensity.compact,
+                  ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined,
                       size: 18, color: AppColors.textSecondary),

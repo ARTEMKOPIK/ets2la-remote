@@ -17,6 +17,7 @@ import '../theme/app_theme.dart';
 import '../widgets/speed_gauge.dart';
 import '../widgets/autopilot_card.dart';
 import '../widgets/metric_card.dart';
+import '../widgets/telemetry_sparkline.dart';
 import 'map_screen.dart';
 import 'settings_screen.dart';
 import 'visualization_screen.dart';
@@ -340,7 +341,12 @@ class _DashboardTab extends StatelessWidget {
               rightActive: state.isIndicatingRight,
             ),
           ],
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          _SpeedSparklineCard(
+            maxSpeed: settings.gaugeMaxValue,
+            speedUnitLabel: settings.speedUnitLabel,
+          ),
+          const SizedBox(height: 12),
           _PedalsCard(
             throttle: state.throttle,
             brake: state.brake,
@@ -413,6 +419,11 @@ class _DashboardTab extends StatelessWidget {
                   accEnabled: status.accEnabled,
                   onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
                   onToggleAcc: () => _toggleAcc(context, status.accEnabled),
+                ),
+                const SizedBox(height: 12),
+                _SpeedSparklineCard(
+                  maxSpeed: settings.gaugeMaxValue,
+                  speedUnitLabel: settings.speedUnitLabel,
                 ),
                 const SizedBox(height: 12),
                 _PedalsCard(

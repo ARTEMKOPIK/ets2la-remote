@@ -17,6 +17,15 @@ class TelemetryProvider extends ChangeNotifier {
   NavRoute? navRoute;
   List<PluginInfo> plugins = [];
 
+  /// Rolling ring buffer of the last ~60s of km/h samples for the sparkline
+  /// on the dashboard. Capped so we never grow unboundedly.
+  static const int _historyCap = 120;
+  final List<double> _speedHistory = <double>[];
+  DateTime _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Immutable view of the speed history (oldest first, newest last).
+  List<double> get speedHistory => List.unmodifiable(_speedHistory);
+
   StreamSubscription? _wsSub;
   StreamSubscription? _posSub;
   StreamSubscription? _routeSub;
@@ -58,12 +67,25 @@ class TelemetryProvider extends ChangeNotifier {
     switch (channel) {
       case 3:
         truckState = TruckState.fromJson(data);
+        _recordSpeedSample();
         _safeNotify();
         break;
       case 7:
         autopilotStatus = AutopilotStatus.fromJson(data);
         _safeNotify();
         break;
+    }
+  }
+
+  /// Subsample the WS stream at ~2 Hz so 60s of history fits in ~120 points
+  /// regardless of backend tick rate.
+  void _recordSpeedSample() {
+    final now = DateTime.now();
+    if (now.difference(_lastSpeedSample).inMilliseconds < 500) return;
+    _lastSpeedSample = now;
+    _speedHistory.add(truckState.speedKmh);
+    if (_speedHistory.length > _historyCap) {
+      _speedHistory.removeRange(0, _speedHistory.length - _historyCap);
     }
   }
 
@@ -78,6 +100,8 @@ class TelemetryProvider extends ChangeNotifier {
     navPosition = null;
     navRoute = null;
     plugins = [];
+    _speedHistory.clear();
+    _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
     _wsSub?.cancel();
     _posSub?.cancel();
     _routeSub?.cancel();

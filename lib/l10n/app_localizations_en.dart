@@ -378,4 +378,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectFailedHint => 'ETS2LA didn\'t answer. Opening the socket anyway…';
+
+  @override
+  String get allowInstall => 'Allow install';
+
+  @override
+  String get installPermissionHint => 'Android blocks third-party installs by default. Allow \"Install unknown apps\" for ETS2LA Remote, then tap Install again.';
 }

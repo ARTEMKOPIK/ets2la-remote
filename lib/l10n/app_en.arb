@@ -129,5 +129,7 @@
   "foundOnLan": "Found on LAN",
   "change": "Change",
   "scanFinishedNoHosts": "No ETS2LA found. Check it's running and on the same Wi-Fi.",
-  "connectFailedHint": "ETS2LA didn't answer. Opening the socket anyway…"
+  "connectFailedHint": "ETS2LA didn't answer. Opening the socket anyway…",
+  "allowInstall": "Allow install",
+  "installPermissionHint": "Android blocks third-party installs by default. Allow \"Install unknown apps\" for ETS2LA Remote, then tap Install again."
 }

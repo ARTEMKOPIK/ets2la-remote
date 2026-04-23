@@ -130,6 +130,36 @@ class UpdateService {
     }
   }
 
+  /// Fetch the release notes for a specific tag (e.g. the version that was
+  /// just installed), so the "What's new" dialog can show the real changelog
+  /// on first launch of a new build.
+  static Future<String?> getReleaseNotes(String version) async {
+    try {
+      final v = version.startsWith('v') ? version.substring(1) : version;
+      final res = await http.get(
+        Uri.parse(
+          'https://api.github.com/repos/$_repoOwner/$_repoName/releases/tags/v$v',
+        ),
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'User-Agent': '$_repoOwner-$_repoName',
+        },
+      ).timeout(const Duration(seconds: 10));
+      if (res.statusCode != 200) return null;
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final body = data['body'] as String? ?? '';
+      if (body.isEmpty) return null;
+      return UpdateInfo.cleanReleaseNotes(body);
+    } catch (e) {
+      debugPrint('UpdateService.getReleaseNotes error: $e');
+      return null;
+    }
+  }
+
+  /// Compare two semver-ish version strings, ignoring anything after a `-`.
+  /// Positive result → v1 is newer, 0 → equal, negative → v1 is older.
+  static int compareVersions(String v1, String v2) => _compareVersions(v1, v2);
+
   static int _compareVersions(String v1, String v2) {
     // Strip build suffix (e.g. "1.0.0-build.202604221613" -> "1.0.0")
     final clean1 = v1.contains('-') ? v1.substring(0, v1.indexOf('-')) : v1;

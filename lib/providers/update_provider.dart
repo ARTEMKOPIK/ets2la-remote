@@ -25,11 +25,19 @@ class UpdateProvider extends ChangeNotifier {
   String? _downloadedPath;
   bool _needsInstallPermission = false;
 
+  /// Release notes to show in the "What's new" dialog on first launch of
+  /// a new build. Non-null exactly once per version upgrade.
+  String? _whatsNewNotes;
+  String? _whatsNewVersion;
+
   UpdateState get state => _state;
   UpdateInfo? get updateInfo => _updateInfo;
   double get downloadProgress => _downloadProgress;
   String? get errorMessage => _errorMessage;
   String? get downloadedPath => _downloadedPath;
+  String? get whatsNewNotes => _whatsNewNotes;
+  String? get whatsNewVersion => _whatsNewVersion;
+  bool get hasWhatsNew => _whatsNewNotes != null;
 
   /// True when the APK is downloaded but the user hasn't granted
   /// "Install unknown apps" for this app. The dialog surfaces a help button
@@ -126,6 +134,44 @@ class UpdateProvider extends ChangeNotifier {
   void resetState() {
     _state = UpdateState.idle;
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Detect a freshly installed build and, if so, load the release notes for
+  /// it so the UI can show a one-shot "What's new" dialog. First install of
+  /// the app is silent — we only show notes after an actual upgrade.
+  Future<void> checkWhatsNew() async {
+    try {
+      final current = await UpdateService.getCurrentVersion();
+      final prefs = await SharedPreferences.getInstance();
+      final last = prefs.getString('last_seen_version');
+      if (last == null) {
+        // Fresh install — nothing to show, just seed the baseline.
+        await prefs.setString('last_seen_version', current);
+        return;
+      }
+      if (UpdateService.compareVersions(current, last) <= 0) return;
+
+      // Mark the upgrade as seen before we fetch release notes so a network
+      // failure doesn't make us re-try on every launch.
+      await prefs.setString('last_seen_version', current);
+
+      final notes = await UpdateService.getReleaseNotes(current);
+      if (notes == null || notes.isEmpty) return;
+      _whatsNewVersion = current;
+      _whatsNewNotes = notes;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('UpdateProvider.checkWhatsNew error: $e');
+    }
+  }
+
+  /// Clear the "What's new" payload after the dialog is dismissed so it
+  /// doesn't re-open.
+  void dismissWhatsNew() {
+    if (_whatsNewNotes == null) return;
+    _whatsNewNotes = null;
+    _whatsNewVersion = null;
     notifyListeners();
   }
 

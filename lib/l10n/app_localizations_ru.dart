@@ -384,4 +384,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get installPermissionHint => 'Android по умолчанию блокирует установку из сторонних источников. Включите «Установка неизвестных приложений» для ETS2LA Remote и снова нажмите «Установить».';
+
+  @override
+  String get whatsNewTitle => 'Что нового';
+
+  @override
+  String get gotIt => 'Понятно';
 }

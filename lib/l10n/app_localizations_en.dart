@@ -384,4 +384,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get installPermissionHint => 'Android blocks third-party installs by default. Allow \"Install unknown apps\" for ETS2LA Remote, then tap Install again.';
+
+  @override
+  String get whatsNewTitle => 'What\'s new';
+
+  @override
+  String get gotIt => 'Got it';
 }

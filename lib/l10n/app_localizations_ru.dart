@@ -293,6 +293,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get networkOffline => 'Нет подключения к интернету';
 
   @override
+  String get fullscreen => 'Во весь экран';
+
+  @override
+  String get exitFullscreen => 'Выйти из полного экрана';
+
+  @override
+  String get lightTheme => 'Светлая тема';
+
+  @override
+  String get darkTheme => 'Тёмная тема';
+
+  @override
+  String get zoomIn => 'Приблизить';
+
+  @override
+  String get zoomOut => 'Отдалить';
+
+  @override
+  String get resetCamera => 'Сбросить камеру';
+
+  @override
+  String get mapAttributionTitle => 'Источники карты';
+
+  @override
   String get runInPowerShell => 'Выполните в PowerShell (Админ):';
 
   @override

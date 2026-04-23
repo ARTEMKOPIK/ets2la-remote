@@ -106,22 +106,43 @@ class AppSettings extends ChangeNotifier {
   Future<void> _load() async {
     final p = await SharedPreferences.getInstance();
     _autoConnect = p.getBool('autoConnect') ?? false;
-    _connectionTimeout = p.getInt('connectionTimeout') ?? 5;
-    _portApi = p.getInt('portApi') ?? 37520;
-    _portViz = p.getInt('portViz') ?? 37522;
-    _portNav = p.getInt('portNav') ?? 62840;
-    _portPages = p.getInt('portPages') ?? 37523;
-    _speedUnit = SpeedUnit.values[p.getInt('speedUnit') ?? 0];
-    _gaugeMax = GaugeMaxSpeed.values[p.getInt('gaugeMax') ?? 1];
+    // Clamp on load too (not just in the UI that writes the value): protects
+    // against corrupted prefs, app downgrades, or prefs edited by hand.
+    _connectionTimeout = (p.getInt('connectionTimeout') ?? 5).clamp(1, 60);
+    _portApi = _clampPort(p.getInt('portApi'), 37520);
+    _portViz = _clampPort(p.getInt('portViz'), 37522);
+    _portNav = _clampPort(p.getInt('portNav'), 62840);
+    _portPages = _clampPort(p.getInt('portPages'), 37523);
+    _speedUnit = _safeEnum(SpeedUnit.values, p.getInt('speedUnit'), SpeedUnit.kmh);
+    _gaugeMax = _safeEnum(GaugeMaxSpeed.values, p.getInt('gaugeMax'), GaugeMaxSpeed.s200);
     _showActivePlugins = p.getBool('showActivePlugins') ?? true;
     _language = p.getString('language'); // null = system default
     _mapAutoFollow = p.getBool('mapAutoFollow') ?? true;
-    _mapTileStyle = MapTileStyle.values[p.getInt('mapTileStyle') ?? 0];
+    _mapTileStyle =
+        _safeEnum(MapTileStyle.values, p.getInt('mapTileStyle'), MapTileStyle.dark);
     _mapShowRoute = p.getBool('mapShowRoute') ?? true;
     _vizDarkTheme = p.getBool('vizDarkTheme') ?? true;
     _vizAutoConnect = p.getBool('vizAutoConnect') ?? true;
     _isReady = true;
     notifyListeners();
+  }
+
+  /// Clamp a persisted port value to the RFC 6335 user/registered range.
+  /// Falls back to [fallback] when the stored value is missing or garbage.
+  static int _clampPort(int? raw, int fallback) {
+    if (raw == null) return fallback;
+    if (raw < 1 || raw > 65535) return fallback;
+    return raw;
+  }
+
+  /// Safely resolve an enum index persisted in SharedPreferences. If the
+  /// stored index is out of range (e.g. the user downgraded after a new
+  /// value was introduced, or prefs were corrupted), fall back to [fallback]
+  /// instead of throwing `RangeError` and crashing app startup.
+  static T _safeEnum<T>(List<T> values, int? index, T fallback) {
+    if (index == null) return fallback;
+    if (index < 0 || index >= values.length) return fallback;
+    return values[index];
   }
 
   Future<void> _save() async {

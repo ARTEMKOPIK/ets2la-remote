@@ -287,25 +287,41 @@ class _VisualizationScreenState extends State<VisualizationScreen>
               // Fullscreen
               _CircleButton(
                 icon: _fullscreen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-                label: _fullscreen ? 'Exit fullscreen' : 'Fullscreen',
+                label: _fullscreen
+                    ? (AppLocalizations.of(context)?.exitFullscreen ?? 'Exit fullscreen')
+                    : (AppLocalizations.of(context)?.fullscreen ?? 'Fullscreen'),
                 onTap: _toggleFullscreen,
               ),
               const SizedBox(height: 8),
               // Theme toggle
               _CircleButton(
                 icon: _darkTheme ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                label: _darkTheme ? 'Light theme' : 'Dark theme',
+                label: _darkTheme
+                    ? (AppLocalizations.of(context)?.lightTheme ?? 'Light theme')
+                    : (AppLocalizations.of(context)?.darkTheme ?? 'Dark theme'),
                 onTap: _toggleTheme,
               ),
               const SizedBox(height: 8),
               // Zoom in
-              _CircleButton(icon: Icons.add_rounded, label: 'Zoom in', onTap: _zoomIn),
+              _CircleButton(
+                icon: Icons.add_rounded,
+                label: AppLocalizations.of(context)?.zoomIn ?? 'Zoom in',
+                onTap: _zoomIn,
+              ),
               const SizedBox(height: 8),
               // Reset camera
-              _CircleButton(icon: Icons.my_location_rounded, label: 'Reset camera', onTap: _resetCamera),
+              _CircleButton(
+                icon: Icons.my_location_rounded,
+                label: AppLocalizations.of(context)?.resetCamera ?? 'Reset camera',
+                onTap: _resetCamera,
+              ),
               const SizedBox(height: 8),
               // Zoom out
-              _CircleButton(icon: Icons.remove_rounded, label: 'Zoom out', onTap: _zoomOut),
+              _CircleButton(
+                icon: Icons.remove_rounded,
+                label: AppLocalizations.of(context)?.zoomOut ?? 'Zoom out',
+                onTap: _zoomOut,
+              ),
             ],
           ),
         ),

@@ -443,6 +443,8 @@ class _PortTile extends StatelessWidget {
 
   void _editPort(BuildContext context) {
     final ctrl = TextEditingController(text: '$value');
+    // `showDialog` never completes before `dispose` is safe; tie the
+    // controller lifetime to the dialog instead of leaking it on every edit.
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -476,7 +478,7 @@ class _PortTile extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).whenComplete(ctrl.dispose);
   }
 }
 

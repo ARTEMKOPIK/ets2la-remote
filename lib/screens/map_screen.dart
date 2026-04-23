@@ -5,6 +5,7 @@ import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/telemetry.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
@@ -104,23 +105,30 @@ class _MapScreenState extends State<MapScreen>
       ),
       body: Stack(
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: truckPos ?? const LatLng(51.0, 10.0),
-              initialZoom: 13,
-              onTap: (_, __) => setState(() => _autoFollowOverride = false),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: settings.mapTileUrl,
-                // No subdomains for satellite (ArcGIS), use {s} only for carto
-                subdomains: settings.mapTileStyle == MapTileStyle.satellite
-                    ? const []
-                    : const ['a', 'b', 'c', 'd'],
-                userAgentPackageName: 'com.ets2la.remote',
-                maxZoom: 19,
+          // RepaintBoundary isolates the high-frequency telemetry repaints
+          // (~10Hz) from bubbling up to the rest of the widget tree. Without
+          // it, every truck-position tick forces a repaint of the AppBar,
+          // info overlay, etc.
+          RepaintBoundary(
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: truckPos ?? const LatLng(51.0, 10.0),
+                initialZoom: 13,
+                onTap: (_, __) => setState(() => _autoFollowOverride = false),
               ),
+              children: [
+                TileLayer(
+                  urlTemplate: settings.mapTileUrl,
+                  // No subdomains for satellite (ArcGIS), use {s} only for carto
+                  subdomains: settings.mapTileStyle == MapTileStyle.satellite
+                      ? const []
+                      : const ['a', 'b', 'c', 'd'],
+                  // Must match the real application id so OSM/Carto can
+                  // identify and rate-limit our traffic per their UA policy.
+                  userAgentPackageName: 'com.ets2la.ets2la_remote',
+                  maxZoom: 19,
+                ),
 
               // Route polyline
               if (settings.mapShowRoute &&
@@ -171,7 +179,13 @@ class _MapScreenState extends State<MapScreen>
                     ),
                   ],
                 ),
-            ],
+
+              // Tile-provider attribution. Required by OSM/Carto/ArcGIS ToS
+              // — omitting it is cause for tile-server rate-limiting or an
+              // outright block. Collapsible so it doesn't cover the map.
+              _buildAttribution(context, settings.mapTileStyle),
+              ],
+            ),
           ),
 
           // Info overlay (top-left)
@@ -274,5 +288,48 @@ class _MapScreenState extends State<MapScreen>
     _listeningTo?.removeListener(_onTelemetryTick);
     _mapController.dispose();
     super.dispose();
+  }
+
+  /// Build a [RichAttributionWidget] appropriate for the currently-selected
+  /// tile provider. Complying with each provider's attribution ToS is
+  /// required to avoid rate-limiting or tile-server bans.
+  Widget _buildAttribution(BuildContext context, MapTileStyle style) {
+    Future<void> openUrl(String url) async {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
+
+    final List<TextSourceAttribution> items;
+    switch (style) {
+      case MapTileStyle.satellite:
+        items = [
+          TextSourceAttribution(
+            'Esri World Imagery',
+            onTap: () => openUrl('https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9'),
+          ),
+        ];
+        break;
+      case MapTileStyle.dark:
+      case MapTileStyle.light:
+        items = [
+          TextSourceAttribution(
+            '© OpenStreetMap contributors',
+            onTap: () => openUrl('https://www.openstreetmap.org/copyright'),
+          ),
+          TextSourceAttribution(
+            '© CARTO',
+            onTap: () => openUrl('https://carto.com/attributions'),
+          ),
+        ];
+        break;
+    }
+
+    return RichAttributionWidget(
+      alignment: AttributionAlignment.bottomLeft,
+      showFlutterMapAttribution: false,
+      attributions: items,
+    );
   }
 }

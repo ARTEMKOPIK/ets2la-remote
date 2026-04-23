@@ -293,6 +293,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkOffline => 'You appear to be offline';
 
   @override
+  String get fullscreen => 'Fullscreen';
+
+  @override
+  String get exitFullscreen => 'Exit fullscreen';
+
+  @override
+  String get lightTheme => 'Light theme';
+
+  @override
+  String get darkTheme => 'Dark theme';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get resetCamera => 'Reset camera';
+
+  @override
+  String get mapAttributionTitle => 'Map data';
+
+  @override
   String get runInPowerShell => 'Run in PowerShell (Admin):';
 
   @override

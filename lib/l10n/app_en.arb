@@ -168,5 +168,13 @@
   "updateDownloadFailed": "Update download failed",
   "updateInstallFailed": "Install failed",
   "updateCheckFailed": "Couldn't check for updates",
-  "networkOffline": "You appear to be offline"
+  "networkOffline": "You appear to be offline",
+  "fullscreen": "Fullscreen",
+  "exitFullscreen": "Exit fullscreen",
+  "lightTheme": "Light theme",
+  "darkTheme": "Dark theme",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "resetCamera": "Reset camera",
+  "mapAttributionTitle": "Map data"
 }

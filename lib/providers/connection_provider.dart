@@ -7,6 +7,7 @@ import '../services/websocket_service.dart';
 import '../services/navigation_ws_service.dart';
 import '../services/pages_ws_service.dart';
 import '../services/api_service.dart';
+import '../services/keep_alive_service.dart';
 import 'settings_provider.dart';
 
 /// Localized error codes emitted by [ConnectionProvider]. UI code maps these
@@ -140,6 +141,9 @@ class ConnectionProvider extends ChangeNotifier {
       await navService.connect(cleanHost);
       await pagesService.connect(cleanHost);
       await _saveHost(cleanHost);
+      // Promote the process so Android doesn't kill the WebSocket when the
+      // screen turns off; no-op on non-Android platforms.
+      unawaited(KeepAliveService.instance.start(cleanHost));
 
       _isConnecting = false;
       notifyListeners();
@@ -157,6 +161,7 @@ class ConnectionProvider extends ChangeNotifier {
     wsService.disconnect();
     navService.disconnect();
     pagesService.disconnect();
+    unawaited(KeepAliveService.instance.stop());
     _currentHost = '';
     _errorMessage = null;
     notifyListeners();

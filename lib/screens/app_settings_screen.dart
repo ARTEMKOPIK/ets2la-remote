@@ -557,7 +557,7 @@ class _CheckUpdateTileState extends State<_CheckUpdateTile> {
   Future<void> _checkForUpdate() async {
     setState(() => _checking = true);
     final upd = context.read<UpdateProvider>();
-    await upd.checkForUpdate();
+    await upd.checkForUpdate(manual: true);
     if (!mounted) return;
     setState(() => _checking = false);
 

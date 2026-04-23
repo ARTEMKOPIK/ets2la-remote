@@ -41,7 +41,10 @@ class VisualizationWsService {
   }
 
   Future<void> _doConnect() async {
-    if (_state == WsConnectionState.connecting) return;
+    if (_state == WsConnectionState.connecting ||
+        _state == WsConnectionState.connected) {
+      return;
+    }
     _setState(WsConnectionState.connecting);
 
     try {
@@ -84,7 +87,10 @@ class VisualizationWsService {
     if (_subscribed) return;
     _subscribed = true;
     _send({'method': 'acknowledge', 'channel': 0});
-    _send({'method': 'subscribe', 'channel': 1}); // transform
+    // Channel 1 (truck transform) is the highest-frequency stream ETS2LA
+    // publishes; we don't render the truck mesh on the phone so skip the
+    // subscription to save CPU and WS bandwidth. Re-add if a future screen
+    // actually needs the transform.
     _send({'method': 'subscribe', 'channel': 3}); // truck state
     _send({'method': 'subscribe', 'channel': 7}); // autopilot status
   }

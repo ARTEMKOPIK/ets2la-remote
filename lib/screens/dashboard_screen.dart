@@ -77,6 +77,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     final settings = context.read<AppSettings>();
     final conn = context.read<ConnectionProvider>();
     conn.configurePorts(settings);
+    // Stale error from a previous session or a manual disconnect would
+    // otherwise flash the red banner while we're happily reconnecting.
+    conn.clearError();
 
     if (!settings.autoConnect) return;
 

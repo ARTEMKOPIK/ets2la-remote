@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_autopilot_button">Autopilot</string>
+    <string name="widget_acc_button">ACC</string>
+    <string name="widget_autopilot_button_desc">Toggle ETS2LA autopilot</string>
+    <string name="widget_acc_button_desc">Toggle ETS2LA adaptive cruise control</string>
+    <string name="widget_autopilot_description">Toggle ETS2LA autopilot and ACC from the home screen.</string>
+</resources>

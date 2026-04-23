@@ -8,6 +8,7 @@ import '../services/navigation_ws_service.dart';
 import '../services/pages_ws_service.dart';
 import '../services/api_service.dart';
 import '../services/keep_alive_service.dart';
+import '../services/widget_actions.dart';
 import 'settings_provider.dart';
 
 /// Localized error codes emitted by [ConnectionProvider]. UI code maps these
@@ -21,6 +22,22 @@ class ConnectionProvider extends ChangeNotifier {
     _wsStateSub = wsService.stateStream.listen((_) {
       if (!_disposed) notifyListeners();
     });
+    // Route home-screen widget taps into the live Pages WS. If no session
+    // is connected we silently drop the action; the widget still works as
+    // a launch-the-app shortcut since MainActivity was started by the tap.
+    WidgetActionBridge.instance.setHandler(_handleWidgetAction);
+  }
+
+  Future<void> _handleWidgetAction(String action) async {
+    if (!isConnected) return;
+    switch (action) {
+      case WidgetAction.toggleSteering:
+        await pagesService.toggleSteering();
+        break;
+      case WidgetAction.toggleAcc:
+        await pagesService.toggleAcc();
+        break;
+    }
   }
 
   late final Future<void> _ready;

@@ -1,6 +1,7 @@
 package com.ets2la.ets2la_remote
 
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.WifiManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,10 +10,16 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val multicastChannel = "ets2la_remote/multicast_lock"
     private val keepAliveChannel = "ets2la_remote/keepalive"
+    private val widgetChannel = "ets2la_remote/widget"
     private var lock: WifiManager.MulticastLock? = null
+
+    /** Last widget action received before Dart had a chance to consume it. */
+    private var pendingWidgetAction: String? = null
+    private var widgetChannelRef: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, multicastChannel)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -27,6 +34,7 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, keepAliveChannel)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -48,6 +56,40 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        widgetChannelRef = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            widgetChannel,
+        ).apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getInitialAction" -> {
+                        val action = pendingWidgetAction
+                        pendingWidgetAction = null
+                        result.success(action)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        }
+        // Consume the intent that started the activity (cold start from widget).
+        consumeWidgetIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        consumeWidgetIntent(intent)
+    }
+
+    private fun consumeWidgetIntent(intent: Intent?) {
+        val action = intent?.getStringExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION)
+            ?: return
+        val channel = widgetChannelRef
+        if (channel != null) {
+            channel.invokeMethod("widgetAction", action)
+        } else {
+            pendingWidgetAction = action
+        }
     }
 
     private fun acquireLock() {

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_btn_autopilot"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginEnd="6dp"
+        android:gravity="center"
+        android:background="@drawable/widget_button_autopilot"
+        android:textColor="#FF9500"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:text="@string/widget_autopilot_button"
+        android:contentDescription="@string/widget_autopilot_button_desc"
+        android:focusable="true"
+        android:clickable="true" />
+
+    <TextView
+        android:id="@+id/widget_btn_acc"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:background="@drawable/widget_button_acc"
+        android:textColor="#3A86FF"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:text="@string/widget_acc_button"
+        android:contentDescription="@string/widget_acc_button_desc"
+        android:focusable="true"
+        android:clickable="true" />
+</LinearLayout>

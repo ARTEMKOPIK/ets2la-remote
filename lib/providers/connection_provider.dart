@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/connection_profile.dart';
 import '../services/websocket_service.dart';
 import '../services/navigation_ws_service.dart';
 import '../services/pages_ws_service.dart';
@@ -17,7 +18,7 @@ enum ConnectionErrorCode { unreachable, failed, invalidHost }
 class ConnectionProvider extends ChangeNotifier {
   ConnectionProvider() : super() {
     // Ports will be set in connect() using AppSettings
-    _ready = _loadRecentHosts();
+    _ready = _loadState();
     _wsStateSub = wsService.stateStream.listen((_) {
       if (!_disposed) notifyListeners();
     });
@@ -76,11 +77,13 @@ class ConnectionProvider extends ChangeNotifier {
 
   String _currentHost = '';
   List<String> _recentHosts = [];
+  List<ConnectionProfile> _profiles = [];
   bool _isConnecting = false;
   String? _errorMessage;
 
   String get currentHost => _currentHost;
   List<String> get recentHosts => _recentHosts;
+  List<ConnectionProfile> get profiles => List.unmodifiable(_profiles);
   bool get isConnecting => _isConnecting;
   String? get errorMessage => _errorMessage;
 
@@ -95,10 +98,40 @@ class ConnectionProvider extends ChangeNotifier {
       wsService.state == WsConnectionState.connecting ||
       _currentHost.isNotEmpty;
 
-  Future<void> _loadRecentHosts() async {
+  Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
     _recentHosts = prefs.getStringList('recent_hosts') ?? [];
+    _profiles = ConnectionProfile.decodeAll(prefs.getString('connection_profiles'));
     notifyListeners();
+  }
+
+  Future<void> _saveProfiles() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'connection_profiles',
+      ConnectionProfile.encodeAll(_profiles),
+    );
+  }
+
+  /// Insert or replace a profile identified by [ConnectionProfile.id].
+  /// New profiles are inserted at the top so most-recently-saved floats up.
+  Future<void> saveProfile(ConnectionProfile profile) async {
+    final idx = _profiles.indexWhere((p) => p.id == profile.id);
+    if (idx >= 0) {
+      _profiles[idx] = profile;
+    } else {
+      _profiles.insert(0, profile);
+    }
+    notifyListeners();
+    await _saveProfiles();
+  }
+
+  Future<void> removeProfile(String id) async {
+    final before = _profiles.length;
+    _profiles.removeWhere((p) => p.id == id);
+    if (_profiles.length == before) return;
+    notifyListeners();
+    await _saveProfiles();
   }
 
   Future<void> _saveHost(String host) async {

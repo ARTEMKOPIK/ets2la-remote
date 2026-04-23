@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import '../models/connection_profile.dart';
 import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
@@ -100,6 +101,95 @@ class _ConnectScreenState extends State<ConnectScreen>
           _scanFinished = true;
         });
       }
+    }
+  }
+
+  Future<void> _showProfileDialog(ConnectionProfile profile) async {
+    final l10n = AppLocalizations.of(context);
+    final nameCtrl = TextEditingController(text: profile.name);
+    final hostCtrl = TextEditingController(text: profile.host);
+    final formKey = GlobalKey<FormState>();
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          profile.name.isEmpty
+              ? (l10n?.saveAsProfile ?? 'Save as profile')
+              : (l10n?.edit ?? 'Edit'),
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameCtrl,
+                autofocus: profile.name.isEmpty,
+                decoration: InputDecoration(
+                  labelText: l10n?.profileName ?? 'Name',
+                  hintText: 'Home PC',
+                ),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? (l10n?.profileNameRequired ?? 'Enter a name')
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: hostCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n?.enterIp ?? 'Host',
+                ),
+                validator: (v) {
+                  final s = (v ?? '').trim();
+                  if (s.isEmpty) return l10n?.invalidHost ?? 'Invalid host';
+                  if (!_ipRegex.hasMatch(s) && !_hostnameRegex.hasMatch(s)) {
+                    return l10n?.invalidHost ?? 'Invalid host';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n?.cancel ?? 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                Navigator.of(ctx).pop(true);
+              }
+            },
+            child: Text(
+              l10n?.save ?? 'Save',
+              style: const TextStyle(color: AppColors.orange),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    nameCtrl.dispose();
+    hostCtrl.dispose();
+
+    if (saved == true && mounted) {
+      await context.read<ConnectionProvider>().saveProfile(
+            profile.copyWith(
+              name: nameCtrl.text.trim(),
+              host: hostCtrl.text.trim(),
+            ),
+          );
     }
   }
 
@@ -384,6 +474,39 @@ class _ConnectScreenState extends State<ConnectScreen>
 
                   const SizedBox(height: 24),
 
+                  // Saved profiles
+                  if (conn.profiles.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            AppLocalizations.of(context)?.profiles ?? 'Profiles',
+                            style: const TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ...conn.profiles.map((profile) => _ProfileTile(
+                          profile: profile,
+                          onTap: () {
+                            _ipController.text = profile.host;
+                            _connect();
+                          },
+                          onEdit: () => _showProfileDialog(profile),
+                          onRemove: () => context
+                              .read<ConnectionProvider>()
+                              .removeProfile(profile.id),
+                        )),
+                  ],
+
                   // Recent hosts
                   if (conn.recentHosts.isNotEmpty) ...[
                     Row(
@@ -408,6 +531,13 @@ class _ConnectScreenState extends State<ConnectScreen>
                           onRemove: () => context
                               .read<ConnectionProvider>()
                               .removeRecentHost(host),
+                          onSaveAsProfile: () => _showProfileDialog(
+                            ConnectionProfile(
+                              id: DateTime.now().microsecondsSinceEpoch.toString(),
+                              name: '',
+                              host: host,
+                            ),
+                          ),
                         )),
                   ],
                 ],
@@ -483,16 +613,20 @@ class _RecentHostTile extends StatelessWidget {
   final String host;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final VoidCallback onSaveAsProfile;
 
   const _RecentHostTile({
     required this.host,
     required this.onTap,
     required this.onRemove,
+    required this.onSaveAsProfile,
   });
 
   @override
   Widget build(BuildContext context) {
-    final removeLabel = AppLocalizations.of(context)?.removeFromRecent ?? 'Remove';
+    final l10n = AppLocalizations.of(context);
+    final removeLabel = l10n?.removeFromRecent ?? 'Remove';
+    final saveLabel = l10n?.saveAsProfile ?? 'Save as profile';
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -520,9 +654,103 @@ class _RecentHostTile extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  icon: const Icon(Icons.bookmark_add_outlined,
+                      size: 18, color: AppColors.textSecondary),
+                  tooltip: saveLabel,
+                  onPressed: onSaveAsProfile,
+                  visualDensity: VisualDensity.compact,
+                ),
+                IconButton(
                   icon: const Icon(Icons.close_rounded,
                       size: 18, color: AppColors.textSecondary),
                   tooltip: removeLabel,
+                  onPressed: onRemove,
+                  visualDensity: VisualDensity.compact,
+                ),
+                const SizedBox(width: 2),
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 12),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  final ConnectionProfile profile;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onRemove;
+
+  const _ProfileTile({
+    required this.profile,
+    required this.onTap,
+    required this.onEdit,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.surfaceBorder),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onEdit,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 4, 6),
+            child: Row(
+              children: [
+                const Icon(Icons.bookmark_rounded,
+                    size: 18, color: AppColors.orange),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.name,
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        profile.host,
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined,
+                      size: 18, color: AppColors.textSecondary),
+                  tooltip: l10n?.edit ?? 'Edit',
+                  onPressed: onEdit,
+                  visualDensity: VisualDensity.compact,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded,
+                      size: 18, color: AppColors.textSecondary),
+                  tooltip: l10n?.deleteProfile ?? 'Delete profile',
                   onPressed: onRemove,
                   visualDensity: VisualDensity.compact,
                 ),

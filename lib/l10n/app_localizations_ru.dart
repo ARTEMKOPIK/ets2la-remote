@@ -127,7 +127,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancel => 'Отмена';
 
   @override
-  String get ok => 'OK';
+  String get ok => 'ОК';
 
   @override
   String get error => 'Ошибка';
@@ -170,9 +170,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get firewallCmd => 'Выполните на ПК:';
-
-  @override
-  String get copied => 'Скопировано';
 
   @override
   String get view3d => '3D Вид';
@@ -323,7 +320,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copy => 'Копировать';
 
   @override
+  String get copied => 'Скопировано';
+
+  @override
   String get languageSystem => 'Системный';
+
+  @override
+  String get hostnameOrIp => 'IP или имя хоста';
+
+  @override
+  String get invalidHost => 'Введите корректный IP адрес или имя хоста';
+
+  @override
+  String get pluginEnabled => 'Плагин включён';
+
+  @override
+  String get pluginDisabled => 'Плагин выключен';
+
+  @override
+  String get pluginToggleFailed => 'Не удалось переключить плагин';
 
   @override
   String get ets2laOnGithub => 'ETS2LA на GitHub';
@@ -342,21 +357,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get portsAdvancedHint => 'Меняйте, только если ETS2LA использует нестандартные порты';
-
-  @override
-  String get hostnameOrIp => 'IP или имя хоста';
-
-  @override
-  String get invalidHost => 'Введите корректный IP адрес или имя хоста';
-
-  @override
-  String get pluginEnabled => 'Плагин включён';
-
-  @override
-  String get pluginDisabled => 'Плагин выключен';
-
-  @override
-  String get pluginToggleFailed => 'Не удалось переключить плагин';
 
   @override
   String get findEts2la => 'Найти ETS2LA в сети';

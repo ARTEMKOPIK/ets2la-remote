@@ -47,7 +47,8 @@ class KeepAliveService : Service() {
                 return START_NOT_STICKY
             }
             ACTION_UPDATE -> {
-                val title = intent.getStringExtra(EXTRA_TITLE) ?: "ETS2LA Remote"
+                val title = intent.getStringExtra(EXTRA_TITLE)
+                    ?: getString(R.string.notification_title)
                 val body = intent.getStringExtra(EXTRA_BODY) ?: ""
                 postOrUpdateNotification(title, body)
                 return START_STICKY
@@ -55,8 +56,12 @@ class KeepAliveService : Service() {
             else -> {
                 // ACTION_START (or initial start) — show notification and go foreground
                 val host = intent?.getStringExtra(EXTRA_HOST) ?: ""
-                val title = "ETS2LA Remote"
-                val body = if (host.isEmpty()) "Connected" else "Connected to $host"
+                val title = getString(R.string.notification_title)
+                val body = if (host.isEmpty()) {
+                    getString(R.string.notification_body_connected)
+                } else {
+                    getString(R.string.notification_body_connected_to, host)
+                }
                 startAsForeground(title, body)
                 return START_STICKY
             }
@@ -89,10 +94,10 @@ class KeepAliveService : Service() {
         if (nm.getNotificationChannel(CHANNEL_ID) != null) return
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Connection",
+            getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = "Keeps the connection to ETS2LA alive while the screen is off."
+            description = getString(R.string.notification_channel_description)
             setShowBadge(false)
         }
         nm.createNotificationChannel(channel)

@@ -241,8 +241,13 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     Icon(Icons.speed_rounded, size: 12, color: AppColors.orange),
                     const SizedBox(width: 4),
                     Text(
-                      '${(settings.speedUnit == SpeedUnit.kmh ? telem.truckState.speedKmh : telem.truckState.speedKmh * 0.621371).toStringAsFixed(0)} ${settings.speedUnit == SpeedUnit.kmh ? "km/h" : "mph"}',
-                      style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      '${settings.speedDisplay(telem.truckState.speedKmh)} ${settings.speedUnitLabel}',
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ],
                 ),

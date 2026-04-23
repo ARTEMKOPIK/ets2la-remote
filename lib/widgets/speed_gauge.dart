@@ -2,6 +2,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+/// Converts a km/h reading into the display unit. Defaults to identity
+/// (pure km/h). Dashboard / visualization wire this through to
+/// `AppSettings.speedFromKmh` so the gauge never has to know the conversion
+/// factor, and so adding a new unit in the future is a one-line change.
+typedef SpeedFormatter = double Function(double kmh);
+
+double _identitySpeed(double kmh) => kmh;
+
 class SpeedGauge extends StatefulWidget {
   final double speedKmh;
   final double limitKmh;
@@ -9,6 +17,10 @@ class SpeedGauge extends StatefulWidget {
   final double size;
   final String speedUnit;
   final double maxSpeed;
+
+  /// Optional converter from km/h to the display unit. When omitted the
+  /// gauge shows raw km/h, matching the pre-refactor behaviour.
+  final SpeedFormatter convertFromKmh;
 
   const SpeedGauge({
     super.key,
@@ -18,13 +30,15 @@ class SpeedGauge extends StatefulWidget {
     this.size = 280,
     this.speedUnit = 'km/h',
     this.maxSpeed = 200,
+    this.convertFromKmh = _identitySpeed,
   });
 
   @override
   State<SpeedGauge> createState() => _SpeedGaugeState();
 }
 
-class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateMixin {
+class _SpeedGaugeState extends State<SpeedGauge>
+    with SingleTickerProviderStateMixin {
   double _displaySpeed = 0;
   late AnimationController _animController;
   late Animation<double> _animation;
@@ -75,9 +89,11 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final isOver = widget.limitKmh > 0 && _displaySpeed > widget.limitKmh * 1.05;
+    final isOver =
+        widget.limitKmh > 0 && _displaySpeed > widget.limitKmh * 1.05;
     final hasLimit = widget.limitKmh > 0;
     final hasTarget = widget.targetAccKmh > 0 && widget.targetAccKmh <= 300;
+    final convert = widget.convertFromKmh;
 
     return SizedBox(
       width: widget.size,
@@ -101,20 +117,28 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        widget.speedUnit == 'mph'
-                            ? (_displaySpeed * 0.621371).toStringAsFixed(0)
-                            : _displaySpeed.toStringAsFixed(0),
-                        style: TextStyle(fontFamily: 'Roboto', 
-                          fontSize: widget.size * 0.3,
-                          fontWeight: FontWeight.w800,
-                          color: isOver ? AppColors.error : AppColors.textPrimary,
-                          height: 1,
+                      Semantics(
+                        label: 'Speed',
+                        value:
+                            '${convert(_displaySpeed).toStringAsFixed(0)} ${widget.speedUnit}',
+                        excludeSemantics: true,
+                        child: Text(
+                          convert(_displaySpeed).toStringAsFixed(0),
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: widget.size * 0.3,
+                            fontWeight: FontWeight.w800,
+                            color: isOver
+                                ? AppColors.error
+                                : AppColors.textPrimary,
+                            height: 1,
+                          ),
                         ),
                       ),
                       Text(
                         widget.speedUnit,
-                        style: TextStyle(fontFamily: 'Roboto', 
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
                           fontSize: widget.size * 0.075,
                           color: AppColors.textSecondary,
                           letterSpacing: 2,
@@ -134,12 +158,11 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
               if (hasLimit)
                 _Badge(
                   icon: Icons.do_not_disturb_on_rounded,
-                  label: widget.speedUnit == 'mph'
-                      ? (widget.limitKmh * 0.621371).toStringAsFixed(0)
-                      : widget.limitKmh.toStringAsFixed(0),
+                  label: convert(widget.limitKmh).toStringAsFixed(0),
                   unit: widget.speedUnit,
                   color: isOver ? AppColors.error : AppColors.textSecondary,
-                  bgColor: isOver ? AppColors.errorDim : AppColors.surfaceElevated,
+                  bgColor:
+                      isOver ? AppColors.errorDim : AppColors.surfaceElevated,
                   borderColor: isOver
                       ? AppColors.error.withOpacity(0.4)
                       : AppColors.surfaceBorder,
@@ -148,13 +171,11 @@ class _SpeedGaugeState extends State<SpeedGauge> with SingleTickerProviderStateM
               if (hasTarget)
                 _Badge(
                   icon: Icons.navigation_rounded,
-                  label: widget.speedUnit == 'mph'
-                      ? (widget.targetAccKmh * 0.621371).toStringAsFixed(0)
-                      : widget.targetAccKmh.toStringAsFixed(0),
+                  label: convert(widget.targetAccKmh).toStringAsFixed(0),
                   unit: widget.speedUnit,
                   color: AppColors.orange,
                   bgColor: AppColors.orangeGlow,
-                  borderColor: AppColors.orange.withOpacity(0.3),
+                  borderColor: AppColors.orange.withOpacity(0.4),
                 ),
             ],
           ),
@@ -183,29 +204,34 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor, width: 1),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: color),
-          const SizedBox(width: 5),
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
           Text(
-            '$label ',
-            style: TextStyle(fontFamily: 'Roboto', 
-              fontSize: 14, fontWeight: FontWeight.w700, color: color,
+            label,
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
+          const SizedBox(width: 3),
           Text(
             unit,
-            style: TextStyle(fontFamily: 'Roboto', 
-              fontSize: 11, color: color.withOpacity(0.7),
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 10,
+              color: color.withOpacity(0.7),
             ),
           ),
         ],
@@ -214,8 +240,6 @@ class _Badge extends StatelessWidget {
   }
 }
 
-// ─── Arc painter ─────────────────────────────────────────────────────────────
-
 class _ArcPainter extends CustomPainter {
   final double speed;
   final double limit;
@@ -223,7 +247,7 @@ class _ArcPainter extends CustomPainter {
   final double maxSpeed;
   final bool isOver;
 
-  const _ArcPainter({
+  _ArcPainter({
     required this.speed,
     required this.limit,
     required this.target,
@@ -231,162 +255,115 @@ class _ArcPainter extends CustomPainter {
     required this.isOver,
   });
 
-  static const double _startDeg = 210;
-  static const double _sweepDeg = 120;
-
-  double _deg(double fraction) =>
-      _startDeg + _sweepDeg * fraction.clamp(0, 1);
-
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height * 0.88;
-    final radius = size.width * 0.43;
-    final trackW = size.width * 0.04;
-    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: radius);
+    final center = Offset(size.width / 2, size.height);
+    final radius = size.width / 2 - 20;
 
-    final startRad = _startDeg * pi / 180;
-    final sweepRad = _sweepDeg * pi / 180;
+    const startAngle = pi;
+    const sweepAngle = pi;
 
-    // Background track
-    _arc(canvas, rect, startRad, sweepRad,
-        color: AppColors.gaugeTrack, width: trackW);
+    // Background arc
+    final bgPaint = Paint()
+      ..color = AppColors.surfaceElevated
+      ..strokeWidth = 12
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      sweepAngle,
+      false,
+      bgPaint,
+    );
 
-    // Speed progress
-    final fraction = (speed / maxSpeed).clamp(0.0, 1.0);
-    if (fraction > 0) {
-      if (isOver) {
-        final gradPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = trackW
-          ..strokeCap = StrokeCap.round
-          ..shader = SweepGradient(
-            startAngle: startRad,
-            endAngle: startRad + sweepRad * fraction,
-            colors: const [AppColors.orange, AppColors.error],
-          ).createShader(rect);
-        canvas.drawArc(rect, startRad, sweepRad * fraction, false, gradPaint);
-      } else {
-        _arc(canvas, rect, startRad, sweepRad * fraction,
-            color: AppColors.orange, width: trackW,
-            glow: true, glowColor: AppColors.orange);
-      }
+    // Speed limit zone (red overlay if over)
+    if (limit > 0) {
+      final limitAngle = (limit / maxSpeed).clamp(0.0, 1.0) * sweepAngle;
+      final overPaint = Paint()
+        ..color = isOver ? AppColors.error.withOpacity(0.25) : Colors.transparent
+        ..strokeWidth = 12
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle + limitAngle,
+        sweepAngle - limitAngle,
+        false,
+        overPaint,
+      );
+    }
+
+    // Progress arc
+    final progressRatio = (speed / maxSpeed).clamp(0.0, 1.0);
+    final gradient = LinearGradient(
+      colors: isOver
+          ? [AppColors.error, AppColors.error]
+          : [AppColors.orange, AppColors.orange.withOpacity(0.8)],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    );
+
+    final progressPaint = Paint()
+      ..shader = gradient.createShader(
+        Rect.fromCircle(center: center, radius: radius),
+      )
+      ..strokeWidth = 12
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    if (progressRatio > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle * progressRatio,
+        false,
+        progressPaint,
+      );
     }
 
     // Limit marker
     if (limit > 0) {
-      final lf = (limit / maxSpeed).clamp(0.0, 1.0);
-      final la = _deg(lf) * pi / 180;
-      _tick(canvas, cx, cy, radius, la,
-          color: AppColors.error, innerFrac: 0.85, outerFrac: 1.1, width: 3);
-    }
-
-    // ACC target marker
-    if (target > 0 && target <= 300) {
-      final tf = (target / maxSpeed).clamp(0.0, 1.0);
-      final ta = _deg(tf) * pi / 180;
-      _tick(canvas, cx, cy, radius, ta,
-          color: AppColors.orange, innerFrac: 0.88, outerFrac: 1.08, width: 2.5);
-    }
-
-    // Tick marks
-    for (int i = 0; i <= 20; i++) {
-      final frac = i / 20.0;
-      final angle = _deg(frac) * pi / 180;
-      final major = i % 4 == 0;
-      _tick(canvas, cx, cy, radius, angle,
-          color: major
-              ? AppColors.textSecondary.withOpacity(0.5)
-              : AppColors.textMuted.withOpacity(0.25),
-          innerFrac: major ? 0.80 : 0.86,
-          outerFrac: 0.93,
-          width: major ? 2 : 1);
-    }
-
-    // Speed labels
-    final labelPainter = TextPainter(textDirection: TextDirection.ltr);
-    for (int i = 0; i <= 2; i++) {
-      final frac = i / 2.0;
-      final angle = _deg(frac) * pi / 180;
-      final labelR = radius * 0.68;
-      final lx = cx + labelR * cos(angle);
-      final ly = cy + labelR * sin(angle);
-      final speedVal = (maxSpeed * frac).round();
-      labelPainter.text = TextSpan(
-        text: '$speedVal',
-        style: TextStyle(fontFamily: 'Roboto', 
-          fontSize: size.width * 0.04,
-          color: AppColors.textMuted.withOpacity(0.4),
-          fontWeight: FontWeight.w500,
-        ),
-      );
-      labelPainter.layout();
-      labelPainter.paint(
-        canvas,
-        Offset(lx - labelPainter.width / 2, ly - labelPainter.height / 2),
+      final limitRatio = (limit / maxSpeed).clamp(0.0, 1.0);
+      final markerAngle = startAngle + sweepAngle * limitRatio;
+      final markerX = center.dx + radius * cos(markerAngle);
+      final markerY = center.dy + radius * sin(markerAngle);
+      final markerPaint = Paint()
+        ..color = AppColors.textSecondary
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(
+        Offset(center.dx + (radius - 8) * cos(markerAngle),
+            center.dy + (radius - 8) * sin(markerAngle)),
+        Offset(markerX, markerY),
+        markerPaint,
       );
     }
-  }
 
-  void _arc(
-    Canvas canvas,
-    Rect rect,
-    double start,
-    double sweep, {
-    required Color color,
-    required double width,
-    bool glow = false,
-    Color? glowColor,
-  }) {
-    if (glow && glowColor != null) {
-      canvas.drawArc(
-        rect,
-        start, sweep, false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = width * 2.5
-          ..strokeCap = StrokeCap.round
-          ..color = glowColor.withOpacity(0.18)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    // Target ACC marker (orange)
+    if (target > 0 && target <= maxSpeed) {
+      final targetRatio = (target / maxSpeed).clamp(0.0, 1.0);
+      final markerAngle = startAngle + sweepAngle * targetRatio;
+      final markerX = center.dx + radius * cos(markerAngle);
+      final markerY = center.dy + radius * sin(markerAngle);
+      final markerPaint = Paint()
+        ..color = AppColors.orange
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(
+        Offset(center.dx + (radius - 8) * cos(markerAngle),
+            center.dy + (radius - 8) * sin(markerAngle)),
+        Offset(markerX, markerY),
+        markerPaint,
       );
     }
-    canvas.drawArc(
-      rect, start, sweep, false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..strokeCap = StrokeCap.round
-        ..color = color,
-    );
-  }
-
-  void _tick(
-    Canvas canvas,
-    double cx,
-    double cy,
-    double radius,
-    double angle, {
-    required Color color,
-    required double innerFrac,
-    required double outerFrac,
-    required double width,
-  }) {
-    canvas.drawLine(
-      Offset(cx + radius * innerFrac * cos(angle),
-          cy + radius * innerFrac * sin(angle)),
-      Offset(cx + radius * outerFrac * cos(angle),
-          cy + radius * outerFrac * sin(angle)),
-      Paint()
-        ..color = color
-        ..strokeWidth = width
-        ..strokeCap = StrokeCap.round,
-    );
   }
 
   @override
-  bool shouldRepaint(_ArcPainter old) =>
-      old.speed != speed ||
-      old.limit != limit ||
-      old.target != target ||
-      old.isOver != isOver;
+  bool shouldRepaint(_ArcPainter oldDelegate) =>
+      oldDelegate.speed != speed ||
+      oldDelegate.limit != limit ||
+      oldDelegate.target != target ||
+      oldDelegate.maxSpeed != maxSpeed ||
+      oldDelegate.isOver != isOver;
 }

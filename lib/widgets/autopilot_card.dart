@@ -189,9 +189,14 @@ class _AutopilotCardState extends State<AutopilotCard>
                 ),
                 const SizedBox(width: 12),
                 // Big toggle button
-                GestureDetector(
-                  onTap: _handleSteering,
-                  child: AnimatedContainer(
+                Semantics(
+                  button: true,
+                  toggled: isActive,
+                  label: AppLocalizations.of(context)?.autopilotLabel ??
+                      'Autopilot',
+                  child: GestureDetector(
+                    onTap: _handleSteering,
+                    child: AnimatedContainer(
                     duration: const Duration(milliseconds: 280),
                     width: 72, height: 38,
                     decoration: BoxDecoration(
@@ -244,6 +249,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                       ),
                     ),
                   ),
+                  ),
                 ),
               ],
             ),
@@ -253,7 +259,12 @@ class _AutopilotCardState extends State<AutopilotCard>
             const SizedBox(height: 10),
 
             // ACC row
-            GestureDetector(
+            Semantics(
+              button: true,
+              toggled: widget.accEnabled,
+              label: AppLocalizations.of(context)?.adaptiveCruiseControl ??
+                  'Adaptive Cruise Control',
+              child: GestureDetector(
               onTap: _handleAcc,
               child: Row(
                 children: [
@@ -337,6 +348,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                           ),
                         ),
                 ],
+              ),
               ),
             ),
           ],

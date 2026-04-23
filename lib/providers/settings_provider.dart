@@ -44,12 +44,19 @@ class AppSettings extends ChangeNotifier {
     }
   }
 
-  String speedDisplay(double kmh) {
-    if (_speedUnit == SpeedUnit.mph) {
-      return (kmh * 0.621371).toStringAsFixed(0);
-    }
-    return kmh.toStringAsFixed(0);
-  }
+  /// 1 km/h converted to the user's preferred unit. Centralises the
+  /// `* 0.621371` magic number so widgets never have to know the factor.
+  static const double _kmhToMph = 0.621371;
+
+  /// Value-form conversion of a km/h reading into the user's preferred
+  /// display unit (mph or km/h). Use this when you need the raw number
+  /// — e.g. to drive a gauge animation or compare to `gaugeMaxValue`.
+  double speedFromKmh(double kmh) =>
+      _speedUnit == SpeedUnit.mph ? kmh * _kmhToMph : kmh;
+
+  /// Text-form version of [speedFromKmh] suitable for direct display.
+  /// Returns a whole number (rounded) with no unit suffix.
+  String speedDisplay(double kmh) => speedFromKmh(kmh).toStringAsFixed(0);
 
   String get speedUnitLabel => _speedUnit == SpeedUnit.mph ? 'mph' : 'km/h';
 

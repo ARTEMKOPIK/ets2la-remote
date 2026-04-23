@@ -832,6 +832,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ETS2LA didn\'t answer. Opening the socket anyway…'**
   String get connectFailedHint;
+
+  /// No description provided for @allowInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow install'**
+  String get allowInstall;
+
+  /// No description provided for @installPermissionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Android blocks third-party installs by default. Allow \"Install unknown apps\" for ETS2LA Remote, then tap Install again.'**
+  String get installPermissionHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

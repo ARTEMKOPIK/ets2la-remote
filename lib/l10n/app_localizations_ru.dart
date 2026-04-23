@@ -378,4 +378,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get connectFailedHint => 'ETS2LA не ответил. Пробуем подключиться напрямую…';
+
+  @override
+  String get allowInstall => 'Разрешить установку';
+
+  @override
+  String get installPermissionHint => 'Android по умолчанию блокирует установку из сторонних источников. Включите «Установка неизвестных приложений» для ETS2LA Remote и снова нажмите «Установить».';
 }

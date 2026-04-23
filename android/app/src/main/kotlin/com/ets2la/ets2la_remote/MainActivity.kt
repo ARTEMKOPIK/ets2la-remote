@@ -2,7 +2,10 @@ package com.ets2la.ets2la_remote
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -11,6 +14,7 @@ class MainActivity : FlutterActivity() {
     private val multicastChannel = "ets2la_remote/multicast_lock"
     private val keepAliveChannel = "ets2la_remote/keepalive"
     private val widgetChannel = "ets2la_remote/widget"
+    private val installPermissionChannel = "ets2la_remote/install_permission"
     private var lock: WifiManager.MulticastLock? = null
 
     /** Last widget action received before Dart had a chance to consume it. */
@@ -72,6 +76,36 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, installPermissionChannel)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    // Android 8+ gates APK installs behind a per-app "Install
+                    // unknown apps" toggle that is NOT granted by declaring
+                    // REQUEST_INSTALL_PACKAGES in the manifest — the user has
+                    // to flip it themselves in Settings. Dart asks us for the
+                    // current state (or to launch the settings screen).
+                    "canInstall" -> {
+                        val ok = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            packageManager.canRequestPackageInstalls()
+                        } else {
+                            true
+                        }
+                        result.success(ok)
+                    }
+                    "openSettings" -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                                Uri.parse("package:$packageName"),
+                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(intent)
+                        }
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         // Consume the intent that started the activity (cold start from widget).
         consumeWidgetIntent(intent)
     }

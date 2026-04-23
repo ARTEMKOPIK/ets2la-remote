@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/install_permission_service.dart';
 import '../services/update_service.dart';
 
 enum UpdateState {
@@ -22,12 +23,18 @@ class UpdateProvider extends ChangeNotifier {
   double _downloadProgress = 0.0;
   String? _errorMessage;
   String? _downloadedPath;
+  bool _needsInstallPermission = false;
 
   UpdateState get state => _state;
   UpdateInfo? get updateInfo => _updateInfo;
   double get downloadProgress => _downloadProgress;
   String? get errorMessage => _errorMessage;
   String? get downloadedPath => _downloadedPath;
+
+  /// True when the APK is downloaded but the user hasn't granted
+  /// "Install unknown apps" for this app. The dialog surfaces a help button
+  /// that deep-links to the matching Settings screen.
+  bool get needsInstallPermission => _needsInstallPermission;
 
   bool get hasUpdate => _updateInfo != null;
   bool get canInstall => _state == UpdateState.downloaded && _downloadedPath != null;
@@ -133,13 +140,38 @@ class UpdateProvider extends ChangeNotifier {
     if (_downloadedPath == null) return false;
     _state = UpdateState.installing;
     _errorMessage = null;
+    _needsInstallPermission = false;
     notifyListeners();
+
+    // Android 8+ requires the user to have granted "Install unknown apps"
+    // for this app; without it the package installer rejects the intent
+    // with "Permission denied: REQUEST_INSTALL_PACKAGES" even though the
+    // manifest declares the permission. Check up-front so we can surface
+    // a "Allow install" button instead of the cryptic system error.
+    final canInstallNow = await InstallPermissionService.instance.canInstall();
+    if (!canInstallNow) {
+      _state = UpdateState.error;
+      _needsInstallPermission = true;
+      _errorMessage = null;
+      notifyListeners();
+      return false;
+    }
+
     try {
       final result = await OpenFile.open(_downloadedPath!);
       if (result.type != ResultType.done) {
         _state = UpdateState.error;
-        _errorMessage =
-            result.message.isNotEmpty ? result.message : 'Install failed';
+        // open_file surfaces the missing grant through a permission-denied
+        // message; if we see one, treat it as the same case we already
+        // handle up-front instead of showing raw text to the user.
+        final msg = result.message;
+        if (msg.contains('REQUEST_INSTALL_PACKAGES') ||
+            msg.toLowerCase().contains('permission denied')) {
+          _needsInstallPermission = true;
+          _errorMessage = null;
+        } else {
+          _errorMessage = msg.isNotEmpty ? msg : 'Install failed';
+        }
         notifyListeners();
         return false;
       }
@@ -151,6 +183,12 @@ class UpdateProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Open Android Settings → "Install unknown apps" for this app so the
+  /// user can grant the permission that the APK installer requires.
+  Future<void> openInstallPermissionSettings() async {
+    await InstallPermissionService.instance.openSettings();
   }
 
   Future<void> skipUpdate() async {

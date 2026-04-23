@@ -29,8 +29,10 @@ class UpdateDialog extends StatelessWidget {
         upd.state == UpdateState.installing ||
         (upd.state == UpdateState.error && upd.downloadedPath != null);
     final progress = upd.downloadProgress;
-    final errorMessage =
-        upd.state == UpdateState.error ? upd.errorMessage : null;
+    final needsInstallPermission = upd.needsInstallPermission;
+    final errorMessage = upd.state == UpdateState.error && !needsInstallPermission
+        ? upd.errorMessage
+        : null;
 
     final displayVer = updateInfo.displayVersion;
     final buildDate = updateInfo.buildDate;
@@ -121,6 +123,37 @@ class UpdateDialog extends StatelessWidget {
               ),
             ),
           ],
+          // Missing "Install unknown apps" grant — tell the user why
+          // nothing happened and point them at the toggle they need to flip.
+          if (needsInstallPermission) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.orange.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.orange.withOpacity(0.35)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.shield_outlined,
+                      color: AppColors.orange, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n?.installPermissionHint ??
+                          'Android blocks third-party installs by default. '
+                              'Allow "Install unknown apps" for ETS2LA Remote '
+                              'and tap Install again.',
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           // Install / download failure
           if (errorMessage != null) ...[
             const SizedBox(height: 16),
@@ -191,7 +224,7 @@ class UpdateDialog extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.w600)),
                 ),
               ),
-            if (isDownloaded)
+            if (isDownloaded && !needsInstallPermission)
               SizedBox(
                 height: 46,
                 child: ElevatedButton(
@@ -211,6 +244,21 @@ class UpdateDialog extends StatelessWidget {
                   ),
                   child: Text(l10n?.installUpdate ?? 'Install',
                     style: const TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+            if (isDownloaded && needsInstallPermission)
+              SizedBox(
+                height: 46,
+                child: ElevatedButton.icon(
+                  onPressed: () => context
+                      .read<UpdateProvider>()
+                      .openInstallPermissionSettings(),
+                  icon: const Icon(Icons.settings_rounded, size: 18),
+                  label: Text(l10n?.allowInstall ?? 'Allow install',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
             if (!isMandatory && !isDownloading)

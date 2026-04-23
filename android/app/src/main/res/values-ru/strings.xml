@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_autopilot_button">Автопилот</string>
+    <string name="widget_acc_button">Круиз</string>
+    <string name="widget_autopilot_button_desc">Включить/выключить автопилот ETS2LA</string>
+    <string name="widget_acc_button_desc">Включить/выключить адаптивный круиз-контроль ETS2LA</string>
+    <string name="widget_autopilot_description">Включение автопилота и круиза ETS2LA с рабочего стола.</string>
+</resources>

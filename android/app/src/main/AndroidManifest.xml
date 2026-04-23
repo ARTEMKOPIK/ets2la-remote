@@ -31,6 +31,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Long-press-launcher shortcuts (see res/xml/shortcuts.xml). -->
+            <intent-filter>
+                <action android:name="com.ets2la.ets2la_remote.SHORTCUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
         </activity>
         <meta-data
             android:name="flutterEmbedding"

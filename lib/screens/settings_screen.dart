@@ -17,6 +17,15 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final Set<String> _loadingPlugins = {};
 
+  Future<void> _refreshPlugins() async {
+    final conn = context.read<ConnectionProvider>();
+    final telem = context.read<TelemetryProvider>();
+    final list = await conn.apiService.getPlugins();
+    if (list.isNotEmpty && mounted) {
+      telem.updatePlugins(list);
+    }
+  }
+
   Future<void> _togglePlugin(PluginInfo plugin, bool currentState) async {
     final api = context.read<ConnectionProvider>().apiService;
     final l10n = AppLocalizations.of(context);
@@ -99,12 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: AppLocalizations.of(context)?.refresh ?? 'Refresh',
-            onPressed: () async {
-              final list = await conn.apiService.getPlugins();
-              if (list.isNotEmpty && mounted) {
-                telem.updatePlugins(list);
-              }
-            },
+            onPressed: _refreshPlugins,
           ),
         ],
       ),
@@ -133,7 +137,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             )
-          : ListView(
+          : RefreshIndicator(
+              color: AppColors.orange,
+              onRefresh: _refreshPlugins,
+              child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               children: [
                 // Info banner
@@ -188,6 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onToggle: (_) => _togglePlugin(plugin, plugin.running),
                     )),
               ],
+              ),
             ),
     );
   }

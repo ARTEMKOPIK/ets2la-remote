@@ -5,4 +5,12 @@
     <string name="widget_autopilot_button_desc">Включить/выключить автопилот ETS2LA</string>
     <string name="widget_acc_button_desc">Включить/выключить адаптивный круиз-контроль ETS2LA</string>
     <string name="widget_autopilot_description">Включение автопилота и круиза ETS2LA с рабочего стола.</string>
+    <string name="shortcut_dashboard_short">Панель</string>
+    <string name="shortcut_dashboard_long">Открыть панель</string>
+    <string name="shortcut_map_short">Карта</string>
+    <string name="shortcut_map_long">Открыть карту</string>
+    <string name="shortcut_view3d_short">3D вид</string>
+    <string name="shortcut_view3d_long">Открыть 3D-визуализацию</string>
+    <string name="shortcut_plugins_short">Плагины</string>
+    <string name="shortcut_plugins_long">Открыть плагины</string>
 </resources>

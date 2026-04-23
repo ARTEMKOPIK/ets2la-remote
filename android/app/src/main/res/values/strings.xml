@@ -5,4 +5,12 @@
     <string name="widget_autopilot_button_desc">Toggle ETS2LA autopilot</string>
     <string name="widget_acc_button_desc">Toggle ETS2LA adaptive cruise control</string>
     <string name="widget_autopilot_description">Toggle ETS2LA autopilot and ACC from the home screen.</string>
+    <string name="shortcut_dashboard_short">Dashboard</string>
+    <string name="shortcut_dashboard_long">Open Dashboard</string>
+    <string name="shortcut_map_short">Map</string>
+    <string name="shortcut_map_long">Open Map</string>
+    <string name="shortcut_view3d_short">3D View</string>
+    <string name="shortcut_view3d_long">Open 3D Visualization</string>
+    <string name="shortcut_plugins_short">Plugins</string>
+    <string name="shortcut_plugins_long">Open Plugins</string>
 </resources>

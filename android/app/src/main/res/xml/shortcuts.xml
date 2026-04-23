@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="dashboard"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:shortcutShortLabel="@string/shortcut_dashboard_short"
+        android:shortcutLongLabel="@string/shortcut_dashboard_long">
+        <intent
+            android:action="com.ets2la.ets2la_remote.SHORTCUT"
+            android:targetPackage="com.ets2la.ets2la_remote"
+            android:targetClass="com.ets2la.ets2la_remote.MainActivity">
+            <extra android:name="ets2la_tab" android:value="0" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="map"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:shortcutShortLabel="@string/shortcut_map_short"
+        android:shortcutLongLabel="@string/shortcut_map_long">
+        <intent
+            android:action="com.ets2la.ets2la_remote.SHORTCUT"
+            android:targetPackage="com.ets2la.ets2la_remote"
+            android:targetClass="com.ets2la.ets2la_remote.MainActivity">
+            <extra android:name="ets2la_tab" android:value="1" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="view3d"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_view"
+        android:shortcutShortLabel="@string/shortcut_view3d_short"
+        android:shortcutLongLabel="@string/shortcut_view3d_long">
+        <intent
+            android:action="com.ets2la.ets2la_remote.SHORTCUT"
+            android:targetPackage="com.ets2la.ets2la_remote"
+            android:targetClass="com.ets2la.ets2la_remote.MainActivity">
+            <extra android:name="ets2la_tab" android:value="2" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="plugins"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:shortcutShortLabel="@string/shortcut_plugins_short"
+        android:shortcutLongLabel="@string/shortcut_plugins_long">
+        <intent
+            android:action="com.ets2la.ets2la_remote.SHORTCUT"
+            android:targetPackage="com.ets2la.ets2la_remote"
+            android:targetClass="com.ets2la.ets2la_remote.MainActivity">
+            <extra android:name="ets2la_tab" android:value="3" />
+        </intent>
+    </shortcut>
+</shortcuts>

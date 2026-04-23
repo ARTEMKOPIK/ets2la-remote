@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import '../models/plugin_state.dart';
 import '../theme/app_theme.dart';
@@ -21,7 +22,10 @@ class PluginToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final tap = (onToggle == null || isLoading)
         ? null
-        : () => onToggle!(!isRunning);
+        : () {
+            HapticFeedback.lightImpact();
+            onToggle!(!isRunning);
+          };
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -89,7 +93,12 @@ class PluginToggle extends StatelessWidget {
           else
             Switch(
               value: isRunning,
-              onChanged: onToggle,
+              onChanged: onToggle == null
+                  ? null
+                  : (v) {
+                      HapticFeedback.lightImpact();
+                      onToggle!(v);
+                    },
             ),
               ],
             ),

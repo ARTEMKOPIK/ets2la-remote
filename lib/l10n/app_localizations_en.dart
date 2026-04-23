@@ -369,4 +369,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get foundOnLan => 'Found on LAN';
+
+  @override
+  String get change => 'Change';
+
+  @override
+  String get scanFinishedNoHosts => 'No ETS2LA found. Check it\'s running and on the same Wi-Fi.';
+
+  @override
+  String get connectFailedHint => 'ETS2LA didn\'t answer. Opening the socket anyway…';
 }

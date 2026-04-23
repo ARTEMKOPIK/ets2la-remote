@@ -369,4 +369,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get foundOnLan => 'Найдено в сети';
+
+  @override
+  String get change => 'Изменить';
+
+  @override
+  String get scanFinishedNoHosts => 'ETS2LA не найден. Проверьте, запущен ли он и вы в одной сети.';
+
+  @override
+  String get connectFailedHint => 'ETS2LA не ответил. Пробуем подключиться напрямую…';
 }

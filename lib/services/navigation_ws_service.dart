@@ -15,6 +15,7 @@ class NavigationWsService {
   String? _host;
   Timer? _reconnectTimer;
   bool _connected = false;
+  bool _connecting = false;
   final ReconnectBackoff _backoff = ReconnectBackoff();
 
   final _positionController = StreamController<NavPosition>.broadcast();
@@ -32,6 +33,8 @@ class NavigationWsService {
   }
 
   Future<void> _doConnect() async {
+    if (_connecting || _connected) return;
+    _connecting = true;
     try {
       final uri = Uri.parse('ws://$_host:$port');
       _channel = WebSocketChannel.connect(uri);
@@ -62,6 +65,8 @@ class NavigationWsService {
       );
     } catch (_) {
       _onDisconnected();
+    } finally {
+      _connecting = false;
     }
   }
 
@@ -96,6 +101,7 @@ class NavigationWsService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
+    if (_host == null) return; // disconnect() was called; don't schedule.
     _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && !_connected) _doConnect();
     });
@@ -105,6 +111,7 @@ class NavigationWsService {
     _reconnectTimer?.cancel();
     _host = null;
     _connected = false;
+    _connecting = false;
     _backoff.reset();
     _channel?.sink.close();
     _channel = null;

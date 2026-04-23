@@ -119,5 +119,8 @@
   "findEts2la": "Найти ETS2LA в сети",
   "scanning": "Поиск…",
   "noHostsFound": "ETS2LA не найден в сети",
-  "foundOnLan": "Найдено в сети"
+  "foundOnLan": "Найдено в сети",
+  "change": "Изменить",
+  "scanFinishedNoHosts": "ETS2LA не найден. Проверьте, запущен ли он и вы в одной сети.",
+  "connectFailedHint": "ETS2LA не ответил. Пробуем подключиться напрямую…"
 }

@@ -119,6 +119,7 @@ class VisualizationWsService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
+    if (_host == null) return; // disconnect() was called; don't schedule.
     _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && _state == WsConnectionState.disconnected) {
         _doConnect();

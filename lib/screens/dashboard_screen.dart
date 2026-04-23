@@ -190,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             const SizedBox(height: 20),
             Row(children: [
               if (conn.isConnected) Expanded(child: TextButton(onPressed: () { conn.disconnect(); Navigator.pop(ctx); }, child: Text(l10n?.disconnect ?? 'Disconnect'))),
-              Expanded(child: ElevatedButton(onPressed: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectScreen())); }, child: Text(conn.isConnected ? (l10n?.settings ?? 'Change') : (l10n?.connect ?? 'Connect')))),
+              Expanded(child: ElevatedButton(onPressed: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectScreen())); }, child: Text(conn.isConnected ? (l10n?.change ?? 'Change') : (l10n?.connect ?? 'Connect')))),
             ]),
           ],
         ),

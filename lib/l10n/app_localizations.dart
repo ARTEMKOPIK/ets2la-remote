@@ -425,12 +425,6 @@ abstract class AppLocalizations {
   /// **'Run this on PC:'**
   String get firewallCmd;
 
-  /// No description provided for @copied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied'**
-  String get copied;
-
   /// No description provided for @view3d.
   ///
   /// In en, this message translates to:
@@ -719,11 +713,47 @@ abstract class AppLocalizations {
   /// **'Copy'**
   String get copy;
 
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
   /// No description provided for @languageSystem.
   ///
   /// In en, this message translates to:
   /// **'System'**
   String get languageSystem;
+
+  /// No description provided for @hostnameOrIp.
+  ///
+  /// In en, this message translates to:
+  /// **'IP or hostname'**
+  String get hostnameOrIp;
+
+  /// No description provided for @invalidHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid IP address or hostname'**
+  String get invalidHost;
+
+  /// No description provided for @pluginEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin enabled'**
+  String get pluginEnabled;
+
+  /// No description provided for @pluginDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin disabled'**
+  String get pluginDisabled;
+
+  /// No description provided for @pluginToggleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to toggle plugin'**
+  String get pluginToggleFailed;
 
   /// No description provided for @ets2laOnGithub.
   ///
@@ -760,36 +790,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only change if ETS2LA uses non-default ports'**
   String get portsAdvancedHint;
-
-  /// No description provided for @hostnameOrIp.
-  ///
-  /// In en, this message translates to:
-  /// **'IP or hostname'**
-  String get hostnameOrIp;
-
-  /// No description provided for @invalidHost.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid IP address or hostname'**
-  String get invalidHost;
-
-  /// No description provided for @pluginEnabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Plugin enabled'**
-  String get pluginEnabled;
-
-  /// No description provided for @pluginDisabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Plugin disabled'**
-  String get pluginDisabled;
-
-  /// No description provided for @pluginToggleFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to toggle plugin'**
-  String get pluginToggleFailed;
 
   /// No description provided for @findEts2la.
   ///

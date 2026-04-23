@@ -29,6 +29,13 @@ class ConnectionProvider extends ChangeNotifier {
   }
 
   Future<void> _handleWidgetAction(String action) async {
+    // Disconnect is special: the user reaches for it precisely *because*
+    // something looks wrong, so we must act even if the provider thinks
+    // there's no live connection right now.
+    if (action == WidgetAction.disconnect) {
+      disconnect();
+      return;
+    }
     if (!isConnected) return;
     switch (action) {
       case WidgetAction.toggleSteering:

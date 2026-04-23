@@ -13,4 +13,7 @@
     <string name="shortcut_view3d_long">Open 3D Visualization</string>
     <string name="shortcut_plugins_short">Plugins</string>
     <string name="shortcut_plugins_long">Open Plugins</string>
+    <string name="notification_action_autopilot">Autopilot</string>
+    <string name="notification_action_acc">ACC</string>
+    <string name="notification_action_disconnect">Disconnect</string>
 </resources>

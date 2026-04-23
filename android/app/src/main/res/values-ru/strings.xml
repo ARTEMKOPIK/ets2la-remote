@@ -13,4 +13,7 @@
     <string name="shortcut_view3d_long">Открыть 3D-визуализацию</string>
     <string name="shortcut_plugins_short">Плагины</string>
     <string name="shortcut_plugins_long">Открыть плагины</string>
+    <string name="notification_action_autopilot">Автопилот</string>
+    <string name="notification_action_acc">Круиз</string>
+    <string name="notification_action_disconnect">Отключить</string>
 </resources>

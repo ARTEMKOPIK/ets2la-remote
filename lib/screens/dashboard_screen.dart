@@ -12,6 +12,7 @@ import '../providers/settings_provider.dart';
 import '../providers/update_provider.dart';
 import '../services/shortcut_service.dart';
 import '../widgets/update_dialog.dart';
+import '../widgets/whats_new_dialog.dart';
 import 'app_settings_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/speed_gauge.dart';
@@ -120,10 +121,21 @@ class _DashboardScreenState extends State<DashboardScreen>
     if (_updateChecked) return;
     _updateChecked = true;
     final upd = context.read<UpdateProvider>();
+
+    // Run the "What's new" probe in the background — it only fires after a
+    // real version bump and doesn't need to block the update check.
+    unawaited(_checkWhatsNew(upd));
+
     await upd.checkForUpdate();
     if (upd.hasUpdate && mounted) {
       UpdateDialog.show(context);
     }
+  }
+
+  Future<void> _checkWhatsNew(UpdateProvider upd) async {
+    await upd.checkWhatsNew();
+    if (!mounted || !upd.hasWhatsNew) return;
+    WhatsNewDialog.show(context);
   }
 
   @override

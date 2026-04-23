@@ -28,6 +28,10 @@ dependencies:
   open_file: ^3.5.7
   url_launcher: ^6.2.5
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 flutter:
   generate: true
   uses-material-design: true

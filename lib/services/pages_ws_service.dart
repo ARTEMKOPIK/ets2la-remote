@@ -18,6 +18,7 @@ class PagesWsService {
   String? _host;
   int _port = defaultPort;
   bool _connected = false;
+  bool _connecting = false;
   Timer? _reconnectTimer;
   final ReconnectBackoff _backoff = ReconnectBackoff();
 
@@ -31,6 +32,8 @@ class PagesWsService {
   }
 
   Future<void> _doConnect() async {
+    if (_connecting || _connected) return;
+    _connecting = true;
     try {
       final uri = Uri.parse('ws://$_host:$_port');
       _channel = WebSocketChannel.connect(uri);
@@ -44,6 +47,8 @@ class PagesWsService {
       );
     } catch (_) {
       _onDisconnected();
+    } finally {
+      _connecting = false;
     }
   }
 
@@ -51,11 +56,16 @@ class PagesWsService {
   /// [pageUrl] — the plugin's page URL (e.g. "/settings/map")
   /// [target]  — "Plugin.methodName" (e.g. "Plugin.on_toggle_map")
   /// [args]    — optional positional args
+  ///
+  /// Returns true only when the message was actually written to a live
+  /// socket. Callers (dashboard toggles, widget, Wear OS) rely on this to
+  /// show the firewall help dialog on failure.
   Future<bool> callFunction(String pageUrl, String target, {List<dynamic> args = const []}) async {
     if (!_connected) {
       await _doConnect();
-      await Future.delayed(const Duration(milliseconds: 200));
     }
+    final channel = _channel;
+    if (!_connected || channel == null) return false;
     try {
       final msg = jsonEncode({
         'type': 'function',
@@ -65,7 +75,7 @@ class PagesWsService {
           'args': args,
         },
       });
-      _channel?.sink.add(msg);
+      channel.sink.add(msg);
       return true;
     } catch (_) {
       return false;
@@ -88,6 +98,7 @@ class PagesWsService {
     _channel?.sink.close();
     _channel = null;
     _reconnectTimer?.cancel();
+    if (_host == null) return; // disconnect() was called; don't schedule.
     _reconnectTimer = Timer(_backoff.nextDelay(), () {
       if (_host != null && !_connected) _doConnect();
     });
@@ -97,6 +108,7 @@ class PagesWsService {
     _reconnectTimer?.cancel();
     _host = null;
     _connected = false;
+    _connecting = false;
     _backoff.reset();
     _channel?.sink.close();
     _channel = null;

@@ -39,6 +39,7 @@ class _ConnectScreenState extends State<ConnectScreen>
   late Animation<double> _fadeAnim;
 
   bool _scanning = false;
+  bool _scanFinished = false;
   List<DiscoveredHost> _discovered = const [];
 
   @override
@@ -85,6 +86,7 @@ class _ConnectScreenState extends State<ConnectScreen>
     if (_scanning) return;
     setState(() {
       _scanning = true;
+      _scanFinished = false;
       _discovered = const [];
     });
     try {
@@ -92,7 +94,12 @@ class _ConnectScreenState extends State<ConnectScreen>
       if (!mounted) return;
       setState(() => _discovered = hosts);
     } finally {
-      if (mounted) setState(() => _scanning = false);
+      if (mounted) {
+        setState(() {
+          _scanning = false;
+          _scanFinished = true;
+        });
+      }
     }
   }
 
@@ -126,8 +133,25 @@ class _ConnectScreenState extends State<ConnectScreen>
   @override
   Widget build(BuildContext context) {
     final conn = context.watch<ConnectionProvider>();
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
+      // Hide the AppBar on the initial launch (cold start) so the screen
+      // reads as a welcome view, but expose it when pushed on top of the
+      // Dashboard so the user can back out without a system gesture.
+      appBar: canPop
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: const BackButton(color: AppColors.textPrimary),
+              title: Text(
+                AppLocalizations.of(context)?.connect ?? 'Connect',
+                style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w600),
+              ),
+            )
+          : null,
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SafeArea(
@@ -295,6 +319,39 @@ class _ConnectScreenState extends State<ConnectScreen>
                       ),
                     ),
                   ),
+
+                  // Empty-scan feedback
+                  if (!_scanning && _scanFinished && _discovered.isEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: AppColors.surfaceBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline_rounded,
+                              size: 16, color: AppColors.textMuted),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context)
+                                      ?.scanFinishedNoHosts ??
+                                  "No ETS2LA found. Check it's running and on the same Wi-Fi.",
+                              style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   // Discovered hosts
                   if (_discovered.isNotEmpty) ...[

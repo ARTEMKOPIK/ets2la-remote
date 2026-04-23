@@ -145,15 +145,23 @@ class ConnectionProvider extends ChangeNotifier {
       final settings = _savedSettings;
       _applyPorts(settings);
 
+      // HTTP ping is used as a fast pre-check, but a failing ping is not
+      // fatal on its own: users have reported setups where only the WS
+      // ports are reachable (firewall rules per-port, or the API endpoint
+      // briefly 404s during backend startup). We still attempt the real
+      // visualization WS handshake and treat *that* as the source of truth.
       final reachable = await apiService.ping();
-      if (!reachable) {
-        _errorMessage = ConnectionErrorCode.unreachable.name;
+
+      await wsService.connect(cleanHost);
+      if (wsService.state != WsConnectionState.connected) {
+        _errorMessage = reachable
+            ? ConnectionErrorCode.failed.name
+            : ConnectionErrorCode.unreachable.name;
         _isConnecting = false;
         notifyListeners();
         return false;
       }
 
-      await wsService.connect(cleanHost);
       await navService.connect(cleanHost);
       await pagesService.connect(cleanHost);
       await _saveHost(cleanHost);

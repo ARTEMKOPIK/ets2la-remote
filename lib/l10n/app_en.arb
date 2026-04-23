@@ -126,5 +126,8 @@
   "findEts2la": "Find ETS2LA on LAN",
   "scanning": "Scanning…",
   "noHostsFound": "No ETS2LA found on LAN",
-  "foundOnLan": "Found on LAN"
+  "foundOnLan": "Found on LAN",
+  "change": "Change",
+  "scanFinishedNoHosts": "No ETS2LA found. Check it's running and on the same Wi-Fi.",
+  "connectFailedHint": "ETS2LA didn't answer. Opening the socket anyway…"
 }

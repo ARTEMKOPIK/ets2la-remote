@@ -814,6 +814,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Found on LAN'**
   String get foundOnLan;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
+
+  /// No description provided for @scanFinishedNoHosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No ETS2LA found. Check it\'s running and on the same Wi-Fi.'**
+  String get scanFinishedNoHosts;
+
+  /// No description provided for @connectFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ETS2LA didn\'t answer. Opening the socket anyway…'**
+  String get connectFailedHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

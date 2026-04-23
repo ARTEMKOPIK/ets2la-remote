@@ -342,4 +342,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get portsAdvancedHint => 'Меняйте, только если ETS2LA использует нестандартные порты';
+
+  @override
+  String get hostnameOrIp => 'IP или имя хоста';
+
+  @override
+  String get invalidHost => 'Введите корректный IP адрес или имя хоста';
+
+  @override
+  String get pluginEnabled => 'Плагин включён';
+
+  @override
+  String get pluginDisabled => 'Плагин выключен';
+
+  @override
+  String get pluginToggleFailed => 'Не удалось переключить плагин';
 }

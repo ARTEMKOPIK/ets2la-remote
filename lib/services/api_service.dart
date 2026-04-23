@@ -5,10 +5,23 @@ import '../models/plugin_state.dart';
 
 class ApiService {
   int _port = 37520; // Default, can be overridden
+  int _timeoutSeconds = 5;
 
   void setPort(int port) => _port = port;
 
   int get port => _port;
+
+  /// User-configurable request timeout (in seconds). Applied to all HTTP
+  /// requests. Clamped to a sensible range to avoid hanging the UI forever.
+  void setTimeoutSeconds(int seconds) {
+    _timeoutSeconds = seconds.clamp(1, 60);
+  }
+
+  int get timeoutSeconds => _timeoutSeconds;
+  Duration get _timeout => Duration(seconds: _timeoutSeconds);
+  // Ping uses a shorter timeout so the "cannot reach server" feedback is quick.
+  Duration get _pingTimeout =>
+      Duration(seconds: _timeoutSeconds > 3 ? 3 : _timeoutSeconds);
 
   String? _host;
 
@@ -21,7 +34,7 @@ class ApiService {
   Future<bool> ping() async {
     if (!hasHost) return false;
     try {
-      final res = await http.get(Uri.parse('$_base/')).timeout(const Duration(seconds: 3));
+      final res = await http.get(Uri.parse('$_base/')).timeout(_pingTimeout);
       return res.statusCode == 200;
     } catch (_) {
       return false;
@@ -33,7 +46,7 @@ class ApiService {
     try {
       final res = await http
           .get(Uri.parse('$_base/backend/plugins'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         // API returns a Map<pluginId, {description, enabled, ...}>
@@ -63,28 +76,31 @@ class ApiService {
   Future<bool> disablePluginByName(String name) => disablePlugin(name);
 
   Future<bool> enablePlugin(String name) async {
+    if (!hasHost) return false;
     try {
       final res = await http
           .get(Uri.parse('$_base/backend/plugins/$name/enable'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) { debugPrint('ApiService.enablePlugin error: $e'); return false; }
   }
 
   Future<bool> disablePlugin(String name) async {
+    if (!hasHost) return false;
     try {
       final res = await http
           .get(Uri.parse('$_base/backend/plugins/$name/disable'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) { debugPrint('ApiService.disablePlugin error: $e'); return false; }
   }
 
   Future<Map<String, dynamic>> getPluginStates() async {
+    if (!hasHost) return <String, dynamic>{};
     try {
       final res = await http
           .get(Uri.parse('$_base/backend/plugins/states'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(_timeout);
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
@@ -93,14 +109,15 @@ class ApiService {
   }
 
   Future<dynamic> getTag(String tag) async {
+    if (!hasHost) return null;
     try {
       final res = await http
           .get(Uri.parse('$_base/api/tags/$tag'))
-          .timeout(const Duration(seconds: 3));
+          .timeout(_pingTimeout);
       if (res.statusCode == 200) {
         return jsonDecode(res.body);
       }
-    } catch (e) { debugPrint('ApiService.getTag error: $e'); return []; }
+    } catch (e) { debugPrint('ApiService.getTag error: $e'); return null; }
     return null;
   }
 }

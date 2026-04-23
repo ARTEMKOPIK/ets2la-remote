@@ -87,7 +87,9 @@ class VisualizationWsService {
 
   void _startKeepAlive() {
     _keepAliveTimer?.cancel();
-    // Only send acknowledge when there is pending data to acknowledge (throttled to 500ms)
+    // Periodic acknowledge keeps the ETS2LA Pages bridge alive when no data
+    // frames are flowing (e.g. game paused). Frequency must be below the
+    // server's idle timeout — 3s is safe.
     _keepAliveTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_state == WsConnectionState.connected && _channel != null) {
         _send({'method': 'acknowledge', 'channel': 0});

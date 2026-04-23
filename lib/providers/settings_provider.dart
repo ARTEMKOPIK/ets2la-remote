@@ -119,26 +119,26 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> _save() async {
     try {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool('autoConnect', _autoConnect);
-    await p.setInt('connectionTimeout', _connectionTimeout);
-    await p.setInt('portApi', _portApi);
-    await p.setInt('portViz', _portViz);
-    await p.setInt('portNav', _portNav);
-    await p.setInt('portPages', _portPages);
-    await p.setInt('speedUnit', _speedUnit.index);
-    await p.setInt('gaugeMax', _gaugeMax.index);
-    await p.setBool('showActivePlugins', _showActivePlugins);
-    if (_language != null) {
-      await p.setString('language', _language!);
-    } else {
-      await p.remove('language');
-    }
-    await p.setBool('mapAutoFollow', _mapAutoFollow);
-    await p.setInt('mapTileStyle', _mapTileStyle.index);
-    await p.setBool('mapShowRoute', _mapShowRoute);
-    await p.setBool('vizDarkTheme', _vizDarkTheme);
-    await p.setBool('vizAutoConnect', _vizAutoConnect);
+      final p = await SharedPreferences.getInstance();
+      await p.setBool('autoConnect', _autoConnect);
+      await p.setInt('connectionTimeout', _connectionTimeout);
+      await p.setInt('portApi', _portApi);
+      await p.setInt('portViz', _portViz);
+      await p.setInt('portNav', _portNav);
+      await p.setInt('portPages', _portPages);
+      await p.setInt('speedUnit', _speedUnit.index);
+      await p.setInt('gaugeMax', _gaugeMax.index);
+      await p.setBool('showActivePlugins', _showActivePlugins);
+      if (_language != null) {
+        await p.setString('language', _language!);
+      } else {
+        await p.remove('language');
+      }
+      await p.setBool('mapAutoFollow', _mapAutoFollow);
+      await p.setInt('mapTileStyle', _mapTileStyle.index);
+      await p.setBool('mapShowRoute', _mapShowRoute);
+      await p.setBool('vizDarkTheme', _vizDarkTheme);
+      await p.setBool('vizAutoConnect', _vizAutoConnect);
     } catch (e) {
       debugPrint('AppSettings._save error: $e');
     }

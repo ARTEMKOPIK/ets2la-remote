@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/websocket_service.dart';
@@ -8,14 +9,24 @@ import '../services/pages_ws_service.dart';
 import '../services/api_service.dart';
 import 'settings_provider.dart';
 
+/// Localized error codes emitted by [ConnectionProvider]. UI code maps these
+/// to translated strings so error messages respect the user's language.
+enum ConnectionErrorCode { unreachable, failed, invalidHost }
+
 class ConnectionProvider extends ChangeNotifier {
   ConnectionProvider() : super() {
     // Ports will be set in connect() using AppSettings
-    _loadRecentHosts();
+    _ready = _loadRecentHosts();
     _wsStateSub = wsService.stateStream.listen((_) {
       if (!_disposed) notifyListeners();
     });
   }
+
+  late final Future<void> _ready;
+
+  /// Resolves once recent hosts have been loaded from disk. Auto-connect
+  /// flows should await this to avoid racing against an empty list.
+  Future<void> get ready => _ready;
 
   StreamSubscription<WsConnectionState>? _wsStateSub;
   bool _disposed = false;
@@ -35,6 +46,7 @@ class ConnectionProvider extends ChangeNotifier {
       final navPort = settings.portNav.clamp(1, 65535);
       final pagesPort = settings.portPages.clamp(1, 65535);
       apiService.setPort(apiPort);
+      apiService.setTimeoutSeconds(settings.connectionTimeout);
       wsService.setPort(vizPort);
       navService.setPort(navPort);
       pagesService.setPort(pagesPort);
@@ -118,7 +130,7 @@ class ConnectionProvider extends ChangeNotifier {
 
       final reachable = await apiService.ping();
       if (!reachable) {
-        _errorMessage = 'Cannot reach $host:${apiService.port}\nMake sure ETS2LA is running';
+        _errorMessage = ConnectionErrorCode.unreachable.name;
         _isConnecting = false;
         notifyListeners();
         return false;
@@ -126,7 +138,6 @@ class ConnectionProvider extends ChangeNotifier {
 
       await wsService.connect(cleanHost);
       await navService.connect(cleanHost);
-      // Note: portPages from settings not wired here yet — uses default 37523
       await pagesService.connect(cleanHost);
       await _saveHost(cleanHost);
 
@@ -134,7 +145,8 @@ class ConnectionProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Connection failed: $e';
+      debugPrint('ConnectionProvider.connect error: $e');
+      _errorMessage = ConnectionErrorCode.failed.name;
       _isConnecting = false;
       notifyListeners();
       return false;
@@ -146,6 +158,7 @@ class ConnectionProvider extends ChangeNotifier {
     navService.disconnect();
     pagesService.disconnect();
     _currentHost = '';
+    _errorMessage = null;
     notifyListeners();
   }
 

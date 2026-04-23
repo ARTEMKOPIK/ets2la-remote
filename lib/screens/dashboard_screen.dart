@@ -25,7 +25,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver {
   int _currentIndex = 0;
   bool _updateChecked = false;
 
@@ -39,10 +40,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tryAutoConnect();
       _checkForUpdates();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!mounted) return;
+    final telem = context.read<TelemetryProvider>();
+    final conn = context.read<ConnectionProvider>();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (conn.isConnected) {
+          telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
+        }
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        telem.stopPluginRefresh();
+        break;
+    }
   }
 
   Future<void> _tryAutoConnect() async {
@@ -50,16 +78,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final conn = context.read<ConnectionProvider>();
     conn.configurePorts(settings);
 
-    if (settings.autoConnect) {
-      final hosts = conn.recentHosts;
-      if (hosts.isNotEmpty) {
-        final ok = await conn.connect(hosts.first);
-        if (ok && mounted) {
-          final telem = context.read<TelemetryProvider>();
-          telem.init(conn.wsService, conn.navService, conn.apiService);
-          telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
-        }
-      }
+    if (!settings.autoConnect) return;
+
+    // Wait for recent hosts to load from disk before checking them —
+    // otherwise we race against an empty list on cold start.
+    await conn.ready;
+    if (!mounted) return;
+
+    final hosts = conn.recentHosts;
+    if (hosts.isEmpty) return;
+
+    final ok = await conn.connect(hosts.first);
+    if (ok && mounted) {
+      final telem = context.read<TelemetryProvider>();
+      telem.init(conn.wsService, conn.navService, conn.apiService);
+      telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
     }
   }
 
@@ -184,7 +217,7 @@ class _DashboardTab extends StatelessWidget {
                 style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
-        backgroundColor: success ? const Color(0xFF166534) : const Color(0xFF7F1D1D),
+        backgroundColor: success ? AppColors.toastSuccess : AppColors.toastError,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(16),
@@ -331,7 +364,7 @@ class _DashboardTab extends StatelessWidget {
                   const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange)),
                   const SizedBox(width: 10),
                   Text(
-                    AppLocalizations.of(context)?.connecting ?? 'Reconnecting...',
+                    AppLocalizations.of(context)?.reconnecting ?? 'Reconnecting...',
                     style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
                   ),
                 ],

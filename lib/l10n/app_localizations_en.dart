@@ -342,4 +342,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get portsAdvancedHint => 'Only change if ETS2LA uses non-default ports';
+
+  @override
+  String get hostnameOrIp => 'IP or hostname';
+
+  @override
+  String get invalidHost => 'Enter a valid IP address or hostname';
+
+  @override
+  String get pluginEnabled => 'Plugin enabled';
+
+  @override
+  String get pluginDisabled => 'Plugin disabled';
+
+  @override
+  String get pluginToggleFailed => 'Failed to toggle plugin';
 }

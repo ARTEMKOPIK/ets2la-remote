@@ -72,11 +72,15 @@ class _VisualizationScreenState extends State<VisualizationScreen>
     }
   }
 
+  /// Escape a string so it is safe to embed inside a single-quoted JS literal.
+  static String _jsEscape(String s) =>
+      s.replaceAll(r'\', r'\\').replaceAll("'", r"\'");
+
   void _toggleTheme() {
     setState(() => _darkTheme = !_darkTheme);
     final theme = _darkTheme ? 'dark' : 'light';
     _ctrl?.evaluateJavascript(
-      source: "if(typeof setTheme==='function') setTheme('$theme');",
+      source: "if(typeof setTheme==='function') setTheme('${_jsEscape(theme)}');",
     );
   }
 
@@ -171,12 +175,12 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                 final theme = settings.vizDarkTheme ? 'dark' : 'light';
                 setState(() => _darkTheme = settings.vizDarkTheme);
                 await controller.evaluateJavascript(
-                  source: "if(typeof setTheme==='function') setTheme('$theme');",
+                  source: "if(typeof setTheme==='function') setTheme('${_jsEscape(theme)}');",
                 );
                 // Auto-connect if enabled
                 if (settings.vizAutoConnect && host.isNotEmpty) {
                   await controller.evaluateJavascript(
-                    source: "if(typeof setAutoConnectIP==='function') setAutoConnectIP('$host');",
+                    source: "if(typeof setAutoConnectIP==='function') setAutoConnectIP('${_jsEscape(host)}');",
                   );
                 }
               }
@@ -278,23 +282,25 @@ class _VisualizationScreenState extends State<VisualizationScreen>
               // Fullscreen
               _CircleButton(
                 icon: _fullscreen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+                label: _fullscreen ? 'Exit fullscreen' : 'Fullscreen',
                 onTap: _toggleFullscreen,
               ),
               const SizedBox(height: 8),
               // Theme toggle
               _CircleButton(
                 icon: _darkTheme ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                label: _darkTheme ? 'Light theme' : 'Dark theme',
                 onTap: _toggleTheme,
               ),
               const SizedBox(height: 8),
               // Zoom in
-              _CircleButton(icon: Icons.add_rounded, onTap: _zoomIn),
+              _CircleButton(icon: Icons.add_rounded, label: 'Zoom in', onTap: _zoomIn),
               const SizedBox(height: 8),
               // Reset camera
-              _CircleButton(icon: Icons.my_location_rounded, onTap: _resetCamera),
+              _CircleButton(icon: Icons.my_location_rounded, label: 'Reset camera', onTap: _resetCamera),
               const SizedBox(height: 8),
               // Zoom out
-              _CircleButton(icon: Icons.remove_rounded, onTap: _zoomOut),
+              _CircleButton(icon: Icons.remove_rounded, label: 'Zoom out', onTap: _zoomOut),
             ],
           ),
         ),
@@ -346,22 +352,42 @@ class _GlassChip extends StatelessWidget {
 // ── Circle button widget ──────────────────────────────────────────────────────
 class _CircleButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
-  const _CircleButton({required this.icon, required this.onTap});
+  const _CircleButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40, height: 40,
-        decoration: BoxDecoration(
-          color: const Color(0xCC141414),
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.surfaceBorder),
+    // Tooltip + Semantics makes the button discoverable via long-press and
+    // screen readers (TalkBack). Min hit area of 40×40 already meets
+    // Material's minimum tap target.
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xCC141414),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.surfaceBorder),
+              ),
+              child: Icon(icon, size: 20, color: AppColors.textSecondary),
+            ),
+          ),
         ),
-        child: Icon(icon, size: 20, color: AppColors.textSecondary),
       ),
     );
   }

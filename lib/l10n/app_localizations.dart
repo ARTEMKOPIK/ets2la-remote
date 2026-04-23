@@ -760,6 +760,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only change if ETS2LA uses non-default ports'**
   String get portsAdvancedHint;
+
+  /// No description provided for @hostnameOrIp.
+  ///
+  /// In en, this message translates to:
+  /// **'IP or hostname'**
+  String get hostnameOrIp;
+
+  /// No description provided for @invalidHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid IP address or hostname'**
+  String get invalidHost;
+
+  /// No description provided for @pluginEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin enabled'**
+  String get pluginEnabled;
+
+  /// No description provided for @pluginDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin disabled'**
+  String get pluginDisabled;
+
+  /// No description provided for @pluginToggleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to toggle plugin'**
+  String get pluginToggleFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

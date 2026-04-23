@@ -47,7 +47,15 @@ class UpdateProvider extends ChangeNotifier {
   bool get hasUpdate => _updateInfo != null;
   bool get canInstall => _state == UpdateState.downloaded && _downloadedPath != null;
 
-  Future<void> checkForUpdate() async {
+  /// Check GitHub for a new release.
+  ///
+  /// [manual] — true when the user explicitly tapped "Check for updates" in
+  /// Settings. In that case we bypass the "Remind me later" suppression:
+  /// the user is actively asking, so silently saying "up-to-date" when a
+  /// newer version actually exists would be a lie. Auto-checks on app
+  /// startup still honour the skipped-version flag so users aren't nagged
+  /// on every launch.
+  Future<void> checkForUpdate({bool manual = false}) async {
     if (_state == UpdateState.checking || _state == UpdateState.downloading) return;
 
     _state = UpdateState.checking;
@@ -57,17 +65,25 @@ class UpdateProvider extends ChangeNotifier {
     try {
       final updateInfo = await UpdateService.checkForUpdate();
       if (updateInfo != null) {
-        // "Remind me later" persists a version the user chose to skip; honour
-        // that choice until a newer release appears.
-        final prefs = await SharedPreferences.getInstance();
-        final skipped = prefs.getString('update_skipped_version');
-        if (skipped != null && skipped == updateInfo.version) {
-          _state = UpdateState.idle;
-        } else {
-          _updateInfo = updateInfo;
-          _state = UpdateState.available;
+        if (!manual) {
+          // Auto-check: honour "Remind me later" until a newer release appears.
+          final prefs = await SharedPreferences.getInstance();
+          final skipped = prefs.getString('update_skipped_version');
+          if (skipped != null && skipped == updateInfo.version) {
+            _state = UpdateState.idle;
+            notifyListeners();
+            return;
+          }
         }
+        _updateInfo = updateInfo;
+        _state = UpdateState.available;
       } else {
+        // Up-to-date: clear any stale skip flag so that, after the user
+        // installs the latest release, the next real update isn't
+        // accidentally suppressed by a leftover "skip v1.2.3" preference.
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('update_skipped_version');
+        _updateInfo = null;
         _state = UpdateState.idle;
       }
     } catch (e) {

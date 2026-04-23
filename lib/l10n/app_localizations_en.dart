@@ -393,4 +393,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get collectingData => 'Collecting data…';
+
+  @override
+  String get profiles => 'Profiles';
+
+  @override
+  String get profileName => 'Name';
+
+  @override
+  String get profileNameRequired => 'Enter a name';
+
+  @override
+  String get saveAsProfile => 'Save as profile';
+
+  @override
+  String get deleteProfile => 'Delete profile';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get save => 'Save';
 }

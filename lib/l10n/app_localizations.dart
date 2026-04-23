@@ -614,8 +614,50 @@ abstract class AppLocalizations {
   /// No description provided for @firewallBody.
   ///
   /// In en, this message translates to:
-  /// **'To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.'**
-  String get firewallBody;
+  /// **'To control autopilot from your phone, open port {port} on your PC (Windows Firewall). This is done once.'**
+  String firewallBody(int port);
+
+  /// No description provided for @autopilotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AUTOPILOT'**
+  String get autopilotLabel;
+
+  /// No description provided for @steeringLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'STEERING'**
+  String get steeringLabel;
+
+  /// No description provided for @accLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ACC'**
+  String get accLabel;
+
+  /// No description provided for @updateDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update download failed'**
+  String get updateDownloadFailed;
+
+  /// No description provided for @updateInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Install failed'**
+  String get updateInstallFailed;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check for updates'**
+  String get updateCheckFailed;
+
+  /// No description provided for @networkOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear to be offline'**
+  String get networkOffline;
 
   /// No description provided for @runInPowerShell.
   ///

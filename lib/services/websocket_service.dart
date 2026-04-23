@@ -5,12 +5,23 @@ import 'reconnect_backoff.dart';
 
 enum WsConnectionState { disconnected, connecting, connected, error }
 
+/// WebSocket client for the ETS2LA visualization socket (default port 37522).
+///
+/// Decodes JSON frames and re-emits them on a *persistent* broadcast stream
+/// so downstream providers can subscribe once and keep receiving data across
+/// reconnects. Reconnect uses [ReconnectBackoff] (1s → 15s with jitter).
 class VisualizationWsService {
-  int _port = 37522; // Default, can be overridden
+  int _port = 37522;
+  int _readyTimeoutSeconds = 5;
 
   void setPort(int port) => _port = port;
-
   int get port => _port;
+
+  /// Timeout for the initial WebSocket handshake. Falls back to 5s if the
+  /// caller never invokes this; clamped to [1, 60] s.
+  void setReadyTimeoutSeconds(int seconds) {
+    _readyTimeoutSeconds = seconds.clamp(1, 60);
+  }
 
   WebSocketChannel? _channel;
   // Single persistent broadcast controller — never replaced on reconnect.
@@ -21,7 +32,6 @@ class VisualizationWsService {
   String? _host;
   Timer? _reconnectTimer;
   Timer? _keepAliveTimer;
-  int _lastAck = 0;
   bool _subscribed = false;
   final ReconnectBackoff _backoff = ReconnectBackoff();
 
@@ -51,24 +61,14 @@ class VisualizationWsService {
       final uri = Uri.parse('ws://$_host:$port');
       _channel = WebSocketChannel.connect(uri);
 
-      await _channel!.ready.timeout(const Duration(seconds: 5));
+      await _channel!.ready
+          .timeout(Duration(seconds: _readyTimeoutSeconds));
 
       // Set up stream listener FIRST to receive responses
-      _lastAck = 0;
       _channel!.stream.listen(
-        (raw) {
-          try {
-            final data = jsonDecode(raw as String) as Map<String, dynamic>;
-            _controller.add(data); // always routes to the persistent stream
-            final now = DateTime.now().millisecondsSinceEpoch;
-            if (now - _lastAck > 100) {
-              _send({'method': 'acknowledge', 'channel': 0});
-              _lastAck = now;
-            }
-          } catch (_) {}
-        },
+        _handleIncomingFrame,
         onDone: _onDisconnected,
-        onError: (e) => _onDisconnected(),
+        onError: (Object _) => _onDisconnected(),
       );
 
       // THEN set state and subscribe
@@ -78,8 +78,33 @@ class VisualizationWsService {
 
       // Start keep-alive timer
       _startKeepAlive();
-    } catch (e) {
+    } catch (_) {
       _onDisconnected();
+    }
+  }
+
+  /// Decode an incoming frame to a `Map<String, dynamic>` and publish it on
+  /// [dataStream]. Handles both text frames (the common case, emitted as
+  /// `String` by `web_socket_channel`) and binary frames (emitted as
+  /// `List<int>` / `Uint8List` — we UTF-8 decode them). Malformed payloads
+  /// are dropped silently rather than bringing down the listener.
+  void _handleIncomingFrame(Object? raw) {
+    try {
+      final String text;
+      if (raw is String) {
+        text = raw;
+      } else if (raw is List<int>) {
+        text = utf8.decode(raw, allowMalformed: true);
+      } else {
+        return;
+      }
+      final decoded = jsonDecode(text);
+      if (decoded is Map<String, dynamic>) {
+        _controller.add(decoded);
+      }
+    } catch (_) {
+      // Ignore non-JSON frames; the periodic keep-alive timer will keep
+      // the connection healthy even if the server emits garbage once.
     }
   }
 
@@ -99,7 +124,9 @@ class VisualizationWsService {
     _keepAliveTimer?.cancel();
     // Periodic acknowledge keeps the ETS2LA Pages bridge alive when no data
     // frames are flowing (e.g. game paused). Frequency must be below the
-    // server's idle timeout — 3s is safe.
+    // server's idle timeout — 3s is safe. We rely on this single timer
+    // instead of per-message acks so we don't spam the socket with ~10
+    // writes per second in the steady state.
     _keepAliveTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_state == WsConnectionState.connected && _channel != null) {
         _send({'method': 'acknowledge', 'channel': 0});
@@ -118,7 +145,6 @@ class VisualizationWsService {
     _setState(WsConnectionState.disconnected);
     _channel?.sink.close();
     _channel = null;
-    // Reset subscription flag so reconnect will resubscribe
     _subscribed = false;
     _scheduleReconnect();
   }

@@ -147,8 +147,8 @@ class _AutopilotCardState extends State<AutopilotCard>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'AUTOPILOT',
-                  style: TextStyle(fontFamily: 'Roboto', 
+                  AppLocalizations.of(context)?.autopilotLabel ?? 'AUTOPILOT',
+                  style: TextStyle(fontFamily: 'Roboto',
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary, letterSpacing: 2,
                   ),

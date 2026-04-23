@@ -6,10 +6,15 @@ import 'reconnect_backoff.dart';
 
 class NavigationWsService {
   int _port = 62840; // Default, can be overridden
+  int _readyTimeoutSeconds = 5;
 
   void setPort(int port) => _port = port;
-
   int get port => _port;
+
+  /// Timeout for the WebSocket handshake. Clamped to [1, 60] s.
+  void setReadyTimeoutSeconds(int seconds) {
+    _readyTimeoutSeconds = seconds.clamp(1, 60);
+  }
 
   WebSocketChannel? _channel;
   String? _host;
@@ -38,7 +43,8 @@ class NavigationWsService {
     try {
       final uri = Uri.parse('ws://$_host:$port');
       _channel = WebSocketChannel.connect(uri);
-      await _channel!.ready.timeout(const Duration(seconds: 5));
+      await _channel!.ready
+          .timeout(Duration(seconds: _readyTimeoutSeconds));
       _connected = true;
       _backoff.reset();
 
@@ -49,25 +55,34 @@ class NavigationWsService {
       ]));
 
       _channel!.stream.listen(
-        (raw) {
-          try {
-            final decoded = jsonDecode(raw as String);
-            // Can be a list (subscription responses) or a single object
-            if (decoded is List) {
-              // Subscription ack, ignore
-            } else if (decoded is Map<String, dynamic>) {
-              _handleMessage(decoded);
-            }
-          } catch (_) {}
-        },
+        _handleIncomingFrame,
         onDone: _onDisconnected,
-        onError: (_) => _onDisconnected(),
+        onError: (Object _) => _onDisconnected(),
       );
     } catch (_) {
       _onDisconnected();
     } finally {
       _connecting = false;
     }
+  }
+
+  /// Decode a single WS frame (text or binary) and forward to [_handleMessage].
+  void _handleIncomingFrame(Object? raw) {
+    try {
+      final String text;
+      if (raw is String) {
+        text = raw;
+      } else if (raw is List<int>) {
+        text = utf8.decode(raw, allowMalformed: true);
+      } else {
+        return;
+      }
+      final decoded = jsonDecode(text);
+      if (decoded is Map<String, dynamic>) {
+        _handleMessage(decoded);
+      }
+      // List payloads are subscription acks; nothing to do.
+    } catch (_) {}
   }
 
   void _handleMessage(Map<String, dynamic> msg) {

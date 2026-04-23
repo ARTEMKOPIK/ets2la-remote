@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
@@ -7,6 +9,7 @@ import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/lan_discovery_service.dart';
+import '../services/vpn_detector.dart';
 import '../services/wake_on_lan_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ets2la_logo.dart';
@@ -43,6 +46,7 @@ class _ConnectScreenState extends State<ConnectScreen>
   bool _scanning = false;
   bool _scanFinished = false;
   List<DiscoveredHost> _discovered = const [];
+  bool _vpnActive = false;
 
   @override
   void initState() {
@@ -61,6 +65,18 @@ class _ConnectScreenState extends State<ConnectScreen>
         _ipFocus.requestFocus();
       }
     });
+
+    // Check for active VPN interfaces; the warning banner only renders
+    // when we actually see one, so users without a VPN don't get a
+    // false-alarm in the connect flow.
+    unawaited(_refreshVpnStatus());
+  }
+
+  Future<void> _refreshVpnStatus() async {
+    final active = await VpnDetector.instance.isVpnActive();
+    if (!mounted) return;
+    if (active == _vpnActive) return;
+    setState(() => _vpnActive = active);
   }
 
   @override
@@ -328,29 +344,39 @@ class _ConnectScreenState extends State<ConnectScreen>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  // VPN Warning
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.orange.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.orange.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.vpn_key_rounded, color: AppColors.orange, size: 16),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context)?.vpnWarning ?? 'Warning: VPN may prevent connection',
-                            style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
+                  // VPN Warning — only when a VPN-style interface is actually up.
+                  if (_vpnActive) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: AppColors.orange.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.vpn_key_rounded,
+                              color: AppColors.orange, size: 16),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              AppLocalizations.of(context)?.vpnWarning ??
+                                  'Warning: VPN may prevent connection',
+                              style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 12,
+                                  color: AppColors.orange),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 8),
+                  ],
+                  const SizedBox(height: 24),
 
                   // IP / hostname input
                   TextField(

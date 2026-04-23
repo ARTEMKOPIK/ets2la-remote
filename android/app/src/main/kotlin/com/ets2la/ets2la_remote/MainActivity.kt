@@ -1,11 +1,13 @@
 package com.ets2la.ets2la_remote
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -120,7 +122,28 @@ class MainActivity : FlutterActivity() {
                                 Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                                 Uri.parse("package:$packageName"),
                             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(intent)
+                            try {
+                                startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                // Some stripped-down Android builds don't ship
+                                // the per-app install-sources screen. Degrade
+                                // to the generic app details page.
+                                Log.w(
+                                    "ETS2LAMain",
+                                    "ACTION_MANAGE_UNKNOWN_APP_SOURCES missing, falling back",
+                                    e,
+                                )
+                                try {
+                                    startActivity(
+                                        Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.parse("package:$packageName"),
+                                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                    )
+                                } catch (_: ActivityNotFoundException) {
+                                    // Nothing to do — UI will show canInstall=false.
+                                }
+                            }
                         }
                         result.success(null)
                     }
@@ -138,9 +161,24 @@ class MainActivity : FlutterActivity() {
         consumeShortcutIntent(intent)
     }
 
+    /**
+     * Widget-action extras are powerful — they toggle autopilot/ACC or force
+     * a disconnect on a live session. We only trust them when the caller is
+     * this app itself (home-screen widget, Wear listener, or the foreground
+     * notification). For any third-party caller we drop the extra silently.
+     */
+    private fun isTrustedCaller(): Boolean {
+        val ref = referrer ?: return false
+        return ref.host == packageName
+    }
+
     private fun consumeWidgetIntent(intent: Intent?) {
         val action = intent?.getStringExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION)
             ?: return
+        if (!isTrustedCaller()) {
+            Log.w("ETS2LAMain", "Ignoring widget action from untrusted caller: $referrer")
+            return
+        }
         val channel = widgetChannelRef
         if (channel != null) {
             channel.invokeMethod("widgetAction", action)
@@ -154,9 +192,17 @@ class MainActivity : FlutterActivity() {
      * desired tab index as a string extra "ets2la_tab". Forward it to Dart
      * either immediately (warm start) or buffer it for getInitialTab() to
      * drain on cold start once the engine is up.
+     *
+     * Shortcuts always target this activity explicitly (targetClass/
+     * targetPackage), so we additionally verify the caller is the system or
+     * this app — no third party should be feeding arbitrary tab indices.
      */
     private fun consumeShortcutIntent(intent: Intent?) {
         if (intent?.action != "com.ets2la.ets2la_remote.SHORTCUT") return
+        if (!isTrustedCaller()) {
+            Log.w("ETS2LAMain", "Ignoring shortcut action from untrusted caller: $referrer")
+            return
+        }
         val raw = intent.getStringExtra("ets2la_tab") ?: return
         val tab = raw.toIntOrNull() ?: return
         val channel = shortcutChannelRef

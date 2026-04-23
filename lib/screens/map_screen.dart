@@ -27,48 +27,78 @@ class _MapScreenState extends State<MapScreen>
   LatLng? _lastPosition;
   DateTime _lastMapMove = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// The TelemetryProvider we're currently listening to, so we can
+  /// detach on dispose / when the provider changes.
+  TelemetryProvider? _listeningTo;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to telemetry updates via a listener instead of watch() so
+    // we can drive the map camera *outside* of build(). Re-wire the
+    // subscription if the provider instance ever changes (hot reload).
+    final telem = context.read<TelemetryProvider>();
+    if (!identical(telem, _listeningTo)) {
+      _listeningTo?.removeListener(_onTelemetryTick);
+      telem.addListener(_onTelemetryTick);
+      _listeningTo = telem;
+    }
+  }
+
+  void _onTelemetryTick() {
+    if (!mounted) return;
+    final navPos = _listeningTo?.navPosition;
+    if (navPos == null) return;
+    final settings = context.read<AppSettings>();
+    if (!(_autoFollowOverride ?? settings.mapAutoFollow)) return;
+    final now = DateTime.now();
+    if (navPos.position == _lastPosition) return;
+    if (now.difference(_lastMapMove).inMilliseconds <= 500) return;
+    _lastPosition = navPos.position;
+    _lastMapMove = now;
+    // Defer to the next frame so we don't collide with any in-flight build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _mapController.move(navPos.position, _mapController.camera.zoom);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final navPos = context.select<TelemetryProvider, NavPosition?>((p) => p.navPosition);
-    final navRoute = context.select<TelemetryProvider, NavRoute?>((p) => p.navRoute);
+    final navPos =
+        context.select<TelemetryProvider, NavPosition?>((p) => p.navPosition);
+    final navRoute =
+        context.select<TelemetryProvider, NavRoute?>((p) => p.navRoute);
     final settings = context.watch<AppSettings>();
-
-    // Auto-follow — throttled to max 2fps (every 500ms) to save CPU on weak devices
-    final now = DateTime.now();
-    if ((_autoFollowOverride ?? settings.mapAutoFollow) &&
-        navPos != null &&
-        navPos.position != _lastPosition &&
-        now.difference(_lastMapMove).inMilliseconds > 500) {
-      _lastPosition = navPos.position;
-      _lastMapMove = now;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _mapController.move(navPos.position, _mapController.camera.zoom);
-        }
-      });
-    }
 
     final truckPos = navPos?.position;
     final bearing = navPos?.bearing ?? 0.0;
     final speedKmh = navPos?.speedKmh ?? 0;
     final speedText = settings.speedDisplay(speedKmh);
     final speedUnitLabel = settings.speedUnitLabel;
+    final autoFollow = _autoFollowOverride ?? settings.mapAutoFollow;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)?.map ?? 'Map',
-          style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600),
+          style: const TextStyle(
+              fontFamily: 'Roboto', fontWeight: FontWeight.w600),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              (_autoFollowOverride ?? settings.mapAutoFollow) ? Icons.my_location_rounded : Icons.location_searching_rounded,
-              color: (_autoFollowOverride ?? settings.mapAutoFollow) ? AppColors.orange : AppColors.textSecondary,
+              autoFollow
+                  ? Icons.my_location_rounded
+                  : Icons.location_searching_rounded,
+              color:
+                  autoFollow ? AppColors.orange : AppColors.textSecondary,
             ),
-            onPressed: () => setState(() => _autoFollowOverride = !(_autoFollowOverride ?? settings.mapAutoFollow)),
-            tooltip: AppLocalizations.of(context)?.autoFollowTooltip ?? 'Auto-follow',
+            onPressed: () =>
+                setState(() => _autoFollowOverride = !autoFollow),
+            tooltip:
+                AppLocalizations.of(context)?.autoFollowTooltip ?? 'Auto-follow',
           ),
         ],
       ),
@@ -93,7 +123,9 @@ class _MapScreenState extends State<MapScreen>
               ),
 
               // Route polyline
-              if (settings.mapShowRoute && navRoute != null && navRoute.points.length >= 2)
+              if (settings.mapShowRoute &&
+                  navRoute != null &&
+                  navRoute.points.length >= 2)
                 PolylineLayer(
                   polylines: [
                     Polyline(
@@ -158,14 +190,19 @@ class _MapScreenState extends State<MapScreen>
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.speed_rounded, size: 14, color: AppColors.orange),
+                      const Icon(Icons.speed_rounded,
+                          size: 14, color: AppColors.orange),
                       const SizedBox(width: 4),
-                      Text(
-                        '$speedText $speedUnitLabel',
-                        style: TextStyle(fontFamily: 'Roboto', 
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                      Semantics(
+                        label: AppLocalizations.of(context)?.speed ?? 'Speed',
+                        child: Text(
+                          '$speedText $speedUnitLabel',
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ],
@@ -173,11 +210,13 @@ class _MapScreenState extends State<MapScreen>
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.explore_rounded, size: 14, color: AppColors.textSecondary),
+                      const Icon(Icons.explore_rounded,
+                          size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         '${bearing.toStringAsFixed(0)}°',
-                        style: TextStyle(fontFamily: 'Roboto', 
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
                           fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
@@ -205,15 +244,21 @@ class _MapScreenState extends State<MapScreen>
                         color: AppColors.textSecondary, size: 40),
                     const SizedBox(height: 8),
                     Text(
-                      AppLocalizations.of(context)?.noPositionData ?? 'No position data',
-                      style: TextStyle(fontFamily: 'Roboto', 
-                          color: AppColors.textSecondary, fontSize: 14),
+                      AppLocalizations.of(context)?.noPositionData ??
+                          'No position data',
+                      style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          color: AppColors.textSecondary,
+                          fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      AppLocalizations.of(context)?.enableNavigationPlugin ?? 'Enable NavigationSockets plugin',
-                      style: TextStyle(fontFamily: 'Roboto', 
-                          color: AppColors.textMuted, fontSize: 12),
+                      AppLocalizations.of(context)?.enableNavigationPlugin ??
+                          'Enable NavigationSockets plugin',
+                      style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          color: AppColors.textMuted,
+                          fontSize: 12),
                     ),
                   ],
                 ),
@@ -226,6 +271,7 @@ class _MapScreenState extends State<MapScreen>
 
   @override
   void dispose() {
+    _listeningTo?.removeListener(_onTelemetryTick);
     _mapController.dispose();
     super.dispose();
   }

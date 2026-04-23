@@ -23,8 +23,11 @@
   "disconnected": "Disconnected",
   "connecting": "Connecting...",
   "autopilot": "Autopilot",
+  "autopilotLabel": "AUTOPILOT",
   "steering": "Steering",
+  "steeringLabel": "STEERING",
   "acc": "ACC",
+  "accLabel": "ACC",
   "speed": "Speed",
   "limit": "Limit",
   "gas": "GAS",
@@ -69,6 +72,13 @@
   "reconnectToLastIp": "Reconnect to last IP automatically",
   "connectionTimeout": "Connection timeout",
   "secondsFormat": "{count} seconds",
+  "@secondsFormat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "portsAdvanced": "Ports (Advanced)",
   "appearance": "Appearance",
   "speedUnits": "Speed units",
@@ -86,7 +96,14 @@
   "connectWhenTabOpens": "Connect to ETS2LA when tab opens",
   "connection": "Connection",
   "firewallTitle": "One-time PC setup",
-  "firewallBody": "To control autopilot from your phone, open port 37523 on your PC (Windows Firewall). This is done once.",
+  "firewallBody": "To control autopilot from your phone, open port {port} on your PC (Windows Firewall). This is done once.",
+  "@firewallBody": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
   "runInPowerShell": "Run in PowerShell (Admin):",
   "togglePluginsHint": "Toggle plugins that are already loaded in ETS2LA",
   "firstLaunchHint": "First launch only ~5s",
@@ -142,11 +159,14 @@
   "deleteProfile": "Delete profile",
   "edit": "Edit",
   "save": "Save",
-  "cancel": "Cancel",
   "macAddressOptional": "MAC address (optional)",
   "macAddressHelper": "Needed for Wake-on-LAN",
   "invalidMac": "Invalid MAC address",
   "wakeHost": "Wake host",
   "wolSent": "Wake-on-LAN packet sent",
-  "wolFailed": "Failed to send Wake-on-LAN packet"
+  "wolFailed": "Failed to send Wake-on-LAN packet",
+  "updateDownloadFailed": "Update download failed",
+  "updateInstallFailed": "Install failed",
+  "updateCheckFailed": "Couldn't check for updates",
+  "networkOffline": "You appear to be offline"
 }

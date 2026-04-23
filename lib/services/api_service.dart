@@ -3,12 +3,19 @@ import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import '../models/plugin_state.dart';
 
+/// Thin HTTP client for the ETS2LA REST endpoint (default port 37520).
+///
+/// Plugin identifiers and tag keys are treated as opaque strings the user
+/// never types themselves, but the backend happily hands us names with
+/// spaces, slashes, or Cyrillic characters — so every URL is built with
+/// [Uri.http] so path segments are encoded correctly. A previous
+/// implementation interpolated the name straight into a string URL and
+/// produced invalid requests for anything beyond ASCII identifiers.
 class ApiService {
-  int _port = 37520; // Default, can be overridden
+  int _port = 37520;
   int _timeoutSeconds = 5;
 
   void setPort(int port) => _port = port;
-
   int get port => _port;
 
   /// User-configurable request timeout (in seconds). Applied to all HTTP
@@ -27,14 +34,14 @@ class ApiService {
 
   void setHost(String host) => _host = host;
 
-  String get _base => _host != null ? 'http://$_host:$port' : '';
-
   bool get hasHost => _host != null && _host!.isNotEmpty;
 
   Future<bool> ping() async {
     if (!hasHost) return false;
     try {
-      final res = await http.get(Uri.parse('$_base/')).timeout(_pingTimeout);
+      final res = await http
+          .get(Uri.parse('http://$_host:$port/'))
+          .timeout(_pingTimeout);
       return res.statusCode == 200;
     } catch (_) {
       return false;
@@ -45,7 +52,7 @@ class ApiService {
     if (!hasHost) return [];
     try {
       final res = await http
-          .get(Uri.parse('$_base/backend/plugins'))
+          .get(Uri.parse('http://$_host:$port/backend/plugins'))
           .timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -60,13 +67,26 @@ class ApiService {
               name: (desc['name'] as String?) ?? id,
               description: (desc['description'] as String?) ?? '',
               running: val['enabled'] as bool? ?? false,
-              tags: List<String>.from(desc['tags'] ?? []),
+              tags: _parseTags(desc['tags']),
             );
           }).toList();
         }
       }
-    } catch (e) { debugPrint('ApiService.getPlugins error: $e'); return []; }
+    } catch (e) {
+      debugPrint('ApiService.getPlugins error: $e');
+      return [];
+    }
     return [];
+  }
+
+  /// Safely coerce a JSON `tags` value to a `List<String>`. The backend
+  /// sometimes omits the field entirely or (rarely) hands us a non-list;
+  /// we don't want a malformed payload to crash the whole plugin refresh.
+  List<String> _parseTags(Object? raw) {
+    if (raw is List) {
+      return raw.whereType<String>().toList(growable: false);
+    }
+    return const <String>[];
   }
 
   /// Enable plugin by its exact description.name (as returned from /backend/plugins)
@@ -79,45 +99,71 @@ class ApiService {
     if (!hasHost) return false;
     try {
       final res = await http
-          .get(Uri.parse('$_base/backend/plugins/$name/enable'))
+          .get(_pluginAction(name, 'enable'))
           .timeout(_timeout);
       return res.statusCode == 200;
-    } catch (e) { debugPrint('ApiService.enablePlugin error: $e'); return false; }
+    } catch (e) {
+      debugPrint('ApiService.enablePlugin error: $e');
+      return false;
+    }
   }
 
   Future<bool> disablePlugin(String name) async {
     if (!hasHost) return false;
     try {
       final res = await http
-          .get(Uri.parse('$_base/backend/plugins/$name/disable'))
+          .get(_pluginAction(name, 'disable'))
           .timeout(_timeout);
       return res.statusCode == 200;
-    } catch (e) { debugPrint('ApiService.disablePlugin error: $e'); return false; }
+    } catch (e) {
+      debugPrint('ApiService.disablePlugin error: $e');
+      return false;
+    }
+  }
+
+  /// `/backend/plugins/{name}/{action}` with [name] properly percent-encoded.
+  Uri _pluginAction(String name, String action) {
+    return Uri(
+      scheme: 'http',
+      host: _host,
+      port: port,
+      pathSegments: ['backend', 'plugins', name, action],
+    );
   }
 
   Future<Map<String, dynamic>> getPluginStates() async {
     if (!hasHost) return <String, dynamic>{};
     try {
       final res = await http
-          .get(Uri.parse('$_base/backend/plugins/states'))
+          .get(Uri.parse('http://$_host:$port/backend/plugins/states'))
           .timeout(_timeout);
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
-    } catch (e) { debugPrint('ApiService.getPluginStates error: $e'); return <String, dynamic>{}; }
+    } catch (e) {
+      debugPrint('ApiService.getPluginStates error: $e');
+      return <String, dynamic>{};
+    }
     return <String, dynamic>{};
   }
 
   Future<dynamic> getTag(String tag) async {
     if (!hasHost) return null;
     try {
-      final res = await http
-          .get(Uri.parse('$_base/api/tags/$tag'))
-          .timeout(_pingTimeout);
+      final url = Uri(
+        scheme: 'http',
+        host: _host,
+        port: port,
+        pathSegments: ['api', 'tags', tag],
+      );
+      final res = await http.get(url).timeout(_pingTimeout);
       if (res.statusCode == 200) {
         return jsonDecode(res.body);
       }
-    } catch (e) { debugPrint('ApiService.getTag error: $e'); return null; }
+    } catch (e) {
+      debugPrint('ApiService.getTag error: $e');
+      return null;
+    }
     return null;
   }
 }

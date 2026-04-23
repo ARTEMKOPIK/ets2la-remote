@@ -272,6 +272,146 @@ class _DashboardTab extends StatelessWidget {
     }
   }
 
+  Widget _buildNarrowLayout(
+    BuildContext context,
+    TruckState state,
+    AutopilotStatus status,
+    AppSettings settings,
+  ) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AutopilotCard(
+            steeringEnabled: status.steeringEnabled,
+            accEnabled: status.accEnabled,
+            onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
+            onToggleAcc: () => _toggleAcc(context, status.accEnabled),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: RepaintBoundary(
+              child: Builder(
+                builder: (context) {
+                  final mq = MediaQuery.of(context);
+                  final gaugeSize = [
+                    mq.size.width * 0.82,
+                    mq.size.height * 0.45,
+                    420.0,
+                  ].reduce((a, b) => a < b ? a : b);
+                  return SpeedGauge(
+                    speedKmh: state.speedKmh,
+                    limitKmh: state.speedLimitKmh,
+                    targetAccKmh: state.targetSpeedKmh,
+                    size: gaugeSize,
+                    speedUnit: settings.speedUnitLabel,
+                    maxSpeed: settings.gaugeMaxValue,
+                  );
+                },
+              ),
+            ),
+          ),
+          if (state.isIndicatingLeft || state.isIndicatingRight) ...[
+            const SizedBox(height: 4),
+            IndicatorWidget(
+              leftActive: state.isIndicatingLeft,
+              rightActive: state.isIndicatingRight,
+            ),
+          ],
+          const SizedBox(height: 8),
+          _PedalsCard(
+            throttle: state.throttle,
+            brake: state.brake,
+            game: state.game,
+          ),
+          const SizedBox(height: 12),
+          if (settings.showActivePlugins) _StatusBar(status: status),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(
+    BuildContext context,
+    BoxConstraints constraints,
+    TruckState state,
+    AutopilotStatus status,
+    AppSettings settings,
+  ) {
+    // Gauge fills the left column; cap both by width and by available height
+    // so it never pushes the pedals card off-screen.
+    final leftWidth = constraints.maxWidth * 0.48;
+    final gaugeSize = [
+      leftWidth * 0.9,
+      constraints.maxHeight - 32,
+      480.0,
+    ].reduce((a, b) => a < b ? a : b);
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left: gauge + indicators
+          SizedBox(
+            width: leftWidth,
+            child: Column(
+              children: [
+                Center(
+                  child: RepaintBoundary(
+                    child: SpeedGauge(
+                      speedKmh: state.speedKmh,
+                      limitKmh: state.speedLimitKmh,
+                      targetAccKmh: state.targetSpeedKmh,
+                      size: gaugeSize,
+                      speedUnit: settings.speedUnitLabel,
+                      maxSpeed: settings.gaugeMaxValue,
+                    ),
+                  ),
+                ),
+                if (state.isIndicatingLeft || state.isIndicatingRight) ...[
+                  const SizedBox(height: 8),
+                  IndicatorWidget(
+                    leftActive: state.isIndicatingLeft,
+                    rightActive: state.isIndicatingRight,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Right: autopilot + pedals + plugins
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AutopilotCard(
+                  steeringEnabled: status.steeringEnabled,
+                  accEnabled: status.accEnabled,
+                  onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
+                  onToggleAcc: () => _toggleAcc(context, status.accEnabled),
+                ),
+                const SizedBox(height: 12),
+                _PedalsCard(
+                  throttle: state.throttle,
+                  brake: state.brake,
+                  game: state.game,
+                ),
+                if (settings.showActivePlugins) ...[
+                  const SizedBox(height: 12),
+                  _StatusBar(status: status),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showFirewallDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     const cmd = 'netsh advfirewall firewall add rule name="ETS2LA Pages" dir=in action=allow protocol=TCP localport=37523';
@@ -379,69 +519,16 @@ class _DashboardTab extends StatelessWidget {
                 if (list.isNotEmpty) telem.updatePlugins(list);
               },
               color: AppColors.orange,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-            // Autopilot main card
-            AutopilotCard(
-              steeringEnabled: status.steeringEnabled,
-              accEnabled: status.accEnabled,
-              onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
-              onToggleAcc: () => _toggleAcc(context, status.accEnabled),
-            ),
-            const SizedBox(height: 16),
-
-            // Speed gauge — isolated repaint
-            Center(
-              child: RepaintBoundary(
-                child: Builder(
-                  builder: (context) {
-                    final mq = MediaQuery.of(context);
-                    // Cap gauge by both width and height to avoid landscape overflow.
-                    final gaugeSize = [
-                      mq.size.width * 0.82,
-                      mq.size.height * 0.45,
-                      420.0,
-                    ].reduce((a, b) => a < b ? a : b);
-                    return SpeedGauge(
-                      speedKmh: state.speedKmh,
-                      limitKmh: state.speedLimitKmh,
-                      targetAccKmh: state.targetSpeedKmh,
-                      size: gaugeSize,
-                      speedUnit: settings.speedUnitLabel,
-                      maxSpeed: settings.gaugeMaxValue,
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // Turn indicators — only show when active
-            if (state.isIndicatingLeft || state.isIndicatingRight) ...[  
-              const SizedBox(height: 4),
-              IndicatorWidget(
-                leftActive: state.isIndicatingLeft,
-                rightActive: state.isIndicatingRight,
-              ),
-            ],
-            const SizedBox(height: 8),
-
-            // Pedals — single combined card
-            _PedalsCard(
-              throttle: state.throttle,
-              brake: state.brake,
-              game: state.game,
-            ),
-            const SizedBox(height: 12),
-
-            // Active plugins status
-            if (settings.showActivePlugins)
-              _StatusBar(status: status),
-                  ],
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Wide = landscape phone / tablet. Threshold picked so that
+                  // a Pixel 7 in landscape (~850dp) gets the side-by-side
+                  // layout but a compact phone in portrait (~412dp) does not.
+                  final wide = constraints.maxWidth >= 720;
+                  return wide
+                      ? _buildWideLayout(context, constraints, state, status, settings)
+                      : _buildNarrowLayout(context, state, status, settings);
+                },
               ),
             ),
           ),

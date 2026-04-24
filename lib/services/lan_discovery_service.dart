@@ -4,7 +4,6 @@
 /// `ETS2LA/Networking/Servers/discovery.py` in the upstream project), so a
 /// single PTR → SRV → A resolution is enough to find every instance on the
 /// LAN.
-library;
 
 import 'dart:async';
 import 'dart:io';

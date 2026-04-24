@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,7 +16,17 @@ import 'services/local_server.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  unawaited(LocalUnityServer.instance.ensureStarted());
+  // Start the local Unity server in the background — startup failures here
+  // are non-fatal (visualization is optional) so we keep it unawaited,
+  // but log any error so it shows in crash reports.
+  ensureStartedBg() async {
+    try {
+      await LocalUnityServer.instance.ensureStarted();
+    } catch (e, st) {
+      debugPrint('LocalUnityServer.startup failed (non-fatal): $e\n$st');
+    }
+  }
+  unawaited(ensureStartedBg());
 
   // Pre-load settings before building the widget tree
   final settings = await AppSettings.create();

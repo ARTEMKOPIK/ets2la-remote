@@ -1,6 +1,5 @@
 /// Modal that renders the given [ConnectionProfile] as a QR so another
 /// phone can scan it and import the same host/MAC in one step.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';

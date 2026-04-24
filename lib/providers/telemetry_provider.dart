@@ -38,6 +38,7 @@ class TelemetryProvider extends ChangeNotifier {
   StreamSubscription? _posSub;
   StreamSubscription? _routeSub;
   Timer? _pluginRefreshTimer;
+  bool _pluginRefreshBusy = false;
   bool _disposed = false;
 
   /// Broadcast stream of one-shot telemetry transitions (autopilot on/off,
@@ -156,6 +157,7 @@ class TelemetryProvider extends ChangeNotifier {
     _lastSpeedSample = now;
     _speedHistory.add(truckState.speedKmh);
     if (_speedHistory.length > _historyCap) {
+      // Remove oldest entries to maintain cap — keeps newest `_historyCap` items.
       _speedHistory.removeRange(0, _speedHistory.length - _historyCap);
     }
   }
@@ -192,6 +194,7 @@ class TelemetryProvider extends ChangeNotifier {
     _speedHistory.clear();
     _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
     _hasActiveSession = false;
+    _pluginRefreshBusy = false;
     _wsSub?.cancel();
     _wsSub = null;
     _posSub?.cancel();
@@ -216,24 +219,33 @@ class TelemetryProvider extends ChangeNotifier {
 
     _pluginRefreshTimer =
         Timer.periodic(const Duration(seconds: 5), (_) async {
-      if (_disposed) return;
-      // Check connection before fetching — and bail out if the user
-      // disconnected while we were waiting for the poll tick.
-      if (wsService.state != WsConnectionState.connected ||
-          !_hasActiveSession) {
-        _pluginRefreshTimer?.cancel();
-        _pluginRefreshTimer = null;
-        return;
+      // Guard: prevent overlapping API calls (e.g. if previous call took >5s)
+      if (_pluginRefreshBusy) return;
+      _pluginRefreshBusy = true;
+      try {
+        if (_disposed) return;
+        // Check connection before fetching — and bail out if the user
+        // disconnected while we were waiting for the poll tick.
+        if (wsService.state != WsConnectionState.connected ||
+            !_hasActiveSession) {
+          _pluginRefreshTimer?.cancel();
+          _pluginRefreshTimer = null;
+          return;
+        }
+        final list = await apiService.getPlugins();
+        if (_disposed || !_hasActiveSession) return;
+        tryUpdatePluginsFromBackend(list);
+      } finally {
+        _pluginRefreshBusy = false;
       }
-      final list = await apiService.getPlugins();
-      if (_disposed || !_hasActiveSession) return;
-      tryUpdatePluginsFromBackend(list);
     });
 
     // Initial fetch
     apiService.getPlugins().then((list) {
       if (_disposed || !_hasActiveSession) return;
       tryUpdatePluginsFromBackend(list);
+    }).catchError((e, st) {
+      debugPrint('TelemetryProvider initial plugin fetch failed: $e\n$st');
     });
   }
 

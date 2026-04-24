@@ -1,6 +1,5 @@
 /// Singleton local HTTP server for Unity WebGL assets.
 /// Started once at app launch, stays alive for the full session.
-library;
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';

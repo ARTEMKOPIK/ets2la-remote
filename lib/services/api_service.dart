@@ -51,7 +51,8 @@ class ApiService {
     try {
       final res = await http.get(_build(const [])).timeout(_pingTimeout);
       return res.statusCode == 200;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('ApiService.ping failed: $e\n$st');
       return false;
     }
   }

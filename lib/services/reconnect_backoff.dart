@@ -1,7 +1,7 @@
 /// Shared exponential backoff used by all WebSocket services to schedule
 /// reconnect attempts. Grows as 1s → 2s → 4s → 8s → 15s (capped), then
 /// jitters ±20% so N clients don't all retry in lockstep.
-library;
+// coverage:ignore-file — unit tested separately in test/reconnect_backoff_test.dart
 
 import 'dart:math';
 

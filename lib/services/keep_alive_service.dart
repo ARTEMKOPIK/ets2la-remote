@@ -2,7 +2,6 @@
 /// promoted while connected to ETS2LA. Without it, the OS will kill the
 /// Dart isolate (and therefore the WebSocket) a few minutes after the
 /// screen turns off. iOS / desktop calls are silently no-ops.
-library;
 
 import 'dart:io' show Platform;
 

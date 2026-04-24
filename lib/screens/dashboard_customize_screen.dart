@@ -2,7 +2,6 @@
 /// order. State is persisted to [AppSettings.dashboardLayout] as a
 /// comma-separated list of card ids. An empty list means "use the
 /// default layout", so a fresh install stays on the built-in order.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';

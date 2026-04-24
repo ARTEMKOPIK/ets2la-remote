@@ -7,7 +7,6 @@
 /// affordance (haptics stay silent under reduce-motion regardless of the
 /// feature flag — the same policy [AppHaptics] already uses for button
 /// feedback).
-library;
 
 import 'dart:async';
 
@@ -98,10 +97,11 @@ class TelemetryFeedbackService {
       // Assistant audio channel on Android so ducking is short.
       await _tts.setSharedInstance(true);
       await _tts.awaitSpeakCompletion(true);
-    } catch (_) {
+    } catch (e, st) {
       // Non-fatal — flutter_tts throws on iOS-only setters when running
       // on Android, and on some old Android images setSharedInstance
       // returns a PlatformException we can safely ignore.
+      debugPrint('TelemetryFeedbackService._ensureTtsReady failed: $e');
     }
   }
 

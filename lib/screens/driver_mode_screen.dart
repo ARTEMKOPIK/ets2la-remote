@@ -8,7 +8,6 @@
 ///     `wakelock_plus`.
 ///   * Single exit affordance (FAB) — we don't want the user to
 ///     accidentally navigate away while driving.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

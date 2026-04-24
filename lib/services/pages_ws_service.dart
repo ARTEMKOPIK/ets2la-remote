@@ -1,9 +1,9 @@
 /// WebSocket client for ETS2LA Pages server (port 37523).
 /// Used to call plugin functions — including toggle autopilot/ACC.
-library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'reconnect_backoff.dart';
 
@@ -51,9 +51,13 @@ class PagesWsService {
       _channel!.stream.listen(
         (_) {}, // we don't need responses
         onDone: _onDisconnected,
-        onError: (_) => _onDisconnected(),
+        onError: (Object e, StackTrace st) {
+          debugPrint('PagesWs error: $e\n$st');
+          _onDisconnected();
+        },
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('PagesWs _doConnect failed: $e\n$st');
       _onDisconnected();
     } finally {
       _connecting = false;
@@ -85,7 +89,8 @@ class PagesWsService {
       });
       channel.sink.add(msg);
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('PagesWs callFunction failed: $e\n$st');
       return false;
     }
   }

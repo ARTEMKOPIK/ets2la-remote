@@ -6,7 +6,6 @@
 ///   - an initial action (drained once at app start via `getInitialAction`),
 ///   - or a live `widgetAction` method call (when the app is already
 ///     running and receives `onNewIntent`).
-library;
 
 import 'dart:async';
 

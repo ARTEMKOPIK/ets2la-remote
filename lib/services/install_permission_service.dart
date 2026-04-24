@@ -5,7 +5,6 @@
 /// the current state and a helper to launch the matching Settings screen so
 /// the update dialog can steer the user through it instead of silently
 /// failing with a "Permission denied" error.
-library;
 
 import 'dart:io' show Platform;
 

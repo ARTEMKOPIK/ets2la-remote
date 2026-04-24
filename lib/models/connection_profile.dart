@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show debugPrint;
+
 /// User-named connection target stored in SharedPreferences. Extends
 /// the old `recent_hosts` idea with a human-readable label and an
 /// optional MAC address (used by Wake-on-LAN; safe to leave empty).
@@ -76,7 +78,8 @@ class ConnectionProfile {
         }
       }
       return result;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('ConnectionProfile.decodeAll failed: $e');
       return const [];
     }
   }

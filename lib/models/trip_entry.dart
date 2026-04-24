@@ -5,9 +5,10 @@
 /// Intentionally denormalised — one row per trip, no delta encoding —
 /// so the history screen can render thousands of entries without
 /// recomputing anything.
-library;
 
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show debugPrint;
 
 class TripEntry {
   TripEntry({
@@ -69,7 +70,8 @@ class TripEntry {
         accSeconds: json['accSeconds'] as int,
         disengagements: json['disengagements'] as int,
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('TripEntry.fromJson failed: $e');
       return null;
     }
   }
@@ -90,7 +92,8 @@ class TripEntry {
         }
       }
       return out;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('TripEntry.decodeAll failed: $e');
       return const [];
     }
   }

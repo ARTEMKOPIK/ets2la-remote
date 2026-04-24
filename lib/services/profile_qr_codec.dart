@@ -6,7 +6,6 @@
 /// can hand back to ETS2LA Remote via the custom scheme. Only name, host
 /// and optional MAC are encoded — id and `favourite` are local-only
 /// concerns we regenerate on import.
-library;
 
 import '../models/connection_profile.dart';
 

@@ -9,46 +9,46 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    group('_stripAccidentalPort static helper', () {
+    group('stripAccidentalPort static helper', () {
       test('strips port from plain IPv4', () {
         expect(
-            ConnectionProvider._stripAccidentalPort('192.168.0.5:37522'),
+            ConnectionProvider.stripAccidentalPort('192.168.0.5:37522'),
             '192.168.0.5');
       });
 
       test('strips port from hostname', () {
-        expect(ConnectionProvider._stripAccidentalPort('ets2la.local:8080'),
+        expect(ConnectionProvider.stripAccidentalPort('ets2la.local:8080'),
             'ets2la.local');
       });
 
       test('returns IPv6 unchanged (no split needed)', () {
         expect(
-            ConnectionProvider._stripAccidentalPort('2001:db8::1'), '2001:db8::1');
+            ConnectionProvider.stripAccidentalPort('2001:db8::1'), '2001:db8::1');
       });
 
       test('strips port from bracketed IPv6', () {
-        expect(ConnectionProvider._stripAccidentalPort('[2001:db8::1]:37522'),
+        expect(ConnectionProvider.stripAccidentalPort('[2001:db8::1]:37522'),
             '2001:db8::1');
       });
 
       test('returns empty string unchanged', () {
-        expect(ConnectionProvider._stripAccidentalPort(''), '');
+        expect(ConnectionProvider.stripAccidentalPort(''), '');
       });
 
       test('trims whitespace before processing', () {
         expect(
-            ConnectionProvider._stripAccidentalPort('  192.168.0.5:8080  '),
+            ConnectionProvider.stripAccidentalPort('  192.168.0.5:8080  '),
             '192.168.0.5');
       });
 
       test('returns IPv4 without port unchanged', () {
-        expect(ConnectionProvider._stripAccidentalPort('192.168.0.5'),
+        expect(ConnectionProvider.stripAccidentalPort('192.168.0.5'),
             '192.168.0.5');
       });
 
       test('IPv6 with multiple colons (no split) returned unchanged', () {
         // fe80::1%eth0 style
-        expect(ConnectionProvider._stripAccidentalPort('fe80::1%25eth0'),
+        expect(ConnectionProvider.stripAccidentalPort('fe80::1%25eth0'),
             'fe80::1%25eth0');
       });
     });

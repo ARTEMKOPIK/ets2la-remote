@@ -22,7 +22,17 @@ jobs:
         run: flutter pub get
 
       - name: Flutter analyze
-        run: flutter analyze || true
+        run: flutter analyze
 
-      - name: Flutter test
-        run: flutter test
+      - name: Flutter test with coverage
+        run: flutter test --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: success()
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-ets2la-remote
+          fail_ci_if_error: false
+          verbose: true

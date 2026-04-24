@@ -21,8 +21,6 @@ analyzer:
     # missing_return: ignore
     todo: ignore
     deprecated_member_use_from_same_package: ignore
-    missing_required_param: ignore
-    missing_return: ignore
 
 linter:
   rules:

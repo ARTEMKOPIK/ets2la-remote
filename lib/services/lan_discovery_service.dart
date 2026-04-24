@@ -72,9 +72,9 @@ class LanDiscoveryService {
     try {
       await _multicastLock.invokeMethod<void>('release');
     } on MissingPluginException {
-      // ignore
+      // ignore — non-Android platform or native channel unavailable
     } on PlatformException {
-      // ignore
+      // ignore — best effort, mDNS may still work without the lock
     }
   }
 

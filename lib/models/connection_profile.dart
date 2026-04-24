@@ -9,23 +9,32 @@ class ConnectionProfile {
   final String host;
   final String? mac;
 
+  /// User-marked favourite. When `autoConnect` is enabled the favourite
+  /// profile is tried first (falling back to the most recent host if no
+  /// profile is starred). Only one profile should be favourite at a
+  /// time — the provider enforces this on write.
+  final bool favourite;
+
   const ConnectionProfile({
     required this.id,
     required this.name,
     required this.host,
     this.mac,
+    this.favourite = false,
   });
 
   ConnectionProfile copyWith({
     String? name,
     String? host,
     String? mac,
+    bool? favourite,
   }) {
     return ConnectionProfile(
       id: id,
       name: name ?? this.name,
       host: host ?? this.host,
       mac: mac ?? this.mac,
+      favourite: favourite ?? this.favourite,
     );
   }
 
@@ -34,6 +43,7 @@ class ConnectionProfile {
         'name': name,
         'host': host,
         if (mac != null && mac!.isNotEmpty) 'mac': mac,
+        if (favourite) 'favourite': true,
       };
 
   static ConnectionProfile? fromJson(Map<String, dynamic> json) {
@@ -46,6 +56,7 @@ class ConnectionProfile {
       name: name,
       host: host,
       mac: json['mac'] as String?,
+      favourite: (json['favourite'] as bool?) ?? false,
     );
   }
 

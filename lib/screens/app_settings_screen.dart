@@ -9,6 +9,8 @@ import '../providers/connection_provider.dart';
 import '../providers/update_provider.dart';
 import '../widgets/update_dialog.dart';
 import '../theme/app_theme.dart';
+import 'dashboard_customize_screen.dart';
+import 'trip_log_screen.dart';
 
 class AppSettingsScreen extends StatefulWidget {
   const AppSettingsScreen({super.key});
@@ -152,6 +154,78 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   l10n?.reduceMotionHint ?? 'Disable transitions and haptics',
               value: s.reduceMotion,
               onChanged: s.setReduceMotion,
+            ),
+          ]),
+
+          // ── FEEDBACK ──────────────────────────────────────────
+          _SectionHeader(l10n?.feedback ?? 'Feedback'),
+          _SettingsCard(children: [
+            _SwitchTile(
+              icon: Icons.vibration_rounded,
+              title: l10n?.hapticEventsEnabled ?? 'Telemetry vibrations',
+              subtitle: l10n?.hapticEventsHint ??
+                  'Distinct patterns for autopilot / ACC / over-limit events',
+              value: s.hapticEventsEnabled,
+              onChanged: s.setHapticEventsEnabled,
+            ),
+            _Divider(),
+            _SwitchTile(
+              icon: Icons.record_voice_over_rounded,
+              title: l10n?.ttsEnabled ?? 'Voice cues',
+              subtitle: l10n?.ttsEnabledHint ??
+                  'Short spoken announcements on autopilot events',
+              value: s.ttsEnabled,
+              onChanged: s.setTtsEnabled,
+            ),
+          ]),
+
+          // ── DRIVING ───────────────────────────────────────────
+          _SectionHeader(l10n?.driverMode ?? 'Driver mode'),
+          _SettingsCard(children: [
+            _SwitchTile(
+              icon: Icons.screen_rotation_rounded,
+              title: l10n?.driverModeAutoLandscape ?? 'Auto-enter on landscape',
+              subtitle: l10n?.driverModeHint ??
+                  'Big-text dashboard for the phone in a mount',
+              value: s.driverModeAutoLandscape,
+              onChanged: s.setDriverModeAutoLandscape,
+            ),
+            _Divider(),
+            _SwitchTile(
+              icon: Icons.route_rounded,
+              title: l10n?.tripLogEnabled ?? 'Record trip log',
+              subtitle: l10n?.tripLogEnabledHint ??
+                  'Save distance, duration, autopilot share per session',
+              value: s.tripLogEnabled,
+              onChanged: s.setTripLogEnabled,
+            ),
+            _Divider(),
+            _NavTile(
+              icon: Icons.history_rounded,
+              title: l10n?.tripLog ?? 'Trip log',
+              subtitle: l10n?.tripLogEnabledHint ??
+                  'Past sessions and all-time totals',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const TripLogScreen(),
+                  ),
+                );
+              },
+            ),
+            _Divider(),
+            _NavTile(
+              icon: Icons.dashboard_customize_rounded,
+              title: l10n?.customizeDashboard ?? 'Customize dashboard',
+              subtitle: l10n?.customizeDashboardHint ??
+                  'Pick and reorder the cards you want to see',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const DashboardCustomizeScreen(),
+                  ),
+                );
+              },
             ),
           ]),
 
@@ -317,6 +391,68 @@ class _SwitchTile extends StatelessWidget {
               ),
             ),
             Switch(value: value, onChanged: onChanged),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Row that navigates to another screen — no toggle, just a chevron.
+/// Same visual footprint as [_SwitchTile] so sections of mixed tiles stay
+/// aligned.
+class _NavTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  const _NavTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppColors.orange),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
       ),

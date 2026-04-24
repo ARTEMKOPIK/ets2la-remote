@@ -101,6 +101,60 @@ abstract class AppLocalizations {
   /// **'ETS2LA Remote'**
   String get appTitle;
 
+  /// No description provided for @mapStyleDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get mapStyleDark;
+
+  /// No description provided for @mapStyleLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get mapStyleLight;
+
+  /// No description provided for @mapStyleSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get mapStyleSatellite;
+
+  /// No description provided for @pluginDisabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin disabled — tap to enable'**
+  String get pluginDisabledHint;
+
+  /// No description provided for @portApiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API (REST)'**
+  String get portApiLabel;
+
+  /// No description provided for @portVizLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualization (WS)'**
+  String get portVizLabel;
+
+  /// No description provided for @portNavLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation (WS)'**
+  String get portNavLabel;
+
+  /// No description provided for @portPagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages (WS)'**
+  String get portPagesLabel;
+
+  /// No description provided for @profileHintHomePc.
+  ///
+  /// In en, this message translates to:
+  /// **'Home PC'**
+  String get profileHintHomePc;
+
   /// No description provided for @recent.
   ///
   /// In en, this message translates to:
@@ -233,17 +287,35 @@ abstract class AppLocalizations {
   /// **'Autopilot'**
   String get autopilot;
 
+  /// No description provided for @autopilotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AUTOPILOT'**
+  String get autopilotLabel;
+
   /// No description provided for @steering.
   ///
   /// In en, this message translates to:
   /// **'Steering'**
   String get steering;
 
+  /// No description provided for @steeringLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'STEERING'**
+  String get steeringLabel;
+
   /// No description provided for @acc.
   ///
   /// In en, this message translates to:
   /// **'ACC'**
   String get acc;
+
+  /// No description provided for @accLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ACC'**
+  String get accLabel;
 
   /// No description provided for @speed.
   ///
@@ -340,60 +412,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
-
-  /// No description provided for @mapStyleDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark'**
-  String get mapStyleDark;
-
-  /// No description provided for @mapStyleLight.
-  ///
-  /// In en, this message translates to:
-  /// **'Light'**
-  String get mapStyleLight;
-
-  /// No description provided for @mapStyleSatellite.
-  ///
-  /// In en, this message translates to:
-  /// **'Satellite'**
-  String get mapStyleSatellite;
-
-  /// No description provided for @pluginDisabledHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Plugin disabled — tap to enable'**
-  String get pluginDisabledHint;
-
-  /// No description provided for @portApiLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'API (REST)'**
-  String get portApiLabel;
-
-  /// No description provided for @portVizLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Visualization (WS)'**
-  String get portVizLabel;
-
-  /// No description provided for @portNavLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Navigation (WS)'**
-  String get portNavLabel;
-
-  /// No description provided for @portPagesLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Pages (WS)'**
-  String get portPagesLabel;
-
-  /// No description provided for @profileHintHomePc.
-  ///
-  /// In en, this message translates to:
-  /// **'Home PC'**
-  String get profileHintHomePc;
 
   /// No description provided for @error.
   ///
@@ -561,7 +579,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} seconds'**
-  String secondsFormat(Object count);
+  String secondsFormat(int count);
 
   /// No description provided for @portsAdvanced.
   ///
@@ -670,249 +688,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To control autopilot from your phone, open port {port} on your PC (Windows Firewall). This is done once.'**
   String firewallBody(int port);
-
-  /// No description provided for @autopilotLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'AUTOPILOT'**
-  String get autopilotLabel;
-
-  /// No description provided for @steeringLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'STEERING'**
-  String get steeringLabel;
-
-  /// No description provided for @accLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'ACC'**
-  String get accLabel;
-
-  /// No description provided for @updateDownloadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Update download failed'**
-  String get updateDownloadFailed;
-
-  /// No description provided for @updateInstallFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Install failed'**
-  String get updateInstallFailed;
-
-  /// No description provided for @updateCheckFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t check for updates'**
-  String get updateCheckFailed;
-
-  /// No description provided for @networkOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'You appear to be offline'**
-  String get networkOffline;
-
-  /// No description provided for @fullscreen.
-  ///
-  /// In en, this message translates to:
-  /// **'Fullscreen'**
-  String get fullscreen;
-
-  /// No description provided for @exitFullscreen.
-  ///
-  /// In en, this message translates to:
-  /// **'Exit fullscreen'**
-  String get exitFullscreen;
-
-  /// No description provided for @lightTheme.
-  ///
-  /// In en, this message translates to:
-  /// **'Light theme'**
-  String get lightTheme;
-
-  /// No description provided for @darkTheme.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark theme'**
-  String get darkTheme;
-
-  /// No description provided for @zoomIn.
-  ///
-  /// In en, this message translates to:
-  /// **'Zoom in'**
-  String get zoomIn;
-
-  /// No description provided for @zoomOut.
-  ///
-  /// In en, this message translates to:
-  /// **'Zoom out'**
-  String get zoomOut;
-
-  /// No description provided for @resetCamera.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset camera'**
-  String get resetCamera;
-
-  /// No description provided for @mapAttributionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Map data'**
-  String get mapAttributionTitle;
-
-  /// No description provided for @waitingForGameTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for telemetry'**
-  String get waitingForGameTitle;
-
-  /// No description provided for @waitingForGameBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Launch ETS2 or ATS, then enable the Map plugin in ETS2LA to start seeing data here.'**
-  String get waitingForGameBody;
-
-  /// Countdown shown in the reconnecting banner.
-  ///
-  /// In en, this message translates to:
-  /// **'Reconnecting in {seconds}s'**
-  String reconnectingIn(int seconds);
-
-  /// No description provided for @reconnectNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry now'**
-  String get reconnectNow;
-
-  /// No description provided for @stageConnecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting…'**
-  String get stageConnecting;
-
-  /// No description provided for @stagePinging.
-  ///
-  /// In en, this message translates to:
-  /// **'Pinging backend…'**
-  String get stagePinging;
-
-  /// No description provided for @stageOpeningSocket.
-  ///
-  /// In en, this message translates to:
-  /// **'Opening socket…'**
-  String get stageOpeningSocket;
-
-  /// No description provided for @stageSubscribing.
-  ///
-  /// In en, this message translates to:
-  /// **'Subscribing to telemetry…'**
-  String get stageSubscribing;
-
-  /// No description provided for @firstRunWelcomeTitle.
-  String get firstRunWelcomeTitle;
-
-  /// No description provided for @firstRunWelcomeBody.
-  String get firstRunWelcomeBody;
-
-  /// No description provided for @firstRunLaunchTitle.
-  String get firstRunLaunchTitle;
-
-  /// No description provided for @firstRunLaunchBody.
-  String get firstRunLaunchBody;
-
-  /// No description provided for @firstRunNetworkTitle.
-  String get firstRunNetworkTitle;
-
-  /// No description provided for @firstRunNetworkBody.
-  String get firstRunNetworkBody;
-
-  /// No description provided for @getStarted.
-  String get getStarted;
-
-  /// No description provided for @next.
-  String get next;
-
-  /// No description provided for @skipOnboarding.
-  String get skipOnboarding;
-
-  /// No description provided for @whyNotFound.
-  String get whyNotFound;
-
-  /// No description provided for @mdnsHelpTitle.
-  String get mdnsHelpTitle;
-
-  /// No description provided for @mdnsHelpBody.
-  String get mdnsHelpBody;
-
-  /// No description provided for @saveAsProfileQuestion.
-  String get saveAsProfileQuestion;
-
-  /// No description provided for @pluginDisabled.
-  String get pluginDisabled;
-
-  /// No description provided for @pluginStarting.
-  String get pluginStarting;
-
-  /// No description provided for @sparklineStatsTitle.
-  String get sparklineStatsTitle;
-
-  /// No description provided for @sparklineAvg.
-  String get sparklineAvg;
-
-  /// No description provided for @sparklineMax.
-  String get sparklineMax;
-
-  /// No description provided for @sparklineMin.
-  String get sparklineMin;
-
-  /// No description provided for @accentColorLabel.
-  String get accentColorLabel;
-
-  /// No description provided for @accentOrange.
-  String get accentOrange;
-
-  /// No description provided for @accentBlue.
-  String get accentBlue;
-
-  /// No description provided for @accentGreen.
-  String get accentGreen;
-
-  /// No description provided for @accentPurple.
-  String get accentPurple;
-
-  /// No description provided for @highContrast.
-  String get highContrast;
-
-  /// No description provided for @highContrastHint.
-  String get highContrastHint;
-
-  /// No description provided for @reduceMotion.
-  String get reduceMotion;
-
-  /// No description provided for @reduceMotionHint.
-  String get reduceMotionHint;
-
-  /// No description provided for @accessibility.
-  String get accessibility;
-
-  /// No description provided for @pingLabel.
-  String get pingLabel;
-
-  /// No description provided for @disconnectHint.
-  String get disconnectHint;
-
-  /// No description provided for @holdToDisconnect.
-  String get holdToDisconnect;
-
-  /// No description provided for @mapTileDark.
-  String get mapTileDark;
-
-  /// No description provided for @mapTileLight.
-  String get mapTileLight;
-
-  /// No description provided for @mapTileSatellite.
-  String get mapTileSatellite;
 
   /// No description provided for @runInPowerShell.
   ///
@@ -1043,7 +818,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginDisabled.
   ///
   /// In en, this message translates to:
-  /// **'Plugin disabled'**
+  /// **'Plugin disabled — tap to enable'**
   String get pluginDisabled;
 
   /// No description provided for @pluginToggleFailed.
@@ -1237,6 +1012,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to send Wake-on-LAN packet'**
   String get wolFailed;
+
+  /// No description provided for @updateDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update download failed'**
+  String get updateDownloadFailed;
+
+  /// No description provided for @updateInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Install failed'**
+  String get updateInstallFailed;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check for updates'**
+  String get updateCheckFailed;
+
+  /// No description provided for @networkOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear to be offline'**
+  String get networkOffline;
+
+  /// No description provided for @fullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get fullscreen;
+
+  /// No description provided for @exitFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit fullscreen'**
+  String get exitFullscreen;
+
+  /// No description provided for @lightTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light theme'**
+  String get lightTheme;
+
+  /// No description provided for @darkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get darkTheme;
+
+  /// No description provided for @zoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get zoomIn;
+
+  /// No description provided for @zoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get zoomOut;
+
+  /// No description provided for @resetCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset camera'**
+  String get resetCamera;
+
+  /// No description provided for @mapAttributionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Map data'**
+  String get mapAttributionTitle;
+
+  /// No description provided for @waitingForGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for telemetry'**
+  String get waitingForGameTitle;
+
+  /// No description provided for @waitingForGameBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch ETS2 or ATS, then enable the Map plugin in ETS2LA to start seeing data here.'**
+  String get waitingForGameBody;
+
+  /// No description provided for @reconnectingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting in {seconds}s'**
+  String reconnectingIn(int seconds);
+
+  /// No description provided for @reconnectNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry now'**
+  String get reconnectNow;
+
+  /// No description provided for @stageConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get stageConnecting;
+
+  /// No description provided for @stagePinging.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinging backend…'**
+  String get stagePinging;
+
+  /// No description provided for @stageOpeningSocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening socket…'**
+  String get stageOpeningSocket;
+
+  /// No description provided for @stageSubscribing.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribing to telemetry…'**
+  String get stageSubscribing;
+
+  /// No description provided for @firstRunWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to ETS2LA Remote'**
+  String get firstRunWelcomeTitle;
+
+  /// No description provided for @firstRunWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Control autopilot and see your truck\'s telemetry from your phone.'**
+  String get firstRunWelcomeBody;
+
+  /// No description provided for @firstRunLaunchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch ETS2LA on your PC'**
+  String get firstRunLaunchTitle;
+
+  /// No description provided for @firstRunLaunchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure ETS2LA is running on your computer before connecting. This app talks to its WebSocket API.'**
+  String get firstRunLaunchBody;
+
+  /// No description provided for @firstRunNetworkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay on the same Wi-Fi'**
+  String get firstRunNetworkTitle;
+
+  /// No description provided for @firstRunNetworkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone and PC need to be on the same local network. Tap \"Scan LAN\" to find your PC automatically, or enter its IP manually.'**
+  String get firstRunNetworkBody;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @skipOnboarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skipOnboarding;
+
+  /// No description provided for @whyNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Why isn\'t it finding my PC?'**
+  String get whyNotFound;
+
+  /// No description provided for @mdnsHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find ETS2LA on the LAN'**
+  String get mdnsHelpTitle;
+
+  /// No description provided for @mdnsHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Make sure ETS2LA is running on your PC\n• Both devices must be on the same Wi-Fi (not guest network)\n• Some routers block mDNS discovery — in that case, enter the PC\'s IP manually\n• If using a VPN, disconnect it first\n• Windows Defender may block the port — see the firewall command in Settings'**
+  String get mdnsHelpBody;
+
+  /// No description provided for @saveAsProfileQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this connection as a profile?'**
+  String get saveAsProfileQuestion;
+
+  /// No description provided for @pluginStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabling plugin…'**
+  String get pluginStarting;
+
+  /// No description provided for @sparklineStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 60 seconds'**
+  String get sparklineStatsTitle;
+
+  /// No description provided for @sparklineAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg'**
+  String get sparklineAvg;
+
+  /// No description provided for @sparklineMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get sparklineMax;
+
+  /// No description provided for @sparklineMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get sparklineMin;
+
+  /// No description provided for @accentColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent color'**
+  String get accentColorLabel;
+
+  /// No description provided for @accentOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get accentOrange;
+
+  /// No description provided for @accentBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get accentBlue;
+
+  /// No description provided for @accentGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get accentGreen;
+
+  /// No description provided for @accentPurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get accentPurple;
+
+  /// No description provided for @highContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'High contrast'**
+  String get highContrast;
+
+  /// No description provided for @highContrastHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger borders for better visibility'**
+  String get highContrastHint;
+
+  /// No description provided for @reduceMotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce motion'**
+  String get reduceMotion;
+
+  /// No description provided for @reduceMotionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable transitions and haptics'**
+  String get reduceMotionHint;
+
+  /// No description provided for @accessibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get accessibility;
+
+  /// No description provided for @pingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ping'**
+  String get pingLabel;
+
+  /// No description provided for @disconnectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press the host to disconnect'**
+  String get disconnectHint;
+
+  /// No description provided for @holdToDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to disconnect'**
+  String get holdToDisconnect;
+
+  /// No description provided for @mapTileDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get mapTileDark;
+
+  /// No description provided for @mapTileLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get mapTileLight;
+
+  /// No description provided for @mapTileSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get mapTileSatellite;
+
+  /// No description provided for @tripLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip log'**
+  String get tripLogTitle;
+
+  /// No description provided for @tripLogEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet. Drive for a minute with ETS2LA connected and they\'ll show up here.'**
+  String get tripLogEmpty;
+
+  /// No description provided for @tripLogTotalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All-time totals'**
+  String get tripLogTotalsTitle;
+
+  /// No description provided for @tripLogClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear trip history?'**
+  String get tripLogClearTitle;
+
+  /// No description provided for @tripLogClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes all saved trips from this device. The action cannot be undone.'**
+  String get tripLogClearBody;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distance;
+
+  /// No description provided for @drivingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving time'**
+  String get drivingTime;
+
+  /// No description provided for @avgSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg'**
+  String get avgSpeed;
+
+  /// No description provided for @maxSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get maxSpeed;
+
+  /// No description provided for @autopilotShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Autopilot'**
+  String get autopilotShare;
+
+  /// Number of times autopilot was disengaged during a trip
+  ///
+  /// In en, this message translates to:
+  /// **'{count} disengagements'**
+  String disengagements(int count);
+
+  /// No description provided for @driverMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver mode'**
+  String get driverMode;
+
+  /// No description provided for @driverModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Big-text dashboard for the phone in a mount'**
+  String get driverModeHint;
+
+  /// No description provided for @driverModeAutoLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-enter on landscape'**
+  String get driverModeAutoLandscape;
+
+  /// No description provided for @enterDriverMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter driver mode'**
+  String get enterDriverMode;
+
+  /// No description provided for @exitDriverMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit driver mode'**
+  String get exitDriverMode;
+
+  /// No description provided for @favourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourite'**
+  String get favourite;
+
+  /// No description provided for @pinFavourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin as default'**
+  String get pinFavourite;
+
+  /// No description provided for @unpinFavourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get unpinFavourite;
+
+  /// No description provided for @shareProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Share profile'**
+  String get shareProfile;
+
+  /// No description provided for @scanQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR'**
+  String get scanQr;
+
+  /// No description provided for @scanQrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a profile QR code'**
+  String get scanQrHint;
+
+  /// No description provided for @profileImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile imported'**
+  String get profileImported;
+
+  /// No description provided for @profileImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the QR code'**
+  String get profileImportFailed;
+
+  /// No description provided for @connectionDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection doctor'**
+  String get connectionDoctor;
+
+  /// No description provided for @connectionDoctorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Probes every port and shows which one is blocked'**
+  String get connectionDoctorHint;
+
+  /// No description provided for @runDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Run diagnostics'**
+  String get runDiagnostics;
+
+  /// No description provided for @doctorPingingApi.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinging API (port {port})…'**
+  String doctorPingingApi(int port);
+
+  /// No description provided for @doctorOpeningViz.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening visualization WS (port {port})…'**
+  String doctorOpeningViz(int port);
+
+  /// No description provided for @doctorOpeningNav.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening navigation WS (port {port})…'**
+  String doctorOpeningNav(int port);
+
+  /// No description provided for @doctorOpeningPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening pages WS (port {port})…'**
+  String doctorOpeningPages(int port);
+
+  /// No description provided for @doctorReachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reachable'**
+  String get doctorReachable;
+
+  /// No description provided for @doctorBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get doctorBlocked;
+
+  /// No description provided for @copyFirewallCommand.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Windows firewall command'**
+  String get copyFirewallCommand;
+
+  /// No description provided for @firewallCommandCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Firewall command copied'**
+  String get firewallCommandCopied;
+
+  /// No description provided for @customizeDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize dashboard'**
+  String get customizeDashboard;
+
+  /// No description provided for @customizeDashboardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick and reorder the cards you want to see'**
+  String get customizeDashboardHint;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get resetToDefault;
+
+  /// No description provided for @hapticEventsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Telemetry vibrations'**
+  String get hapticEventsEnabled;
+
+  /// No description provided for @hapticEventsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Distinct patterns for autopilot / ACC / over-limit events'**
+  String get hapticEventsHint;
+
+  /// No description provided for @ttsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice cues'**
+  String get ttsEnabled;
+
+  /// No description provided for @ttsEnabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Short spoken announcements on autopilot events'**
+  String get ttsEnabledHint;
+
+  /// No description provided for @tripLogEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Record trip log'**
+  String get tripLogEnabled;
+
+  /// No description provided for @tripLogEnabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save distance, duration, autopilot share per session'**
+  String get tripLogEnabledHint;
+
+  /// No description provided for @feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get feedback;
+
+  /// No description provided for @tripLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip log'**
+  String get tripLog;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

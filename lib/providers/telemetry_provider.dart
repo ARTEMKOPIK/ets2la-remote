@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/truck_state.dart';
 import '../models/plugin_state.dart';
 import '../models/telemetry.dart';
+import '../models/telemetry_event.dart';
 // NOTE: TruckTransform used to live here and was parsed from channel 1. The
 // mobile UI never renders the truck mesh, so we stopped subscribing to that
 // channel in VisualizationWsService and removed the field.
@@ -38,6 +39,24 @@ class TelemetryProvider extends ChangeNotifier {
   StreamSubscription? _routeSub;
   Timer? _pluginRefreshTimer;
   bool _disposed = false;
+
+  /// Broadcast stream of one-shot telemetry transitions (autopilot on/off,
+  /// ACC on/off, crossing the speed limit). Consumers — the haptic
+  /// engine and TTS announcer — subscribe to this instead of diffing
+  /// the raw state themselves.
+  final StreamController<TelemetryEvent> _events =
+      StreamController<TelemetryEvent>.broadcast();
+  Stream<TelemetryEvent> get events => _events.stream;
+
+  void _emit(TelemetryEventKind kind, {double? speed, double? limit}) {
+    if (_disposed || _events.isClosed) return;
+    _events.add(TelemetryEvent(
+      kind,
+      at: DateTime.now(),
+      speedKmh: speed,
+      speedLimitKmh: limit,
+    ));
+  }
 
   void _safeNotify() {
     if (!_disposed) notifyListeners();
@@ -77,14 +96,55 @@ class TelemetryProvider extends ChangeNotifier {
 
     switch (channel) {
       case 3:
+        final prev = truckState;
         truckState = TruckState.fromJson(data);
         _recordSpeedSample();
+        _detectSpeedLimitEvent(prev, truckState);
         _safeNotify();
         break;
       case 7:
+        final prev = autopilotStatus;
         autopilotStatus = AutopilotStatus.fromJson(data);
+        _detectAutopilotEvents(prev, autopilotStatus);
         _safeNotify();
         break;
+    }
+  }
+
+  void _detectAutopilotEvents(AutopilotStatus prev, AutopilotStatus curr) {
+    if (!prev.steeringEnabled && curr.steeringEnabled) {
+      _emit(TelemetryEventKind.steeringEnabled);
+    } else if (prev.steeringEnabled && !curr.steeringEnabled) {
+      _emit(TelemetryEventKind.steeringDisabled);
+    }
+    if (!prev.accEnabled && curr.accEnabled) {
+      _emit(TelemetryEventKind.accEnabled);
+    } else if (prev.accEnabled && !curr.accEnabled) {
+      _emit(TelemetryEventKind.accDisabled);
+    }
+    if (!prev.collisionEnabled && curr.collisionEnabled) {
+      _emit(TelemetryEventKind.collisionEnabled);
+    } else if (prev.collisionEnabled && !curr.collisionEnabled) {
+      _emit(TelemetryEventKind.collisionDisabled);
+    }
+  }
+
+  /// Emit one event when the truck crosses the speed limit and one more
+  /// when it drops back — no continuous spam while staying above it.
+  void _detectSpeedLimitEvent(TruckState prev, TruckState curr) {
+    if (curr.speedLimit <= 0) return;
+    if (!prev.isOverSpeedLimit && curr.isOverSpeedLimit) {
+      _emit(
+        TelemetryEventKind.overSpeedLimit,
+        speed: curr.speedKmh,
+        limit: curr.speedLimitKmh,
+      );
+    } else if (prev.isOverSpeedLimit && !curr.isOverSpeedLimit) {
+      _emit(
+        TelemetryEventKind.backUnderSpeedLimit,
+        speed: curr.speedKmh,
+        limit: curr.speedLimitKmh,
+      );
     }
   }
 
@@ -189,6 +249,7 @@ class TelemetryProvider extends ChangeNotifier {
     _posSub?.cancel();
     _routeSub?.cancel();
     _pluginRefreshTimer?.cancel();
+    _events.close();
     super.dispose();
   }
 }

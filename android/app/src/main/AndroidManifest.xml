@@ -12,6 +12,16 @@
          PackageInstaller intent is rejected silently and the update dialog
          appears to "do nothing" after download. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <!-- CAMERA is requested at runtime only when the user opens "Scan QR"
+         on the Connect screen. Declared optional so the Play listing
+         surfaces on devices without a camera. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <!-- Buzz patterns emitted by TelemetryFeedbackService when autopilot /
+         ACC events fire while the app is in the foreground. VIBRATE is a
+         normal permission on modern Android — no runtime prompt needed. -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:label="ETS2LA Remote"
         android:name="${applicationName}"
@@ -75,6 +85,30 @@
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ets2la"/>
+            </intent-filter>
+        </service>
+
+        <!-- Android Auto declares its app as "automotive_app" via this
+             meta-data. The referenced automotive_app_desc.xml lists the
+             "template" capability — ETS2LA Remote is a templated (i.e.
+             non-media) Auto app. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1"/>
+
+        <!-- CarAppService. Exported with the Android for Cars permission
+             so only the Auto host can bind. The template category tells
+             Auto we're a "generic" templated app (speed/toggle HUD). -->
+        <service
+            android:name=".EtsCarAppService"
+            android:exported="true"
+            android:permission="androidx.car.app.CAR_APP">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService"/>
+                <category android:name="androidx.car.app.category.IOT"/>
             </intent-filter>
         </service>
     </application>

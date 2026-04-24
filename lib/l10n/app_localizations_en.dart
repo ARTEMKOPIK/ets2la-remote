@@ -10,6 +10,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'ETS2LA Remote';
 
   @override
+  String get mapStyleDark => 'Dark';
+
+  @override
+  String get mapStyleLight => 'Light';
+
+  @override
+  String get mapStyleSatellite => 'Satellite';
+
+  @override
+  String get pluginDisabledHint => 'Plugin disabled — tap to enable';
+
+  @override
+  String get portApiLabel => 'API (REST)';
+
+  @override
+  String get portVizLabel => 'Visualization (WS)';
+
+  @override
+  String get portNavLabel => 'Navigation (WS)';
+
+  @override
+  String get portPagesLabel => 'Pages (WS)';
+
+  @override
+  String get profileHintHomePc => 'Home PC';
+
+  @override
   String get recent => 'Recent';
 
   @override
@@ -76,10 +103,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autopilot => 'Autopilot';
 
   @override
+  String get autopilotLabel => 'AUTOPILOT';
+
+  @override
   String get steering => 'Steering';
 
   @override
+  String get steeringLabel => 'STEERING';
+
+  @override
   String get acc => 'ACC';
+
+  @override
+  String get accLabel => 'ACC';
 
   @override
   String get speed => 'Speed';
@@ -128,33 +164,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
-
-  @override
-  String get mapStyleDark => 'Dark';
-
-  @override
-  String get mapStyleLight => 'Light';
-
-  @override
-  String get mapStyleSatellite => 'Satellite';
-
-  @override
-  String get pluginDisabledHint => 'Plugin disabled — tap to enable';
-
-  @override
-  String get portApiLabel => 'API (REST)';
-
-  @override
-  String get portVizLabel => 'Visualization (WS)';
-
-  @override
-  String get portNavLabel => 'Navigation (WS)';
-
-  @override
-  String get portPagesLabel => 'Pages (WS)';
-
-  @override
-  String get profileHintHomePc => 'Home PC';
 
   @override
   String get error => 'Error';
@@ -238,7 +247,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionTimeout => 'Connection timeout';
 
   @override
-  String secondsFormat(Object count) {
+  String secondsFormat(int count) {
     return '$count seconds';
   }
 
@@ -297,189 +306,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String firewallBody(int port) {
     return 'To control autopilot from your phone, open port $port on your PC (Windows Firewall). This is done once.';
   }
-
-  @override
-  String get autopilotLabel => 'AUTOPILOT';
-
-  @override
-  String get steeringLabel => 'STEERING';
-
-  @override
-  String get accLabel => 'ACC';
-
-  @override
-  String get updateDownloadFailed => 'Update download failed';
-
-  @override
-  String get updateInstallFailed => 'Install failed';
-
-  @override
-  String get updateCheckFailed => 'Couldn\'t check for updates';
-
-  @override
-  String get networkOffline => 'You appear to be offline';
-
-  @override
-  String get fullscreen => 'Fullscreen';
-
-  @override
-  String get exitFullscreen => 'Exit fullscreen';
-
-  @override
-  String get lightTheme => 'Light theme';
-
-  @override
-  String get darkTheme => 'Dark theme';
-
-  @override
-  String get zoomIn => 'Zoom in';
-
-  @override
-  String get zoomOut => 'Zoom out';
-
-  @override
-  String get resetCamera => 'Reset camera';
-
-  @override
-  String get mapAttributionTitle => 'Map data';
-
-  @override
-  String get waitingForGameTitle => 'Waiting for telemetry';
-
-  @override
-  String get waitingForGameBody =>
-      'Launch ETS2 or ATS, then enable the Map plugin in ETS2LA to start seeing data here.';
-
-  @override
-  String reconnectingIn(int seconds) => 'Reconnecting in ${seconds}s';
-
-  @override
-  String get reconnectNow => 'Retry now';
-
-  @override
-  String get stageConnecting => 'Connecting…';
-
-  @override
-  String get stagePinging => 'Pinging backend…';
-
-  @override
-  String get stageOpeningSocket => 'Opening socket…';
-
-  @override
-  String get stageSubscribing => 'Subscribing to telemetry…';
-
-  @override
-  String get firstRunWelcomeTitle => 'Welcome to ETS2LA Remote';
-
-  @override
-  String get firstRunWelcomeBody =>
-      "Control autopilot and see your truck's telemetry from your phone.";
-
-  @override
-  String get firstRunLaunchTitle => 'Launch ETS2LA on your PC';
-
-  @override
-  String get firstRunLaunchBody =>
-      'Make sure ETS2LA is running on your computer before connecting. This app talks to its WebSocket API.';
-
-  @override
-  String get firstRunNetworkTitle => 'Stay on the same Wi-Fi';
-
-  @override
-  String get firstRunNetworkBody =>
-      'Phone and PC need to be on the same local network. Tap "Scan LAN" to find your PC automatically, or enter its IP manually.';
-
-  @override
-  String get getStarted => 'Get started';
-
-  @override
-  String get next => 'Next';
-
-  @override
-  String get skipOnboarding => 'Skip';
-
-  @override
-  String get whyNotFound => "Why isn't it finding my PC?";
-
-  @override
-  String get mdnsHelpTitle => "Can't find ETS2LA on the LAN";
-
-  @override
-  String get mdnsHelpBody =>
-      '• Make sure ETS2LA is running on your PC\n'
-      '• Both devices must be on the same Wi-Fi (not guest network)\n'
-      '• Some routers block mDNS discovery — in that case, enter the PC\'s IP manually\n'
-      '• If using a VPN, disconnect it first\n'
-      '• Windows Defender may block the port — see the firewall command in Settings';
-
-  @override
-  String get saveAsProfileQuestion => 'Save this connection as a profile?';
-
-  @override
-  String get pluginDisabled => 'Plugin disabled — tap to enable';
-
-  @override
-  String get pluginStarting => 'Enabling plugin…';
-
-  @override
-  String get sparklineStatsTitle => 'Last 60 seconds';
-
-  @override
-  String get sparklineAvg => 'Avg';
-
-  @override
-  String get sparklineMax => 'Max';
-
-  @override
-  String get sparklineMin => 'Min';
-
-  @override
-  String get accentColorLabel => 'Accent color';
-
-  @override
-  String get accentOrange => 'Orange';
-
-  @override
-  String get accentBlue => 'Blue';
-
-  @override
-  String get accentGreen => 'Green';
-
-  @override
-  String get accentPurple => 'Purple';
-
-  @override
-  String get highContrast => 'High contrast';
-
-  @override
-  String get highContrastHint => 'Stronger borders for better visibility';
-
-  @override
-  String get reduceMotion => 'Reduce motion';
-
-  @override
-  String get reduceMotionHint => 'Disable transitions and haptics';
-
-  @override
-  String get accessibility => 'Accessibility';
-
-  @override
-  String get pingLabel => 'Ping';
-
-  @override
-  String get disconnectHint => 'Long-press the host to disconnect';
-
-  @override
-  String get holdToDisconnect => 'Hold to disconnect';
-
-  @override
-  String get mapTileDark => 'Dark';
-
-  @override
-  String get mapTileLight => 'Light';
-
-  @override
-  String get mapTileSatellite => 'Satellite';
 
   @override
   String get runInPowerShell => 'Run in PowerShell (Admin):';
@@ -547,7 +373,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginEnabled => 'Plugin enabled';
 
   @override
-  String get pluginDisabled => 'Plugin disabled';
+  String get pluginDisabled => 'Plugin disabled — tap to enable';
 
   @override
   String get pluginToggleFailed => 'Failed to toggle plugin';
@@ -644,4 +470,319 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wolFailed => 'Failed to send Wake-on-LAN packet';
+
+  @override
+  String get updateDownloadFailed => 'Update download failed';
+
+  @override
+  String get updateInstallFailed => 'Install failed';
+
+  @override
+  String get updateCheckFailed => 'Couldn\'t check for updates';
+
+  @override
+  String get networkOffline => 'You appear to be offline';
+
+  @override
+  String get fullscreen => 'Fullscreen';
+
+  @override
+  String get exitFullscreen => 'Exit fullscreen';
+
+  @override
+  String get lightTheme => 'Light theme';
+
+  @override
+  String get darkTheme => 'Dark theme';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get resetCamera => 'Reset camera';
+
+  @override
+  String get mapAttributionTitle => 'Map data';
+
+  @override
+  String get waitingForGameTitle => 'Waiting for telemetry';
+
+  @override
+  String get waitingForGameBody => 'Launch ETS2 or ATS, then enable the Map plugin in ETS2LA to start seeing data here.';
+
+  @override
+  String reconnectingIn(int seconds) {
+    return 'Reconnecting in ${seconds}s';
+  }
+
+  @override
+  String get reconnectNow => 'Retry now';
+
+  @override
+  String get stageConnecting => 'Connecting…';
+
+  @override
+  String get stagePinging => 'Pinging backend…';
+
+  @override
+  String get stageOpeningSocket => 'Opening socket…';
+
+  @override
+  String get stageSubscribing => 'Subscribing to telemetry…';
+
+  @override
+  String get firstRunWelcomeTitle => 'Welcome to ETS2LA Remote';
+
+  @override
+  String get firstRunWelcomeBody => 'Control autopilot and see your truck\'s telemetry from your phone.';
+
+  @override
+  String get firstRunLaunchTitle => 'Launch ETS2LA on your PC';
+
+  @override
+  String get firstRunLaunchBody => 'Make sure ETS2LA is running on your computer before connecting. This app talks to its WebSocket API.';
+
+  @override
+  String get firstRunNetworkTitle => 'Stay on the same Wi-Fi';
+
+  @override
+  String get firstRunNetworkBody => 'Phone and PC need to be on the same local network. Tap \"Scan LAN\" to find your PC automatically, or enter its IP manually.';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get skipOnboarding => 'Skip';
+
+  @override
+  String get whyNotFound => 'Why isn\'t it finding my PC?';
+
+  @override
+  String get mdnsHelpTitle => 'Can\'t find ETS2LA on the LAN';
+
+  @override
+  String get mdnsHelpBody => '• Make sure ETS2LA is running on your PC\n• Both devices must be on the same Wi-Fi (not guest network)\n• Some routers block mDNS discovery — in that case, enter the PC\'s IP manually\n• If using a VPN, disconnect it first\n• Windows Defender may block the port — see the firewall command in Settings';
+
+  @override
+  String get saveAsProfileQuestion => 'Save this connection as a profile?';
+
+  @override
+  String get pluginStarting => 'Enabling plugin…';
+
+  @override
+  String get sparklineStatsTitle => 'Last 60 seconds';
+
+  @override
+  String get sparklineAvg => 'Avg';
+
+  @override
+  String get sparklineMax => 'Max';
+
+  @override
+  String get sparklineMin => 'Min';
+
+  @override
+  String get accentColorLabel => 'Accent color';
+
+  @override
+  String get accentOrange => 'Orange';
+
+  @override
+  String get accentBlue => 'Blue';
+
+  @override
+  String get accentGreen => 'Green';
+
+  @override
+  String get accentPurple => 'Purple';
+
+  @override
+  String get highContrast => 'High contrast';
+
+  @override
+  String get highContrastHint => 'Stronger borders for better visibility';
+
+  @override
+  String get reduceMotion => 'Reduce motion';
+
+  @override
+  String get reduceMotionHint => 'Disable transitions and haptics';
+
+  @override
+  String get accessibility => 'Accessibility';
+
+  @override
+  String get pingLabel => 'Ping';
+
+  @override
+  String get disconnectHint => 'Long-press the host to disconnect';
+
+  @override
+  String get holdToDisconnect => 'Hold to disconnect';
+
+  @override
+  String get mapTileDark => 'Dark';
+
+  @override
+  String get mapTileLight => 'Light';
+
+  @override
+  String get mapTileSatellite => 'Satellite';
+
+  @override
+  String get tripLogTitle => 'Trip log';
+
+  @override
+  String get tripLogEmpty => 'No trips yet. Drive for a minute with ETS2LA connected and they\'ll show up here.';
+
+  @override
+  String get tripLogTotalsTitle => 'All-time totals';
+
+  @override
+  String get tripLogClearTitle => 'Clear trip history?';
+
+  @override
+  String get tripLogClearBody => 'This removes all saved trips from this device. The action cannot be undone.';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get drivingTime => 'Driving time';
+
+  @override
+  String get avgSpeed => 'Avg';
+
+  @override
+  String get maxSpeed => 'Max';
+
+  @override
+  String get autopilotShare => 'Autopilot';
+
+  @override
+  String disengagements(int count) {
+    return '$count disengagements';
+  }
+
+  @override
+  String get driverMode => 'Driver mode';
+
+  @override
+  String get driverModeHint => 'Big-text dashboard for the phone in a mount';
+
+  @override
+  String get driverModeAutoLandscape => 'Auto-enter on landscape';
+
+  @override
+  String get enterDriverMode => 'Enter driver mode';
+
+  @override
+  String get exitDriverMode => 'Exit driver mode';
+
+  @override
+  String get favourite => 'Favourite';
+
+  @override
+  String get pinFavourite => 'Pin as default';
+
+  @override
+  String get unpinFavourite => 'Unpin';
+
+  @override
+  String get shareProfile => 'Share profile';
+
+  @override
+  String get scanQr => 'Scan QR';
+
+  @override
+  String get scanQrHint => 'Point the camera at a profile QR code';
+
+  @override
+  String get profileImported => 'Profile imported';
+
+  @override
+  String get profileImportFailed => 'Couldn\'t read the QR code';
+
+  @override
+  String get connectionDoctor => 'Connection doctor';
+
+  @override
+  String get connectionDoctorHint => 'Probes every port and shows which one is blocked';
+
+  @override
+  String get runDiagnostics => 'Run diagnostics';
+
+  @override
+  String doctorPingingApi(int port) {
+    return 'Pinging API (port $port)…';
+  }
+
+  @override
+  String doctorOpeningViz(int port) {
+    return 'Opening visualization WS (port $port)…';
+  }
+
+  @override
+  String doctorOpeningNav(int port) {
+    return 'Opening navigation WS (port $port)…';
+  }
+
+  @override
+  String doctorOpeningPages(int port) {
+    return 'Opening pages WS (port $port)…';
+  }
+
+  @override
+  String get doctorReachable => 'Reachable';
+
+  @override
+  String get doctorBlocked => 'Blocked';
+
+  @override
+  String get copyFirewallCommand => 'Copy Windows firewall command';
+
+  @override
+  String get firewallCommandCopied => 'Firewall command copied';
+
+  @override
+  String get customizeDashboard => 'Customize dashboard';
+
+  @override
+  String get customizeDashboardHint => 'Pick and reorder the cards you want to see';
+
+  @override
+  String get resetToDefault => 'Reset to default';
+
+  @override
+  String get hapticEventsEnabled => 'Telemetry vibrations';
+
+  @override
+  String get hapticEventsHint => 'Distinct patterns for autopilot / ACC / over-limit events';
+
+  @override
+  String get ttsEnabled => 'Voice cues';
+
+  @override
+  String get ttsEnabledHint => 'Short spoken announcements on autopilot events';
+
+  @override
+  String get tripLogEnabled => 'Record trip log';
+
+  @override
+  String get tripLogEnabledHint => 'Save distance, duration, autopilot share per session';
+
+  @override
+  String get feedback => 'Feedback';
+
+  @override
+  String get tripLog => 'Trip log';
 }

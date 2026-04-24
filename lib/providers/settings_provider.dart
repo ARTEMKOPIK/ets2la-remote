@@ -110,6 +110,39 @@ class AppSettings extends ChangeNotifier {
   bool get reduceMotion => _reduceMotion;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
 
+  // ── Feedback (UX round 3) ─────────────────────────────────────
+  bool _hapticEventsEnabled = true;
+  bool _ttsEnabled = false;
+  bool _driverModeAutoLandscape = false;
+
+  /// Whether distinct vibration patterns should fire for autopilot /
+  /// ACC / speed-limit events. Off under reduce-motion regardless of
+  /// this flag (the haptic engine checks both).
+  bool get hapticEventsEnabled => _hapticEventsEnabled;
+
+  /// Speak short phrases ("Autopilot on", "Over the limit") on telemetry
+  /// transitions. Off by default — the user opts in.
+  bool get ttsEnabled => _ttsEnabled;
+
+  /// When true, Driver Mode is automatically engaged as soon as the
+  /// device rotates into landscape. When false the user has to tap the
+  /// dashboard toolbar button to enter it.
+  bool get driverModeAutoLandscape => _driverModeAutoLandscape;
+
+  // ── Trip log (UX round 3) ─────────────────────────────────────
+  bool _tripLogEnabled = true;
+
+  /// Whether live telemetry should feed the session/trip log. Disable
+  /// to stop recording without losing existing history.
+  bool get tripLogEnabled => _tripLogEnabled;
+
+  // ── Dashboard layout (UX round 3) ─────────────────────────────
+  /// Ordered list of card ids the user has enabled on the main
+  /// dashboard. An empty list means "use the default layout". Ids
+  /// are defined in `lib/widgets/dashboard_cards.dart`.
+  List<String> _dashboardLayout = const <String>[];
+  List<String> get dashboardLayout => List.unmodifiable(_dashboardLayout);
+
   // ─────────────────────────────────────────────────────────────
 
   bool _isReady = false;
@@ -150,6 +183,12 @@ class AppSettings extends ChangeNotifier {
     _highContrast = p.getBool('highContrast') ?? false;
     _reduceMotion = p.getBool('reduceMotion') ?? false;
     _hasSeenOnboarding = p.getBool('hasSeenOnboarding') ?? false;
+    _hapticEventsEnabled = p.getBool('hapticEventsEnabled') ?? true;
+    _ttsEnabled = p.getBool('ttsEnabled') ?? false;
+    _driverModeAutoLandscape =
+        p.getBool('driverModeAutoLandscape') ?? false;
+    _tripLogEnabled = p.getBool('tripLogEnabled') ?? true;
+    _dashboardLayout = p.getStringList('dashboardLayout') ?? const [];
     _isReady = true;
     notifyListeners();
   }
@@ -198,6 +237,11 @@ class AppSettings extends ChangeNotifier {
       await p.setBool('highContrast', _highContrast);
       await p.setBool('reduceMotion', _reduceMotion);
       await p.setBool('hasSeenOnboarding', _hasSeenOnboarding);
+      await p.setBool('hapticEventsEnabled', _hapticEventsEnabled);
+      await p.setBool('ttsEnabled', _ttsEnabled);
+      await p.setBool('driverModeAutoLandscape', _driverModeAutoLandscape);
+      await p.setBool('tripLogEnabled', _tripLogEnabled);
+      await p.setStringList('dashboardLayout', _dashboardLayout);
     } catch (e) {
       debugPrint('AppSettings._save error: $e');
     }
@@ -232,6 +276,38 @@ class AppSettings extends ChangeNotifier {
   void markOnboardingSeen() {
     if (_hasSeenOnboarding) return;
     _hasSeenOnboarding = true;
+    _save();
+    notifyListeners();
+  }
+
+  void setHapticEventsEnabled(bool v) {
+    _hapticEventsEnabled = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setTtsEnabled(bool v) {
+    _ttsEnabled = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setDriverModeAutoLandscape(bool v) {
+    _driverModeAutoLandscape = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setTripLogEnabled(bool v) {
+    _tripLogEnabled = v;
+    _save();
+    notifyListeners();
+  }
+
+  /// Persist the user's dashboard card order. An empty list signals "use
+  /// the default layout" so a fresh install stays on the built-in order.
+  void setDashboardLayout(List<String> ids) {
+    _dashboardLayout = List.unmodifiable(ids);
     _save();
     notifyListeners();
   }

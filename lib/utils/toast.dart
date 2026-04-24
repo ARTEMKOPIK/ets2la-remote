@@ -4,7 +4,6 @@
 /// those into two styles and positions them consistently at the top of the
 /// scaffold so the user's thumb (which is often still on a large action
 /// button at the bottom) doesn't occlude them.
-library;
 
 import 'package:flutter/material.dart';
 

@@ -2,7 +2,6 @@
 ///
 /// Dart asks the native side for the pending tab index on cold start, and
 /// listens for `shortcutTab` callbacks while the app is already running.
-library;
 
 import 'dart:async';
 import 'dart:io' show Platform;

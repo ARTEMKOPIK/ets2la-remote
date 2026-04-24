@@ -6,7 +6,6 @@
 /// in memory, and only touches disk when a trip ends (either explicitly
 /// via [endTrip] or because telemetry has been idle for more than
 /// [_idleFlushThreshold]).
-library;
 
 import 'dart:async';
 
@@ -164,7 +163,8 @@ class TripLogService {
     try {
       final prefs = await SharedPreferences.getInstance();
       return TripEntry.decodeAll(prefs.getString(_prefsKey));
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('TripLogService.loadTrips failed: $e');
       return const [];
     }
   }
@@ -175,8 +175,8 @@ class TripLogService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_prefsKey);
-    } catch (_) {
-      // best-effort
+    } catch (e, st) {
+      debugPrint('TripLogService.clear failed: $e');
     }
   }
 

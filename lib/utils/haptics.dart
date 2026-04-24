@@ -6,7 +6,6 @@
 /// every haptic is silently a no-op. Motion and vibration share the same
 /// user affordance in practice: someone who finds animations jarring
 /// almost always finds unsolicited haptics jarring too.
-library;
 
 import 'package:flutter/services.dart';
 

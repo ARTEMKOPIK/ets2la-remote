@@ -3,7 +3,6 @@
 /// every port ETS2LA needs to be reachable on and tells them exactly
 /// which one is blocked, plus offers a one-tap copy of the Windows
 /// firewall rule that will open all four.
-library;
 
 import 'dart:async';
 

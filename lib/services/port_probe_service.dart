@@ -10,7 +10,6 @@
 /// actually speak HTTP or WebSocket — a successful TCP handshake proves
 /// the port is reachable and something is listening, which is all we
 /// need to distinguish "firewall blocked" from "ETS2LA not running".
-library;
 
 import 'dart:async';
 import 'dart:io';

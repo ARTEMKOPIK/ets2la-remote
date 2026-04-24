@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'reconnect_backoff.dart';
 
@@ -71,7 +72,10 @@ class VisualizationWsService {
       _channel!.stream.listen(
         _handleIncomingFrame,
         onDone: _onDisconnected,
-        onError: (Object _) => _onDisconnected(),
+        onError: (Object e, StackTrace st) {
+          debugPrint('VisualizationWs error: $e');
+          _onDisconnected();
+        },
       );
 
       // THEN set state and subscribe
@@ -81,7 +85,9 @@ class VisualizationWsService {
 
       // Start keep-alive timer
       _startKeepAlive();
-    } catch (_) {
+    } catch (e, st) {
+      // Log error before disconnecting so devs can diagnose WS failures
+      debugPrint('VisualizationWs _doConnect failed: $e\n$st');
       _onDisconnected();
     }
   }
@@ -105,7 +111,8 @@ class VisualizationWsService {
       if (decoded is Map<String, dynamic>) {
         _controller.add(decoded);
       }
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('VisualizationWs _handleIncomingFrame failed: $e\n$st');
       // Ignore non-JSON frames; the periodic keep-alive timer will keep
       // the connection healthy even if the server emits garbage once.
     }
@@ -140,7 +147,9 @@ class VisualizationWsService {
   void _send(Map<String, dynamic> msg) {
     try {
       _channel?.sink.add(jsonEncode(msg));
-    } catch (_) {}
+    } catch (e, st) {
+      debugPrint('VisualizationWs _send failed: $e\n$st');
+    }
   }
 
   void _onDisconnected() {

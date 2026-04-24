@@ -9,7 +9,6 @@
 ///     firing at every telemetry frame (30 Hz) just wastes CPU.
 ///   * The km/h readout in the notification only needs to be roughly
 ///     accurate; 1 s staleness is invisible to the user.
-library;
 
 import 'dart:async';
 

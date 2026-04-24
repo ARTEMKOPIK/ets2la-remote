@@ -8,7 +8,6 @@
 /// overflow painfully. [ClampedTextScale] caps the scale without ignoring
 /// it — the user still gets meaningfully larger text, just not to the
 /// point where controls become unusable.
-library;
 
 import 'package:flutter/widgets.dart';
 

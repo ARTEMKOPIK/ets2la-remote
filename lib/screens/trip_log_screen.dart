@@ -1,7 +1,6 @@
 /// Browsable history of finished driving sessions. Shows distance,
 /// duration, average speed, autopilot utilisation and per-session
 /// disengagement counts. Reads from [TripLogService.loadTrips].
-library;
 
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';

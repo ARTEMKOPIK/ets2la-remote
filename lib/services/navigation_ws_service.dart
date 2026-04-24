@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/telemetry.dart';
 import 'reconnect_backoff.dart';
@@ -58,9 +59,13 @@ class NavigationWsService {
       _channel!.stream.listen(
         _handleIncomingFrame,
         onDone: _onDisconnected,
-        onError: (Object _) => _onDisconnected(),
+        onError: (Object e, StackTrace st) {
+          debugPrint('NavWs error: $e\n$st');
+          _onDisconnected();
+        },
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('NavWs _doConnect failed: $e\n$st');
       _onDisconnected();
     } finally {
       _connecting = false;
@@ -83,7 +88,9 @@ class NavigationWsService {
         _handleMessage(decoded);
       }
       // List payloads are subscription acks; nothing to do.
-    } catch (_) {}
+    } catch (e, st) {
+      debugPrint('NavWs _handleIncomingFrame failed: $e\n$st');
+    }
   }
 
   void _handleMessage(Map<String, dynamic> msg) {

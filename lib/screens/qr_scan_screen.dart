@@ -5,7 +5,6 @@
 /// what we need; our only additions are (a) reading exactly one QR and
 /// popping, and (b) gracefully handling the camera-denied path (toast +
 /// pop-with-null so the caller can show a helpful dialog).
-library;
 
 import 'dart:async';
 

@@ -40,9 +40,24 @@ class MainActivity : ComponentActivity() {
         // Tile & Complication launch targets pass a `path=…` extra so
         // one quick tap sends the Wear message and finishes the
         // activity. Without this extra the UI is shown as normal.
+        //
+        // Finish ONLY after the message has actually been dispatched.
+        // A previous version called `finish()` on the UI thread right
+        // after `send(path)` returned — but `send` launches a coroutine
+        // on `scope`, which is cancelled in `onDestroy`, so the Tile
+        // / Complication tap would finish before the Wearable message
+        // was ever emitted. Users reported the tile "doing nothing".
         intent?.getStringExtra("path")?.let { path ->
-            send(path)
-            finish()
+            scope.launch {
+                val delivered = withContext(Dispatchers.IO) { broadcast(path) }
+                val msg = if (delivered > 0) {
+                    getString(R.string.sent)
+                } else {
+                    getString(R.string.no_phone)
+                }
+                Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 

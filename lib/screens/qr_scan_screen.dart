@@ -7,6 +7,8 @@
 /// pop-with-null so the caller can show a helpful dialog).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -43,6 +45,12 @@ class _QrScanScreenState extends State<QrScanScreen> {
       final profile = ProfileQrCodec.decode(raw);
       if (profile != null) {
         _handled = true;
+        // Stop the camera immediately so we don't keep decoding frames
+        // while the pop animation runs — on older phones that extra
+        // ~150 ms of CPU at 100% causes a very visible drop in the
+        // exit transition.
+        unawaited(_controller.stop());
+        if (!mounted) return;
         Navigator.of(context).pop<ConnectionProfile>(profile);
         return;
       }

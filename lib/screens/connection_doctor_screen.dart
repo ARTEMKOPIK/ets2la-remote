@@ -263,50 +263,62 @@ class _StepTile extends StatelessWidget {
       color = AppColors.error;
       status = l10n?.doctorBlocked ?? 'Blocked';
     }
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.surfaceBorder),
-      ),
-      child: Row(
-        children: [
-          if (step.running)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.orange,
-              ),
-            )
-          else
-            Icon(icon, color: color, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              step.label(l10n),
-              style: const TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-              ),
-            ),
+    // MergeSemantics so TalkBack reads the row as a single sentence
+    // ("API port 37520, blocked") instead of icon / label / status as
+    // three separate focus nodes. Colour + icon are the only
+    // affordance for sighted users — this matches that for screen
+    // readers.
+    return MergeSemantics(
+      child: Semantics(
+        label: status.isEmpty
+            ? step.label(l10n)
+            : '${step.label(l10n)}, $status',
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.surfaceBorder),
           ),
-          if (status.isNotEmpty)
-            Text(
-              status,
-              style: TextStyle(
-                fontFamily: 'Roboto',
-                fontSize: 13,
-                color: color,
-                fontWeight: FontWeight.w600,
+          child: Row(
+            children: [
+              if (step.running)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.orange,
+                  ),
+                )
+              else
+                Icon(icon, color: color, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  step.label(l10n),
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ),
-            ),
-        ],
+              if (status.isNotEmpty)
+                Text(
+                  status,
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 13,
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

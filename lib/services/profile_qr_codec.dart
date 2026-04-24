@@ -14,6 +14,12 @@ class ProfileQrCodec {
   static const String scheme = 'ets2la';
   static const String host = 'profile';
 
+  /// MAC addresses in the classic AA:BB:CC:DD:EE:FF / AA-BB-…/ aa:bb:… form.
+  /// Used to sanity-check incoming QR payloads — a malformed MAC would
+  /// otherwise sit on the profile and silently break Wake-on-LAN later.
+  static final RegExp _macRegex =
+      RegExp(r'^[0-9A-Fa-f]{2}([:\-][0-9A-Fa-f]{2}){5}$');
+
   /// Build the shareable URI. Example:
   ///   ets2la://profile?name=Home%20PC&host=192.168.1.5&mac=AA:BB:…
   static String encode(ConnectionProfile profile) {
@@ -47,11 +53,17 @@ class ProfileQrCodec {
     final mac = uri.queryParameters['mac']?.trim();
     if (name.isEmpty || hostValue.isEmpty) return null;
 
+    // Silently drop a malformed MAC rather than reject the whole QR —
+    // the name + host part is still useful and the user can re-enter
+    // the MAC by hand if they need Wake-on-LAN.
+    final sanitisedMac =
+        (mac != null && mac.isNotEmpty && _macRegex.hasMatch(mac)) ? mac : null;
+
     return ConnectionProfile(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       name: name,
       host: hostValue,
-      mac: (mac == null || mac.isEmpty) ? null : mac,
+      mac: sanitisedMac,
     );
   }
 }

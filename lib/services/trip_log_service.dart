@@ -54,6 +54,11 @@ class TripLogService {
   }
 
   void _handleEvent(TelemetryEvent event) {
+    // Only attribute disengagements to an actually-running trip. Without
+    // this guard a user toggling autopilot in a menu (before any movement)
+    // would bank a phantom disengagement count that then leaks into the
+    // first real trip's total.
+    if (_startedAt == null) return;
     switch (event.kind) {
       case TelemetryEventKind.steeringDisabled:
       case TelemetryEventKind.accDisabled:

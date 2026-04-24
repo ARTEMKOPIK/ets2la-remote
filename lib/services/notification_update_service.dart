@@ -42,7 +42,13 @@ class NotificationUpdateService {
     final conn = _conn;
     if (telem == null || conn == null) return;
     if (!conn.isConnected) return;
-    final speed = telem.truckState.speedKmh.round();
+    // `speedKmh` comes straight off the wire — on a half-parsed frame or
+    // a rare ETS2LA plugin state it may be NaN or infinite. `num.round()`
+    // throws `UnsupportedError` on those, which would otherwise kill the
+    // periodic timer (and with it the live-notification) silently.
+    final rawSpeed = telem.truckState.speedKmh;
+    final speed =
+        (rawSpeed.isFinite ? rawSpeed : 0).round().clamp(-999, 9999);
     final auto = telem.autopilotStatus;
     final bits = <String>[];
     bits.add('$speed km/h');

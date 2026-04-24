@@ -193,16 +193,17 @@ class MainActivity : FlutterActivity() {
      * either immediately (warm start) or buffer it for getInitialTab() to
      * drain on cold start once the engine is up.
      *
-     * Shortcuts always target this activity explicitly (targetClass/
-     * targetPackage), so we additionally verify the caller is the system or
-     * this app — no third party should be feeding arbitrary tab indices.
+     * Deliberately NOT gated behind [isTrustedCaller]: launcher shortcuts
+     * are fired by the system launcher, whose referrer is
+     * `android-app://com.google.android.apps.nexuslauncher` (or similar) —
+     * not our own package. A trust check here caused the shortcut to open
+     * the app but leave it on the last visited tab, ignoring the tab index
+     * the shortcut carried. The tab extra only switches bottom-navigation
+     * indices and has no side effects, so unlike widget actions it's safe
+     * to accept from any caller.
      */
     private fun consumeShortcutIntent(intent: Intent?) {
         if (intent?.action != "com.ets2la.ets2la_remote.SHORTCUT") return
-        if (!isTrustedCaller()) {
-            Log.w("ETS2LAMain", "Ignoring shortcut action from untrusted caller: $referrer")
-            return
-        }
         val raw = intent.getStringExtra("ets2la_tab") ?: return
         val tab = raw.toIntOrNull() ?: return
         val channel = shortcutChannelRef

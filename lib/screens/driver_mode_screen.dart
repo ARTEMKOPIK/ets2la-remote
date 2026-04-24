@@ -75,35 +75,47 @@ class _DriverModeScreenState extends State<DriverModeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Big speed
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$speed',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 180,
-                            height: 0.9,
-                            fontWeight: FontWeight.w800,
-                            color: overLimit
-                                ? AppColors.error
-                                : AppColors.textPrimary,
-                            letterSpacing: -4,
-                          ),
+                    // Big speed — merged so TalkBack reads one sentence
+                    // instead of "42" followed by "km/h" as two separate
+                    // focus nodes. Include the over-limit state in the
+                    // label so colour-blind users still get the warning
+                    // (red-on-black carries no other affordance).
+                    MergeSemantics(
+                      child: Semantics(
+                        label: overLimit
+                            ? '$speed km/h, over the speed limit'
+                            : '$speed km/h',
+                        excludeSemantics: true,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$speed',
+                              style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 180,
+                                height: 0.9,
+                                fontWeight: FontWeight.w800,
+                                color: overLimit
+                                    ? AppColors.error
+                                    : AppColors.textPrimary,
+                                letterSpacing: -4,
+                              ),
+                            ),
+                            Text(
+                              'km/h',
+                              style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 22,
+                                color: overLimit
+                                    ? AppColors.error
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'km/h',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 22,
-                            color: overLimit
-                                ? AppColors.error
-                                : AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                     // Status column
                     Column(
@@ -192,23 +204,27 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: active ? AppColors.orangeDim : AppColors.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: active ? AppColors.orange : AppColors.surfaceBorder,
-          width: 1.5,
+    return Semantics(
+      label: '$label, ${active ? 'on' : 'off'}',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? AppColors.orangeDim : AppColors.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: active ? AppColors.orange : AppColors.surfaceBorder,
+            width: 1.5,
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: active ? AppColors.orange : AppColors.textSecondary,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: active ? AppColors.orange : AppColors.textSecondary,
+          ),
         ),
       ),
     );
@@ -222,23 +238,29 @@ class _LimitPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: overLimit ? AppColors.errorDim : AppColors.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: overLimit ? AppColors.error : AppColors.surfaceBorder,
-          width: 1.5,
+    return Semantics(
+      label: overLimit
+          ? 'Speed limit $limit, over the limit'
+          : 'Speed limit $limit',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: overLimit ? AppColors.errorDim : AppColors.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: overLimit ? AppColors.error : AppColors.surfaceBorder,
+            width: 1.5,
+          ),
         ),
-      ),
-      child: Text(
-        'LIMIT $limit',
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: overLimit ? AppColors.error : AppColors.textSecondary,
+        child: Text(
+          'LIMIT $limit',
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: overLimit ? AppColors.error : AppColors.textSecondary,
+          ),
         ),
       ),
     );

@@ -38,8 +38,20 @@ class PortProbeService {
   /// on timeout or socket error.
   static Future<PortReport> probe(String host, int port) async {
     final started = DateTime.now();
+    // Defensive trim: the doctor screen passes raw TextField input and
+    // a stray trailing space turns a valid `192.168.1.5 ` into a host
+    // lookup failure. Socket.connect itself doesn't trim.
+    final target = host.trim();
+    if (target.isEmpty) {
+      return PortReport(
+        port: port,
+        result: ProbeResult.blocked,
+        elapsed: Duration.zero,
+        error: 'empty host',
+      );
+    }
     try {
-      final socket = await Socket.connect(host, port, timeout: _timeout);
+      final socket = await Socket.connect(target, port, timeout: _timeout);
       final elapsed = DateTime.now().difference(started);
       socket.destroy();
       return PortReport(
@@ -60,6 +72,17 @@ class PortProbeService {
         result: ProbeResult.blocked,
         elapsed: DateTime.now().difference(started),
         error: 'timeout',
+      );
+    } catch (e) {
+      // Unexpected errors (OSError variants on some Androids, async
+      // argument errors from odd host strings) must not leak out —
+      // this probe runs as part of a larger scan loop that would
+      // abort entirely on a bubbled-up exception.
+      return PortReport(
+        port: port,
+        result: ProbeResult.blocked,
+        elapsed: DateTime.now().difference(started),
+        error: e.toString(),
       );
     }
   }

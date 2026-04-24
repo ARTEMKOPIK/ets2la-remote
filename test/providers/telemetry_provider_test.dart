@@ -40,7 +40,7 @@ class FakeNavService extends NavigationWsService {
   Stream<NavRoute> get routeStream => _routeController.stream;
 
   @override
-  WsConnectionState get state => WsConnectionState.connected;
+  bool get isConnected => true;
 
   void emitPosition(NavPosition pos) => _posController.add(pos);
 

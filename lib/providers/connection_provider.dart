@@ -258,7 +258,7 @@ class ConnectionProvider extends ChangeNotifier {
       // the first colon for them — that would mangle `::1` into the empty
       // string. Unbracketed IPv6 is passed through untouched; ports for it
       // always come from settings anyway.
-      final cleanHost = _stripAccidentalPort(host.trim());
+      final cleanHost = stripAccidentalPort(host.trim());
       _currentHost = cleanHost;
       apiService.setHost(cleanHost);
       // Apply ports from settings on each connect
@@ -362,13 +362,13 @@ class ConnectionProvider extends ChangeNotifier {
   /// Remove a trailing `:port` from a user-entered host, but only when the
   /// input is unambiguously an IPv4 address or hostname. IPv6 addresses
   /// contain multiple `:` and must not be split.
+/// Strips an accidental port number from a host string.
   ///
-  /// Examples:
   ///   `192.168.0.5:37522` → `192.168.0.5`
   ///   `ets2la.local:8080` → `ets2la.local`
   ///   `[2001:db8::1]:37522` → `2001:db8::1`
   ///   `2001:db8::1` → `2001:db8::1` (unchanged)
-  static String _stripAccidentalPort(String input) {
+  static String stripAccidentalPort(String input) {
     if (input.isEmpty) return input;
     if (input.startsWith('[')) {
       final close = input.indexOf(']');

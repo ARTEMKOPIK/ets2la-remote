@@ -45,6 +45,12 @@ class WakeOnLanService {
 
   /// Send a magic packet. Swallows network errors and returns false so a
   /// failed broadcast doesn't block the subsequent connect attempt.
+  ///
+  /// Sends to both the limited broadcast address (255.255.255.255) and
+  /// every IPv4 interface's directed broadcast derived from `x.y.z.255`.
+  /// Routers regularly drop limited-broadcast frames on Wi-Fi, so the
+  /// per-interface directed broadcasts are what actually reaches most
+  /// sleeping PCs in practice.
   Future<bool> wake(String mac) async {
     final bytes = parseMac(mac);
     if (bytes == null) return false;
@@ -53,16 +59,52 @@ class WakeOnLanService {
     try {
       socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
       socket.broadcastEnabled = true;
-      // Subnet broadcast isn't reachable without knowing the netmask, so
-      // we fall back on the limited broadcast address, which Android
-      // routes onto the current Wi-Fi link.
-      socket.send(packet, InternetAddress('255.255.255.255'), _port);
-      return true;
+      final targets = <String>{'255.255.255.255'};
+      for (final addr in await _localBroadcastAddresses()) {
+        targets.add(addr);
+      }
+      var anySent = false;
+      for (final target in targets) {
+        try {
+          socket.send(packet, InternetAddress(target), _port);
+          anySent = true;
+        } catch (e) {
+          debugPrint('WakeOnLanService.wake $target error: $e');
+        }
+      }
+      return anySent;
     } catch (e) {
       debugPrint('WakeOnLanService.wake error: $e');
       return false;
     } finally {
       socket?.close();
+    }
+  }
+
+  /// Enumerate IPv4 interfaces and derive a `/24` directed broadcast for
+  /// each (`a.b.c.x` → `a.b.c.255`). This is a pragmatic heuristic: for
+  /// the overwhelmingly common home-network case where the phone lives in
+  /// the same `/24` as the PC, directed broadcast is what actually wakes
+  /// it. Loopback is skipped.
+  Future<List<String>> _localBroadcastAddresses() async {
+    try {
+      final ifaces = await NetworkInterface.list(
+        includeLoopback: false,
+        includeLinkLocal: false,
+        type: InternetAddressType.IPv4,
+      );
+      final out = <String>[];
+      for (final iface in ifaces) {
+        for (final addr in iface.addresses) {
+          final parts = addr.address.split('.');
+          if (parts.length != 4) continue;
+          out.add('${parts[0]}.${parts[1]}.${parts[2]}.255');
+        }
+      }
+      return out;
+    } catch (e) {
+      debugPrint('WakeOnLanService interface enumeration failed: $e');
+      return const [];
     }
   }
 }

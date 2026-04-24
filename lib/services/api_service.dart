@@ -36,12 +36,20 @@ class ApiService {
 
   bool get hasHost => _host != null && _host!.isNotEmpty;
 
+  /// Build an `http://host:port/<segments>` URI that copes with IPv6
+  /// literals. `Uri.parse('http://2001:db8::1:37520/')` is ambiguous —
+  /// the `Uri` constructor handles bracketing correctly.
+  Uri _build(List<String> segments) => Uri(
+        scheme: 'http',
+        host: _host,
+        port: port,
+        pathSegments: segments,
+      );
+
   Future<bool> ping() async {
     if (!hasHost) return false;
     try {
-      final res = await http
-          .get(Uri.parse('http://$_host:$port/'))
-          .timeout(_pingTimeout);
+      final res = await http.get(_build(const [])).timeout(_pingTimeout);
       return res.statusCode == 200;
     } catch (_) {
       return false;
@@ -52,7 +60,7 @@ class ApiService {
     if (!hasHost) return [];
     try {
       final res = await http
-          .get(Uri.parse('http://$_host:$port/backend/plugins'))
+          .get(_build(const ['backend', 'plugins']))
           .timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -135,7 +143,7 @@ class ApiService {
     if (!hasHost) return <String, dynamic>{};
     try {
       final res = await http
-          .get(Uri.parse('http://$_host:$port/backend/plugins/states'))
+          .get(_build(const ['backend', 'plugins', 'states']))
           .timeout(_timeout);
       if (res.statusCode == 200) {
         return jsonDecode(res.body) as Map<String, dynamic>;

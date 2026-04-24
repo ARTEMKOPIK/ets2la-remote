@@ -29,7 +29,11 @@ dependencies:
   # UX round 3 additions
   qr_flutter: ^4.1.0          # render QR for profile sharing
   mobile_scanner: ^5.0.0      # scan QR to import profile
-  flutter_tts: ^4.0.2         # voice cues for autopilot / ACC events
+  # Pinned to 4.0.2 exact: newer 4.2.x versions are compiled against
+  # Kotlin 2.2 and require compileSdk 36, which breaks the release APK
+  # build (the project uses Kotlin 1.9 / compileSdk from Flutter 3.24.0).
+  # See: https://github.com/dlutton/flutter_tts/releases
+  flutter_tts: 4.0.2          # voice cues for autopilot / ACC events
   wakelock_plus: ^1.2.5       # keep screen on in driver mode
 
 dev_dependencies:

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
+import '../providers/settings_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/haptics.dart';
 
 
 typedef AsyncCallback = Future<void> Function();
@@ -72,7 +76,9 @@ class _AutopilotCardState extends State<AutopilotCard>
   Future<void> _handleSteering() async {
     final cb = widget.onToggleSteering;
     if (cb == null || _steeringLoading) return;
-    HapticFeedback.mediumImpact();
+    // Route haptics through AppHaptics so the reduce-motion preference is
+    // honoured — users who opt out of motion almost always want silence too.
+    unawaited(AppHaptics.medium(context.read<AppSettings>()));
     setState(() => _steeringLoading = true);
     try {
       await cb();
@@ -84,7 +90,7 @@ class _AutopilotCardState extends State<AutopilotCard>
   Future<void> _handleAcc() async {
     final cb = widget.onToggleAcc;
     if (cb == null || _accLoading) return;
-    HapticFeedback.lightImpact();
+    unawaited(AppHaptics.light(context.read<AppSettings>()));
     setState(() => _accLoading = true);
     try {
       await cb();
@@ -155,7 +161,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)?.autopilotLabel ?? 'AUTOPILOT',
-                  style: TextStyle(fontFamily: 'Roboto',
+                  style: const TextStyle(fontFamily: 'Roboto',
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary, letterSpacing: 2,
                   ),
@@ -187,7 +193,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                         isActive 
                           ? (AppLocalizations.of(context)?.steeringTheTruck ?? 'Steering the truck') 
                           : (AppLocalizations.of(context)?.manualControl ?? 'Manual control'),
-                        style: TextStyle(fontFamily: 'Roboto', 
+                        style: const TextStyle(fontFamily: 'Roboto', 
                           fontSize: 13, color: AppColors.textSecondary,
                         ),
                       ),
@@ -311,7 +317,7 @@ class _AutopilotCardState extends State<AutopilotCard>
                       children: [
                         Text(
                           AppLocalizations.of(context)?.adaptiveCruiseControl ?? 'Adaptive Cruise Control',
-                          style: TextStyle(fontFamily: 'Roboto', 
+                          style: const TextStyle(fontFamily: 'Roboto', 
                             fontSize: 13, fontWeight: FontWeight.w500,
                             color: AppColors.textPrimary,
                           ),

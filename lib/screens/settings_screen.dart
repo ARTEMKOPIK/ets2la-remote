@@ -162,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Expanded(
                         child: Text(
                           AppLocalizations.of(context)?.togglePluginsHint ?? 'Toggle plugins that are already loaded in ETS2LA',
-                          style: TextStyle(fontFamily: 'Roboto', 
+                          style: const TextStyle(fontFamily: 'Roboto', 
                               fontSize: 12, color: AppColors.orange),
                         ),
                       ),
@@ -227,7 +227,7 @@ class _StatChip extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(label,
-              style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
+              style: const TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );

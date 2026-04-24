@@ -166,8 +166,12 @@ class UpdateService {
     final clean2 = v2.contains('-') ? v2.substring(0, v2.indexOf('-')) : v2;
     final parts1 = clean1.split('.').map((p) => int.tryParse(p) ?? 0).toList();
     final parts2 = clean2.split('.').map((p) => int.tryParse(p) ?? 0).toList();
-    while (parts1.length < parts2.length) parts1.add(0);
-    while (parts2.length < parts1.length) parts2.add(0);
+    while (parts1.length < parts2.length) {
+      parts1.add(0);
+    }
+    while (parts2.length < parts1.length) {
+      parts2.add(0);
+    }
     for (int i = 0; i < parts1.length; i++) {
       if (parts1[i] > parts2[i]) return 1;
       if (parts1[i] < parts2[i]) return -1;

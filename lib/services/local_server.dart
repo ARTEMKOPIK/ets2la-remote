@@ -75,7 +75,7 @@ class LocalUnityServer {
 
     final staticHandler = createStaticHandler(dirPath, defaultDocument: 'index.html');
 
-    final handler = shelf.Pipeline()
+    final handler = const shelf.Pipeline()
         .addMiddleware((inner) => (req) async {
               final res = await inner(req);
               return res.change(headers: {

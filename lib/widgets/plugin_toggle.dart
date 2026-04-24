@@ -65,7 +65,7 @@ class PluginToggle extends StatelessWidget {
               children: [
                 Text(
                   plugin.displayName,
-                  style: TextStyle(fontFamily: 'Roboto', 
+                  style: const TextStyle(fontFamily: 'Roboto', 
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,

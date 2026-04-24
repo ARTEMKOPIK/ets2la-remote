@@ -44,7 +44,7 @@ class MetricCard extends StatelessWidget {
               ],
               Text(
                 label.toUpperCase(),
-                style: TextStyle(fontFamily: 'Roboto', 
+                style: const TextStyle(fontFamily: 'Roboto', 
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
@@ -59,7 +59,7 @@ class MetricCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: TextStyle(fontFamily: 'Roboto', 
+                style: const TextStyle(fontFamily: 'Roboto', 
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -72,7 +72,7 @@ class MetricCard extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
                     unit!,
-                    style: TextStyle(fontFamily: 'Roboto', 
+                    style: const TextStyle(fontFamily: 'Roboto', 
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -85,7 +85,7 @@ class MetricCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle!,
-              style: TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
+              style: const TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
         ],
@@ -115,7 +115,7 @@ class ThrottleCard extends StatelessWidget {
         children: [
           Text(
             l10n?.pedals ?? 'PEDALS',
-            style: TextStyle(fontFamily: 'Roboto', 
+            style: const TextStyle(fontFamily: 'Roboto', 
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -150,7 +150,7 @@ class _PedalBar extends StatelessWidget {
             max: 1.1,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 10,
                 color: AppColors.textSecondary,
@@ -177,7 +177,7 @@ class _PedalBar extends StatelessWidget {
           width: 32,
           child: Text(
             '${(value * 100).toStringAsFixed(0)}%',
-            style: TextStyle(fontFamily: 'Roboto', fontSize: 10, color: AppColors.textSecondary),
+            style: const TextStyle(fontFamily: 'Roboto', fontSize: 10, color: AppColors.textSecondary),
             textAlign: TextAlign.right,
           ),
         ),

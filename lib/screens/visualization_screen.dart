@@ -114,16 +114,16 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     if (!_serverReady) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircularProgressIndicator(color: AppColors.orange),
               const SizedBox(height: 20),
-              Text(_statusText == 'Preparing Unity...' ? (AppLocalizations.of(context)?.preparingUnity ?? 'Preparing Unity...') : _statusText, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
+              Text(_statusText == 'Preparing Unity...' ? (AppLocalizations.of(context)?.preparingUnity ?? 'Preparing Unity...') : _statusText, style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 8),
-              Text(AppLocalizations.of(context)?.firstLaunchHint ?? 'First launch only ~5s', style: TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
+              Text(AppLocalizations.of(context)?.firstLaunchHint ?? 'First launch only ~5s', style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textMuted, fontSize: 12)),
             ],
           ),
         ),
@@ -132,14 +132,14 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     if (_errorText != null) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600))),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
               const SizedBox(height: 16),
-              Text(_errorText!, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+              Text(_errorText!, style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
               const SizedBox(height: 16),
               ElevatedButton(onPressed: () { setState(() { _errorText = null; }); _ensureServer(); }, child: Text(AppLocalizations.of(context)?.retry ?? 'Retry')),
             ],
@@ -213,7 +213,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
                     const SizedBox(width: 6),
                     Text(
                       conn.isConnected ? host : (AppLocalizations.of(context)?.reconnecting ?? 'Reconnecting...'),
-                      style: TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
+                      style: const TextStyle(fontFamily: 'Roboto', fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -239,7 +239,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.speed_rounded, size: 12, color: AppColors.orange),
+                    const Icon(Icons.speed_rounded, size: 12, color: AppColors.orange),
                     const SizedBox(width: 4),
                     Text(
                       '${settings.speedDisplay(telem.truckState.speedKmh)} ${settings.speedUnitLabel}',
@@ -342,7 +342,7 @@ class _VisualizationScreenState extends State<VisualizationScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.view3d ?? '3D View', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),

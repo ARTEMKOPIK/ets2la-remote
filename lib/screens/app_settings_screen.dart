@@ -46,7 +46,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -250,7 +250,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(fontFamily: 'Roboto', 
+        style: const TextStyle(fontFamily: 'Roboto', 
           fontSize: 11, fontWeight: FontWeight.w700,
           color: AppColors.textSecondary, letterSpacing: 1.5,
         ),
@@ -346,7 +346,7 @@ class _SegmentTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
           const SizedBox(width: 8),
           Container(
             decoration: BoxDecoration(
@@ -410,8 +410,8 @@ class _SliderTile extends StatelessWidget {
             children: [
               Icon(icon, size: 20, color: AppColors.orange),
               const SizedBox(width: 14),
-              Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-              Text(subtitle, style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.orange, fontWeight: FontWeight.w600)),
+              Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+              Text(subtitle, style: const TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.orange, fontWeight: FontWeight.w600)),
             ],
           ),
           Slider(
@@ -441,9 +441,9 @@ class _PortTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Icon(Icons.settings_ethernet_rounded, size: 20, color: AppColors.orange),
+          const Icon(Icons.settings_ethernet_rounded, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(label, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(child: Text(label, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -481,7 +481,7 @@ class _PortTile extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: Text(label, style: TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary)),
+        title: Text(label, style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary)),
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
@@ -530,8 +530,8 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-          Text(value, style: TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
+          Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Text(value, style: const TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -562,9 +562,9 @@ class _TapTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
                   if (subtitle != null)
-                    Text(subtitle!, style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
+                    Text(subtitle!, style: const TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
                 ],
               ),
             ),

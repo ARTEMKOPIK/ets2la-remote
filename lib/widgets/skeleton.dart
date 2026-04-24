@@ -97,12 +97,12 @@ class SkeletonListTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(avatarSize / 2),
           ),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Skeleton(width: 140, height: 12),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Skeleton(width: 80, height: 10),
               ],
             ),

@@ -96,8 +96,11 @@ class _LogoPainter extends CustomPainter {
       final angle = (pi / 180) * (60 * i - 30);
       final x = cx + (r - size.width * 0.03) * cos(angle);
       final y = cy + (r - size.width * 0.03) * sin(angle);
-      if (i == 0) clipPath.moveTo(x, y);
-      else clipPath.lineTo(x, y);
+      if (i == 0) {
+        clipPath.moveTo(x, y);
+      } else {
+        clipPath.lineTo(x, y);
+      }
     }
     clipPath.close();
     canvas.clipPath(clipPath);

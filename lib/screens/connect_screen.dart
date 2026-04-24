@@ -113,8 +113,20 @@ class _ConnectScreenState extends State<ConnectScreen>
     r'^(?=.{1,253}$)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$',
   );
 
+  /// Accept literal IPv6 either bare (`::1`, `fe80::1`, `2001:db8::1`) or
+  /// in bracketed form (`[2001:db8::1]`). The provider strips the brackets
+  /// before use. We intentionally accept a permissive superset of RFC 3986
+  /// here because the WebSocket / HTTP client will do the final validation
+  /// — blocking a legitimate address via an overzealous regex would be
+  /// worse UX than a single failed connect attempt.
+  static final _ipv6Regex = RegExp(
+    r'^\[?[0-9a-fA-F:]{2,}\]?$',
+  );
+
   static bool _isValidHost(String host) =>
-      _ipRegex.hasMatch(host) || _hostnameRegex.hasMatch(host);
+      _ipRegex.hasMatch(host) ||
+      _hostnameRegex.hasMatch(host) ||
+      _ipv6Regex.hasMatch(host);
 
   Future<void> _scanLan() async {
     if (_scanning) return;
@@ -185,7 +197,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                 validator: (v) {
                   final s = (v ?? '').trim();
                   if (s.isEmpty) return l10n?.invalidHost ?? 'Invalid host';
-                  if (!_ipRegex.hasMatch(s) && !_hostnameRegex.hasMatch(s)) {
+                  if (!_isValidHost(s)) {
                     return l10n?.invalidHost ?? 'Invalid host';
                   }
                   return null;
@@ -267,7 +279,7 @@ class _ConnectScreenState extends State<ConnectScreen>
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                l10n?.mdnsHelpTitle ?? "ETS2LA not visible on the network",
+                l10n?.mdnsHelpTitle ?? 'ETS2LA not visible on the network',
                 style: const TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 16,
@@ -477,7 +489,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   // Title
                   Text(
                     AppLocalizations.of(context)?.connectToServer ?? 'Connect to ETS2LA',
-                    style: TextStyle(fontFamily: 'Roboto', 
+                    style: const TextStyle(fontFamily: 'Roboto', 
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -486,7 +498,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   const SizedBox(height: 8),
                   Text(
                     AppLocalizations.of(context)?.makeSureRunning ?? 'Enter the IP address of the PC running ETS2LA',
-                    style: TextStyle(fontFamily: 'Roboto', 
+                    style: const TextStyle(fontFamily: 'Roboto', 
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -536,14 +548,17 @@ class _ConnectScreenState extends State<ConnectScreen>
                     textInputAction: TextInputAction.done,
                     keyboardType: TextInputType.url,
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9.\-]')),
+                      // Also allow `:`, `[`, `]` so users can type literal
+                      // IPv6 addresses (e.g. `fe80::1`, `[2001:db8::1]`).
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[A-Za-z0-9.:\-\[\]]')),
                       LengthLimitingTextInputFormatter(253),
                     ],
                     onChanged: (_) {
                       // Clear previous error as soon as user starts editing
                       context.read<ConnectionProvider>().clearError();
                     },
-                    style: TextStyle(fontFamily: 'Roboto',
+                    style: const TextStyle(fontFamily: 'Roboto',
                       fontSize: 18,
                       color: AppColors.textPrimary,
                       letterSpacing: 1,
@@ -575,7 +590,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                           Expanded(
                             child: Text(
                               _localizedError(context, conn.errorMessage!),
-                              style: TextStyle(fontFamily: 'Roboto',
+                              style: const TextStyle(fontFamily: 'Roboto',
                                   fontSize: 13, color: AppColors.error),
                             ),
                           ),
@@ -630,7 +645,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                             )
                           : Text(
                               AppLocalizations.of(context)?.connect ?? 'Connect',
-                              style: TextStyle(fontFamily: 'Roboto', 
+                              style: const TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                     ),
@@ -727,18 +742,18 @@ class _ConnectScreenState extends State<ConnectScreen>
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
                             AppLocalizations.of(context)?.foundOnLan ?? 'Found on LAN',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontFamily: 'Roboto',
                                 fontSize: 12,
                                 color: AppColors.textMuted),
                           ),
                         ),
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -757,7 +772,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                   if (conn.profiles.isNotEmpty) ...[
                     Row(
                       children: [
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
@@ -769,7 +784,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                             ),
                           ),
                         ),
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -794,14 +809,14 @@ class _ConnectScreenState extends State<ConnectScreen>
                   if (conn.recentHosts.isNotEmpty) ...[
                     Row(
                       children: [
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(AppLocalizations.of(context)?.recent ?? 'Recent',
-                              style: TextStyle(fontFamily: 'Roboto', 
+                              style: const TextStyle(fontFamily: 'Roboto', 
                                   fontSize: 12, color: AppColors.textMuted)),
                         ),
-                        Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -866,14 +881,14 @@ class _DiscoveredHostTile extends StatelessWidget {
                     children: [
                       Text(
                         host.instance.isEmpty ? host.address : host.instance,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontFamily: 'Roboto',
                             fontSize: 14,
                             color: AppColors.textPrimary),
                       ),
                       Text(
                         '${host.address}:${host.port}',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontFamily: 'Roboto',
                             fontSize: 12,
                             color: AppColors.textMuted),
@@ -932,7 +947,7 @@ class _RecentHostTile extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(host,
-                        style: TextStyle(fontFamily: 'Roboto',
+                        style: const TextStyle(fontFamily: 'Roboto',
                             fontSize: 14, color: AppColors.textPrimary)),
                   ),
                 ),

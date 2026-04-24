@@ -280,30 +280,6 @@ bool _pluginRunning(BuildContext context, String id) {
 class _DashboardTab extends StatelessWidget {
   const _DashboardTab();
 
-  void _showToast(BuildContext context, String message, {bool success = true}) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              success ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-              color: Colors.white, size: 18,
-            ),
-            const SizedBox(width: 10),
-            Text(message,
-                style: TextStyle(fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.w500)),
-          ],
-        ),
-        backgroundColor: success ? AppColors.toastSuccess : AppColors.toastError,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   Future<void> _toggleSteering(BuildContext context, bool currentState) async {
     final conn = context.read<ConnectionProvider>();
     final settings = context.read<AppSettings>();
@@ -633,7 +609,7 @@ class _DashboardTab extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     AppLocalizations.of(context)?.reconnecting ?? 'Reconnecting...',
-                    style: TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
+                    style: const TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.orange),
                   ),
                 ],
               ),
@@ -648,7 +624,7 @@ class _DashboardTab extends StatelessWidget {
               width: double.infinity,
               padding:
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surface,
                 border: Border(
                   bottom: BorderSide(color: AppColors.surfaceBorder),
@@ -738,7 +714,7 @@ class _StatusBar extends StatelessWidget {
         children: [
           Text(
             AppLocalizations.of(context)?.plugins ?? 'ACTIVE PLUGINS',
-            style: TextStyle(fontFamily: 'Roboto', 
+            style: const TextStyle(fontFamily: 'Roboto', 
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -960,7 +936,7 @@ class _PedalsCard extends StatelessWidget {
               children: [
                 Text(
                   AppLocalizations.of(context)?.game ?? 'GAME',
-                  style: TextStyle(fontFamily: 'Roboto', 
+                  style: const TextStyle(fontFamily: 'Roboto', 
                     fontSize: 9, color: AppColors.textSecondary,
                     letterSpacing: 1.5, fontWeight: FontWeight.w600,
                   ),
@@ -968,7 +944,7 @@ class _PedalsCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   game,
-                  style: TextStyle(fontFamily: 'Roboto', 
+                  style: const TextStyle(fontFamily: 'Roboto', 
                     fontSize: 14, color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1007,7 +983,7 @@ class _PedalItem extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(fontFamily: 'Roboto', 
+              style: const TextStyle(fontFamily: 'Roboto', 
                 fontSize: 9, color: AppColors.textSecondary,
                 letterSpacing: 1.5, fontWeight: FontWeight.w600,
               ),
@@ -1015,7 +991,7 @@ class _PedalItem extends StatelessWidget {
             const Spacer(),
             Text(
               '$pct%',
-              style: TextStyle(fontFamily: 'Roboto', 
+              style: const TextStyle(fontFamily: 'Roboto', 
                 fontSize: 11, color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),

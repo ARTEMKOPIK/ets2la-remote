@@ -9,10 +9,15 @@ import '../providers/connection_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/lan_discovery_service.dart';
+import '../services/port_probe_service.dart';
 import '../services/vpn_detector.dart';
 import '../services/wake_on_lan_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/toast.dart';
 import '../widgets/ets2la_logo.dart';
+import '../widgets/profile_qr_dialog.dart';
+import 'connection_doctor_screen.dart';
+import 'qr_scan_screen.dart';
 
 /// Localized label for a [ConnectionStage]. Matches the short on-button
 /// progress text to the user's current language so the flow feels native.
@@ -62,6 +67,11 @@ class _ConnectScreenState extends State<ConnectScreen>
   bool _scanning = false;
   bool _scanFinished = false;
   List<DiscoveredHost> _discovered = const [];
+
+  /// Per-host port-probe reports keyed by `host.address`. Populated by
+  /// [_scanLan] right after mDNS discovery returns — probes run in
+  /// parallel so the dots appear ~1 s after the tiles do.
+  final Map<String, List<PortReport>> _probes = {};
   bool _vpnActive = false;
 
   @override
@@ -134,11 +144,21 @@ class _ConnectScreenState extends State<ConnectScreen>
       _scanning = true;
       _scanFinished = false;
       _discovered = const [];
+      _probes.clear();
     });
     try {
       final hosts = await LanDiscoveryService().scan();
       if (!mounted) return;
       setState(() => _discovered = hosts);
+      // Fire off a parallel smart-scan (per-port health check) on every
+      // discovered host and update the tiles as each one finishes. The
+      // user sees the raw list immediately and the dots fill in
+      // progressively — no need to block on the slow probes.
+      final s = context.read<AppSettings>();
+      final ports = <int>[s.portApi, s.portViz, s.portNav, s.portPages];
+      for (final h in hosts) {
+        unawaited(_probeHost(h, ports));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -147,6 +167,13 @@ class _ConnectScreenState extends State<ConnectScreen>
         });
       }
     }
+  }
+
+  Future<void> _probeHost(DiscoveredHost host, List<int> ports) async {
+    final reports =
+        await PortProbeService.probeAllParallel(host.address, ports);
+    if (!mounted) return;
+    setState(() => _probes[host.address] = reports);
   }
 
   Future<void> _showProfileDialog(ConnectionProfile profile) async {
@@ -315,6 +342,47 @@ class _ConnectScreenState extends State<ConnectScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Launch the QR scanner and, on success, save the scanned profile.
+  /// We treat the scan as an "import" rather than a "connect now" — the
+  /// user usually scans ahead of time to populate the list; a second tap
+  /// then actually connects.
+  Future<void> _scanQrProfile() async {
+    final scanned = await Navigator.of(context).push<ConnectionProfile>(
+      MaterialPageRoute(builder: (_) => const QrScanScreen()),
+    );
+    if (!mounted || scanned == null) return;
+    final l10n = AppLocalizations.of(context);
+    final conn = context.read<ConnectionProvider>();
+    await conn.saveProfile(scanned);
+    if (!mounted) return;
+    AppToast.success(context, l10n?.profileImported ?? 'Profile imported');
+    _ipController.text = scanned.host;
+  }
+
+  Future<void> _shareProfile(ConnectionProfile profile) async {
+    await showProfileQrDialog(context, profile);
+  }
+
+  Future<void> _toggleFavourite(ConnectionProfile profile) async {
+    await context.read<ConnectionProvider>().setFavouriteProfile(profile.id);
+  }
+
+  Future<void> _openConnectionDoctor() async {
+    final host = _ipController.text.trim();
+    final settings = context.read<AppSettings>();
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ConnectionDoctorScreen(
+          host: host.isEmpty ? null : host,
+          portApi: settings.portApi,
+          portViz: settings.portViz,
+          portNav: settings.portNav,
+          portPages: settings.portPages,
+        ),
       ),
     );
   }
@@ -674,6 +742,38 @@ class _ConnectScreenState extends State<ConnectScreen>
                       ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _scanQrProfile,
+                          icon: const Icon(Icons.qr_code_scanner_rounded,
+                              size: 18, color: AppColors.orange),
+                          label: Text(
+                            AppLocalizations.of(context)?.scanQr ?? 'Scan QR',
+                            style: const TextStyle(
+                                fontFamily: 'Roboto', fontSize: 13),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _openConnectionDoctor,
+                          icon: const Icon(Icons.health_and_safety_rounded,
+                              size: 18, color: AppColors.orange),
+                          label: Text(
+                            AppLocalizations.of(context)?.connectionDoctor ??
+                                'Connection doctor',
+                            style: const TextStyle(
+                                fontFamily: 'Roboto', fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
 
                   // Empty-scan feedback
                   if (!_scanning && _scanFinished && _discovered.isEmpty) ...[
@@ -759,6 +859,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                     const SizedBox(height: 12),
                     ..._discovered.map((h) => _DiscoveredHostTile(
                           host: h,
+                          reports: _probes[h.address],
                           onTap: () {
                             _ipController.text = h.address;
                             _connect();
@@ -802,6 +903,8 @@ class _ConnectScreenState extends State<ConnectScreen>
                                   profile.mac!.isNotEmpty)
                               ? () => _wakeProfile(profile)
                               : null,
+                          onShare: () => _shareProfile(profile),
+                          onToggleFavourite: () => _toggleFavourite(profile),
                         )),
                   ],
 
@@ -852,7 +955,16 @@ class _DiscoveredHostTile extends StatelessWidget {
   final DiscoveredHost host;
   final VoidCallback onTap;
 
-  const _DiscoveredHostTile({required this.host, required this.onTap});
+  /// Per-port reachability report from the smart-scan probe. `null`
+  /// while the probe is in flight — we render a small pulsing indicator
+  /// then; once populated we render one colored dot per port.
+  final List<PortReport>? reports;
+
+  const _DiscoveredHostTile({
+    required this.host,
+    required this.onTap,
+    this.reports,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -886,12 +998,34 @@ class _DiscoveredHostTile extends StatelessWidget {
                             fontSize: 14,
                             color: AppColors.textPrimary),
                       ),
-                      Text(
-                        '${host.address}:${host.port}',
-                        style: const TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 12,
-                            color: AppColors.textMuted),
+                      Row(
+                        children: [
+                          Text(
+                            '${host.address}:${host.port}',
+                            style: const TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 12,
+                                color: AppColors.textMuted),
+                          ),
+                          const SizedBox(width: 8),
+                          if (reports == null)
+                            const SizedBox(
+                              width: 10,
+                              height: 10,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: AppColors.textMuted,
+                              ),
+                            )
+                          else
+                            ...reports!.map(
+                              (r) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2),
+                                child: _PortDot(report: r),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -901,6 +1035,28 @@ class _DiscoveredHostTile extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PortDot extends StatelessWidget {
+  const _PortDot({required this.report});
+  final PortReport report;
+
+  @override
+  Widget build(BuildContext context) {
+    final ok = report.result == ProbeResult.reachable;
+    return Tooltip(
+      message: '${report.port} — '
+          '${ok ? 'reachable' : 'blocked'}',
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: ok ? AppColors.success : AppColors.error,
+          shape: BoxShape.circle,
         ),
       ),
     );
@@ -978,30 +1134,45 @@ class _RecentHostTile extends StatelessWidget {
   }
 }
 
+enum _ProfileMenuAction { share, edit, delete }
+
 class _ProfileTile extends StatelessWidget {
   final ConnectionProfile profile;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onRemove;
   final VoidCallback? onWake;
+  final VoidCallback onShare;
+  final VoidCallback onToggleFavourite;
 
   const _ProfileTile({
     required this.profile,
     required this.onTap,
     required this.onEdit,
     required this.onRemove,
+    required this.onShare,
+    required this.onToggleFavourite,
     this.onWake,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Condensed button row: wake (optional), favourite, overflow with
+    // edit/share/delete. Keeps tap-targets large without an uncomfortably
+    // wide row; Favourite is top-level because it's a per-profile state
+    // the user often flips, while edit/share/delete are per-profile
+    // actions that fit better under "…".
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.surfaceBorder),
+        border: Border.all(
+          color: profile.favourite
+              ? AppColors.orangeDim
+              : AppColors.surfaceBorder,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -1013,8 +1184,13 @@ class _ProfileTile extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 6, 4, 6),
             child: Row(
               children: [
-                const Icon(Icons.bookmark_rounded,
-                    size: 18, color: AppColors.orange),
+                Icon(
+                  profile.favourite
+                      ? Icons.star_rounded
+                      : Icons.bookmark_rounded,
+                  size: 18,
+                  color: AppColors.orange,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -1049,23 +1225,78 @@ class _ProfileTile extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                   ),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined,
-                      size: 18, color: AppColors.textSecondary),
-                  tooltip: l10n?.edit ?? 'Edit',
-                  onPressed: onEdit,
+                  icon: Icon(
+                    profile.favourite
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    size: 20,
+                    color: profile.favourite
+                        ? AppColors.orange
+                        : AppColors.textSecondary,
+                  ),
+                  tooltip: profile.favourite
+                      ? (l10n?.unpinFavourite ?? 'Unpin')
+                      : (l10n?.pinFavourite ?? 'Pin as default'),
+                  onPressed: onToggleFavourite,
                   visualDensity: VisualDensity.compact,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded,
-                      size: 18, color: AppColors.textSecondary),
-                  tooltip: l10n?.deleteProfile ?? 'Delete profile',
-                  onPressed: onRemove,
-                  visualDensity: VisualDensity.compact,
+                PopupMenuButton<_ProfileMenuAction>(
+                  tooltip: '',
+                  icon: const Icon(Icons.more_vert_rounded,
+                      size: 20, color: AppColors.textSecondary),
+                  onSelected: (action) {
+                    switch (action) {
+                      case _ProfileMenuAction.share:
+                        onShare();
+                        break;
+                      case _ProfileMenuAction.edit:
+                        onEdit();
+                        break;
+                      case _ProfileMenuAction.delete:
+                        onRemove();
+                        break;
+                    }
+                  },
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
+                      value: _ProfileMenuAction.share,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.qr_code_rounded,
+                              size: 18, color: AppColors.textSecondary),
+                          const SizedBox(width: 10),
+                          Text(l10n?.shareProfile ?? 'Share profile'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _ProfileMenuAction.edit,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.edit_outlined,
+                              size: 18, color: AppColors.textSecondary),
+                          const SizedBox(width: 10),
+                          Text(l10n?.edit ?? 'Edit'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _ProfileMenuAction.delete,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete_outline_rounded,
+                              size: 18, color: AppColors.error),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n?.deleteProfile ?? 'Delete profile',
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 2),
-                const Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14, color: AppColors.textMuted),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
               ],
             ),
           ),

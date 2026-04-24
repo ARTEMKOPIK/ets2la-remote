@@ -37,6 +37,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildLayout())
+        // Tile & Complication launch targets pass a `path=…` extra so
+        // one quick tap sends the Wear message and finishes the
+        // activity. Without this extra the UI is shown as normal.
+        intent?.getStringExtra("path")?.let { path ->
+            send(path)
+            finish()
+        }
     }
 
     override fun onDestroy() {

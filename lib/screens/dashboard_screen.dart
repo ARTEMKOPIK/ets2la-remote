@@ -11,6 +11,11 @@ import '../providers/telemetry_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/update_provider.dart';
 import '../services/shortcut_service.dart';
+import '../services/notification_update_service.dart';
+import '../services/telemetry_feedback_service.dart';
+import '../services/trip_log_service.dart';
+import 'dashboard_customize_screen.dart';
+import 'driver_mode_screen.dart';
 import '../utils/haptics.dart';
 import '../utils/toast.dart';
 import '../widgets/update_dialog.dart';
@@ -39,6 +44,21 @@ class _DashboardScreenState extends State<DashboardScreen>
   bool _updateChecked = false;
   StreamSubscription<int>? _shortcutSub;
 
+  /// Fans telemetry events (autopilot on/off, speed-limit crossed) out to
+  /// the vibration motor and TTS based on user settings. Lives on the
+  /// dashboard so it's active any time the app is in the foreground
+  /// with a live connection.
+  final _feedback = TelemetryFeedbackService();
+  VoidCallback? _detachFeedback;
+  final _tripLog = TripLogService();
+  VoidCallback? _detachTripLog;
+
+  /// Pushes speed + autopilot state into the Android foreground
+  /// notification at 1 Hz while connected. Lets the user glance at the
+  /// notification bar mid-drive without opening the app.
+  final _notifUpdater = NotificationUpdateService();
+  VoidCallback? _detachNotifUpdater;
+
   final _pages = const [
     _DashboardTab(),
     MapScreen(),
@@ -60,7 +80,35 @@ class _DashboardScreenState extends State<DashboardScreen>
       _maybeShowOnboarding();
       _tryAutoConnect();
       _checkForUpdates();
+      _attachFeedback();
+      _attachTripLog();
+      _attachNotifUpdater();
     });
+  }
+
+  /// Hook the haptic/TTS feedback service to the live telemetry stream.
+  /// Safe to call once during init — the service reads the latest
+  /// settings on every event so toggling haptics/TTS at runtime is
+  /// picked up without re-attaching.
+  void _attachFeedback() {
+    if (!mounted || _detachFeedback != null) return;
+    final telem = context.read<TelemetryProvider>();
+    final settings = context.read<AppSettings>();
+    _detachFeedback = _feedback.attach(telem, settings);
+  }
+
+  void _attachTripLog() {
+    if (!mounted || _detachTripLog != null) return;
+    final telem = context.read<TelemetryProvider>();
+    final settings = context.read<AppSettings>();
+    _detachTripLog = _tripLog.attach(telem, settings);
+  }
+
+  void _attachNotifUpdater() {
+    if (!mounted || _detachNotifUpdater != null) return;
+    final telem = context.read<TelemetryProvider>();
+    final conn = context.read<ConnectionProvider>();
+    _detachNotifUpdater = _notifUpdater.attach(telem: telem, conn: conn);
   }
 
   /// Push the onboarding screen once per install. Runs post-frame so the
@@ -87,6 +135,12 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void dispose() {
     _shortcutSub?.cancel();
+    _detachFeedback?.call();
+    _feedback.dispose();
+    _detachTripLog?.call();
+    _tripLog.dispose();
+    _detachNotifUpdater?.call();
+    _notifUpdater.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -121,15 +175,21 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     if (!settings.autoConnect) return;
 
-    // Wait for recent hosts to load from disk before checking them —
-    // otherwise we race against an empty list on cold start.
+    // Wait for recent hosts/profiles to load from disk before checking
+    // them — otherwise we race against an empty list on cold start.
     await conn.ready;
     if (!mounted) return;
 
-    final hosts = conn.recentHosts;
-    if (hosts.isEmpty) return;
+    // Prefer the user-pinned favourite profile, then fall back to the
+    // most-recent host. Without this, autoconnect always went to whichever
+    // host the user connected to last — which can be the wrong ПК when
+    // the user alternates between, e.g., home and office.
+    final favourite = conn.favouriteProfile;
+    final host = favourite?.host ??
+        (conn.recentHosts.isNotEmpty ? conn.recentHosts.first : null);
+    if (host == null) return;
 
-    final ok = await conn.connect(hosts.first);
+    final ok = await conn.connect(host);
     if (ok && mounted) {
       final telem = context.read<TelemetryProvider>();
       telem.init(conn.wsService, conn.navService, conn.apiService);
@@ -185,6 +245,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                     conn.disconnect();
                   }
                 : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.dashboard_customize_rounded, size: 22),
+            tooltip: l10n?.enterDriverMode ?? 'Enter driver mode',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const DriverModeScreen(),
+              ),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.settings_rounded, size: 22),
@@ -358,68 +428,127 @@ class _DashboardTab extends StatelessWidget {
     AutopilotStatus status,
     AppSettings settings,
   ) {
+    // Resolve the ordered, visibility-filtered card list. Default path
+    // is a zero-cost list when the user has never opened the Customize
+    // screen.
+    final order = _resolveDashboardOrder(settings.dashboardLayout);
+    final children = <Widget>[];
+    for (final id in order) {
+      final widget = _cardWidget(
+        context,
+        id: id,
+        state: state,
+        status: status,
+        settings: settings,
+      );
+      if (widget == null) continue;
+      if (children.isNotEmpty) {
+        children.add(const SizedBox(height: 12));
+      }
+      children.add(widget);
+    }
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AutopilotCard(
-            steeringEnabled: status.steeringEnabled,
-            accEnabled: status.accEnabled,
-            steeringPluginRunning: _pluginRunning(context, 'plugins.map'),
-            accPluginRunning:
-                _pluginRunning(context, 'plugins.adaptivecruisecontrol'),
-            onToggleSteering: () => _toggleSteering(context, status.steeringEnabled),
-            onToggleAcc: () => _toggleAcc(context, status.accEnabled),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: RepaintBoundary(
-              child: Builder(
-                builder: (context) {
-                  final mq = MediaQuery.of(context);
-                  final gaugeSize = [
-                    mq.size.width * 0.82,
-                    mq.size.height * 0.45,
-                    420.0,
-                  ].reduce((a, b) => a < b ? a : b);
-                  return SpeedGauge(
-                    speedKmh: state.speedKmh,
-                    limitKmh: state.speedLimitKmh,
-                    targetAccKmh: state.targetSpeedKmh,
-                    size: gaugeSize,
-                    speedUnit: settings.speedUnitLabel,
-                    maxSpeed: settings.gaugeMaxValue,
-                    convertFromKmh: settings.speedFromKmh,
-                  );
-                },
-              ),
-            ),
-          ),
-          if (state.isIndicatingLeft || state.isIndicatingRight) ...[
-            const SizedBox(height: 4),
-            IndicatorWidget(
-              leftActive: state.isIndicatingLeft,
-              rightActive: state.isIndicatingRight,
-            ),
-          ],
-          const SizedBox(height: 12),
-          _SpeedSparklineCard(
-            maxSpeed: settings.gaugeMaxValue,
-            speedUnitLabel: settings.speedUnitLabel,
-          ),
-          const SizedBox(height: 12),
-          _PedalsCard(
-            throttle: state.throttle,
-            brake: state.brake,
-            game: state.game,
-          ),
-          const SizedBox(height: 12),
-          if (settings.showActivePlugins) _StatusBar(status: status),
-        ],
+        children: children,
       ),
     );
+  }
+
+  /// Decode the persisted layout into an ordered list of *visible* card
+  /// ids. Hidden entries are prefixed `-`; unknown ids are skipped; any
+  /// new cards added to [dashboardCardIds] after the user persisted
+  /// their layout are appended so they still appear.
+  List<String> _resolveDashboardOrder(List<String> persisted) {
+    if (persisted.isEmpty) return dashboardCardIds;
+    final out = <String>[];
+    final seen = <String>{};
+    for (final raw in persisted) {
+      final hidden = raw.startsWith('-');
+      final id = hidden ? raw.substring(1) : raw;
+      if (!dashboardCardIds.contains(id)) continue;
+      seen.add(id);
+      if (!hidden) out.add(id);
+    }
+    for (final c in dashboardCardIds) {
+      if (!seen.contains(c)) out.add(c);
+    }
+    return out;
+  }
+
+  Widget? _cardWidget(
+    BuildContext context, {
+    required String id,
+    required TruckState state,
+    required AutopilotStatus status,
+    required AppSettings settings,
+  }) {
+    switch (id) {
+      case 'autopilot':
+        return AutopilotCard(
+          steeringEnabled: status.steeringEnabled,
+          accEnabled: status.accEnabled,
+          steeringPluginRunning: _pluginRunning(context, 'plugins.map'),
+          accPluginRunning:
+              _pluginRunning(context, 'plugins.adaptivecruisecontrol'),
+          onToggleSteering: () =>
+              _toggleSteering(context, status.steeringEnabled),
+          onToggleAcc: () => _toggleAcc(context, status.accEnabled),
+        );
+      case 'gauge':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: RepaintBoundary(
+                child: Builder(
+                  builder: (context) {
+                    final mq = MediaQuery.of(context);
+                    final gaugeSize = [
+                      mq.size.width * 0.82,
+                      mq.size.height * 0.45,
+                      420.0,
+                    ].reduce((a, b) => a < b ? a : b);
+                    return SpeedGauge(
+                      speedKmh: state.speedKmh,
+                      limitKmh: state.speedLimitKmh,
+                      targetAccKmh: state.targetSpeedKmh,
+                      size: gaugeSize,
+                      speedUnit: settings.speedUnitLabel,
+                      maxSpeed: settings.gaugeMaxValue,
+                      convertFromKmh: settings.speedFromKmh,
+                    );
+                  },
+                ),
+              ),
+            ),
+            if (state.isIndicatingLeft || state.isIndicatingRight) ...[
+              const SizedBox(height: 4),
+              IndicatorWidget(
+                leftActive: state.isIndicatingLeft,
+                rightActive: state.isIndicatingRight,
+              ),
+            ],
+          ],
+        );
+      case 'sparkline':
+        return _SpeedSparklineCard(
+          maxSpeed: settings.gaugeMaxValue,
+          speedUnitLabel: settings.speedUnitLabel,
+        );
+      case 'pedals':
+        return _PedalsCard(
+          throttle: state.throttle,
+          brake: state.brake,
+          game: state.game,
+        );
+      case 'plugins':
+        if (!settings.showActivePlugins) return null;
+        return _StatusBar(status: status);
+    }
+    return null;
   }
 
   Widget _buildWideLayout(

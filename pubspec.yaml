@@ -26,6 +26,11 @@ dependencies:
   open_filex: ^4.5.0
   url_launcher: ^6.2.5
   multicast_dns: ^0.3.2
+  # UX round 3 additions
+  qr_flutter: ^4.1.0          # render QR for profile sharing
+  mobile_scanner: ^5.0.0      # scan QR to import profile
+  flutter_tts: ^4.0.2         # voice cues for autopilot / ACC events
+  wakelock_plus: ^1.2.5       # keep screen on in driver mode
 
 dev_dependencies:
   flutter_test:

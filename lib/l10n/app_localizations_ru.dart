@@ -10,6 +10,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'ETS2LA Remote';
 
   @override
+  String get mapStyleDark => 'Тёмная';
+
+  @override
+  String get mapStyleLight => 'Светлая';
+
+  @override
+  String get mapStyleSatellite => 'Спутник';
+
+  @override
+  String get pluginDisabledHint => 'Плагин выключен — нажмите, чтобы включить';
+
+  @override
+  String get portApiLabel => 'API (REST)';
+
+  @override
+  String get portVizLabel => 'Визуализация (WS)';
+
+  @override
+  String get portNavLabel => 'Навигация (WS)';
+
+  @override
+  String get portPagesLabel => 'Страницы (WS)';
+
+  @override
+  String get profileHintHomePc => 'Домашний ПК';
+
+  @override
   String get recent => 'Недавние';
 
   @override
@@ -76,10 +103,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get autopilot => 'Автопилот';
 
   @override
+  String get autopilotLabel => 'АВТОПИЛОТ';
+
+  @override
   String get steering => 'Руль';
 
   @override
+  String get steeringLabel => 'РУЛЬ';
+
+  @override
   String get acc => 'Круиз';
+
+  @override
+  String get accLabel => 'КРУИЗ';
 
   @override
   String get speed => 'Скорость';
@@ -128,33 +164,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ok => 'ОК';
-
-  @override
-  String get mapStyleDark => 'Тёмная';
-
-  @override
-  String get mapStyleLight => 'Светлая';
-
-  @override
-  String get mapStyleSatellite => 'Спутник';
-
-  @override
-  String get pluginDisabledHint => 'Плагин выключен — нажмите, чтобы включить';
-
-  @override
-  String get portApiLabel => 'API (REST)';
-
-  @override
-  String get portVizLabel => 'Визуализация (WS)';
-
-  @override
-  String get portNavLabel => 'Навигация (WS)';
-
-  @override
-  String get portPagesLabel => 'Страницы (WS)';
-
-  @override
-  String get profileHintHomePc => 'Домашний ПК';
 
   @override
   String get error => 'Ошибка';
@@ -238,7 +247,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get connectionTimeout => 'Таймаут подключения';
 
   @override
-  String secondsFormat(Object count) {
+  String secondsFormat(int count) {
     return '$count секунд';
   }
 
@@ -297,189 +306,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String firewallBody(int port) {
     return 'Чтобы управлять автопилотом с телефона, откройте порт $port на ПК (Брандмауэр Windows). Делается один раз.';
   }
-
-  @override
-  String get autopilotLabel => 'АВТОПИЛОТ';
-
-  @override
-  String get steeringLabel => 'РУЛЬ';
-
-  @override
-  String get accLabel => 'КРУИЗ';
-
-  @override
-  String get updateDownloadFailed => 'Не удалось скачать обновление';
-
-  @override
-  String get updateInstallFailed => 'Ошибка установки';
-
-  @override
-  String get updateCheckFailed => 'Не удалось проверить обновления';
-
-  @override
-  String get networkOffline => 'Нет подключения к интернету';
-
-  @override
-  String get fullscreen => 'Во весь экран';
-
-  @override
-  String get exitFullscreen => 'Выйти из полного экрана';
-
-  @override
-  String get lightTheme => 'Светлая тема';
-
-  @override
-  String get darkTheme => 'Тёмная тема';
-
-  @override
-  String get zoomIn => 'Приблизить';
-
-  @override
-  String get zoomOut => 'Отдалить';
-
-  @override
-  String get resetCamera => 'Сбросить камеру';
-
-  @override
-  String get mapAttributionTitle => 'Источники карты';
-
-  @override
-  String get waitingForGameTitle => 'Ждём телеметрию';
-
-  @override
-  String get waitingForGameBody =>
-      'Запусти ETS2 или ATS и включи плагин Map в ETS2LA — данные появятся здесь.';
-
-  @override
-  String reconnectingIn(int seconds) => 'Переподключение через ${seconds} с';
-
-  @override
-  String get reconnectNow => 'Повторить';
-
-  @override
-  String get stageConnecting => 'Подключение…';
-
-  @override
-  String get stagePinging => 'Проверка сервера…';
-
-  @override
-  String get stageOpeningSocket => 'Открываем сокет…';
-
-  @override
-  String get stageSubscribing => 'Подписка на телеметрию…';
-
-  @override
-  String get firstRunWelcomeTitle => 'Добро пожаловать в ETS2LA Remote';
-
-  @override
-  String get firstRunWelcomeBody =>
-      'Управляй автопилотом и смотри телеметрию грузовика прямо с телефона.';
-
-  @override
-  String get firstRunLaunchTitle => 'Запусти ETS2LA на ПК';
-
-  @override
-  String get firstRunLaunchBody =>
-      'Перед подключением убедись, что ETS2LA запущен на компьютере. Приложение общается с его WebSocket-API.';
-
-  @override
-  String get firstRunNetworkTitle => 'Одна Wi-Fi сеть';
-
-  @override
-  String get firstRunNetworkBody =>
-      'Телефон и ПК должны быть в одной локальной сети. Нажми «Найти в сети» для автопоиска или введи IP вручную.';
-
-  @override
-  String get getStarted => 'Начать';
-
-  @override
-  String get next => 'Далее';
-
-  @override
-  String get skipOnboarding => 'Пропустить';
-
-  @override
-  String get whyNotFound => 'Почему не находит ПК?';
-
-  @override
-  String get mdnsHelpTitle => 'ETS2LA не виден в сети';
-
-  @override
-  String get mdnsHelpBody =>
-      '• Проверь, что ETS2LA запущен на ПК\n'
-      '• Оба устройства должны быть в одной Wi-Fi (не гостевой)\n'
-      '• Некоторые роутеры блокируют mDNS — в этом случае введи IP ПК вручную\n'
-      '• Если используешь VPN — выключи его\n'
-      '• Windows Defender может блокировать порт — см. команду для фаервола в настройках';
-
-  @override
-  String get saveAsProfileQuestion => 'Сохранить это подключение как профиль?';
-
-  @override
-  String get pluginDisabled => 'Плагин выключен — нажми, чтобы включить';
-
-  @override
-  String get pluginStarting => 'Включаем плагин…';
-
-  @override
-  String get sparklineStatsTitle => 'Последние 60 секунд';
-
-  @override
-  String get sparklineAvg => 'Сред';
-
-  @override
-  String get sparklineMax => 'Макс';
-
-  @override
-  String get sparklineMin => 'Мин';
-
-  @override
-  String get accentColorLabel => 'Акцентный цвет';
-
-  @override
-  String get accentOrange => 'Оранжевый';
-
-  @override
-  String get accentBlue => 'Синий';
-
-  @override
-  String get accentGreen => 'Зелёный';
-
-  @override
-  String get accentPurple => 'Фиолетовый';
-
-  @override
-  String get highContrast => 'Высокий контраст';
-
-  @override
-  String get highContrastHint => 'Более чёткие границы элементов';
-
-  @override
-  String get reduceMotion => 'Меньше анимации';
-
-  @override
-  String get reduceMotionHint => 'Отключить переходы и вибрацию';
-
-  @override
-  String get accessibility => 'Доступность';
-
-  @override
-  String get pingLabel => 'Пинг';
-
-  @override
-  String get disconnectHint => 'Удерживай имя хоста, чтобы отключиться';
-
-  @override
-  String get holdToDisconnect => 'Удерживай для отключения';
-
-  @override
-  String get mapTileDark => 'Тёмная';
-
-  @override
-  String get mapTileLight => 'Светлая';
-
-  @override
-  String get mapTileSatellite => 'Спутник';
 
   @override
   String get runInPowerShell => 'Выполните в PowerShell (Админ):';
@@ -547,7 +373,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pluginEnabled => 'Плагин включён';
 
   @override
-  String get pluginDisabled => 'Плагин выключен';
+  String get pluginDisabled => 'Плагин выключен — нажми, чтобы включить';
 
   @override
   String get pluginToggleFailed => 'Не удалось переключить плагин';
@@ -644,4 +470,319 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get wolFailed => 'Не удалось отправить пакет Wake-on-LAN';
+
+  @override
+  String get updateDownloadFailed => 'Не удалось скачать обновление';
+
+  @override
+  String get updateInstallFailed => 'Ошибка установки';
+
+  @override
+  String get updateCheckFailed => 'Не удалось проверить обновления';
+
+  @override
+  String get networkOffline => 'Нет подключения к интернету';
+
+  @override
+  String get fullscreen => 'Во весь экран';
+
+  @override
+  String get exitFullscreen => 'Выйти из полного экрана';
+
+  @override
+  String get lightTheme => 'Светлая тема';
+
+  @override
+  String get darkTheme => 'Тёмная тема';
+
+  @override
+  String get zoomIn => 'Приблизить';
+
+  @override
+  String get zoomOut => 'Отдалить';
+
+  @override
+  String get resetCamera => 'Сбросить камеру';
+
+  @override
+  String get mapAttributionTitle => 'Источники карты';
+
+  @override
+  String get waitingForGameTitle => 'Ждём телеметрию';
+
+  @override
+  String get waitingForGameBody => 'Запусти ETS2 или ATS и включи плагин Map в ETS2LA — данные появятся здесь.';
+
+  @override
+  String reconnectingIn(int seconds) {
+    return 'Переподключение через $seconds с';
+  }
+
+  @override
+  String get reconnectNow => 'Повторить';
+
+  @override
+  String get stageConnecting => 'Подключение…';
+
+  @override
+  String get stagePinging => 'Проверка сервера…';
+
+  @override
+  String get stageOpeningSocket => 'Открываем сокет…';
+
+  @override
+  String get stageSubscribing => 'Подписка на телеметрию…';
+
+  @override
+  String get firstRunWelcomeTitle => 'Добро пожаловать в ETS2LA Remote';
+
+  @override
+  String get firstRunWelcomeBody => 'Управляй автопилотом и смотри телеметрию грузовика прямо с телефона.';
+
+  @override
+  String get firstRunLaunchTitle => 'Запусти ETS2LA на ПК';
+
+  @override
+  String get firstRunLaunchBody => 'Перед подключением убедись, что ETS2LA запущен на компьютере. Приложение общается с его WebSocket-API.';
+
+  @override
+  String get firstRunNetworkTitle => 'Одна Wi-Fi сеть';
+
+  @override
+  String get firstRunNetworkBody => 'Телефон и ПК должны быть в одной локальной сети. Нажми «Найти в сети» для автопоиска или введи IP вручную.';
+
+  @override
+  String get getStarted => 'Начать';
+
+  @override
+  String get next => 'Далее';
+
+  @override
+  String get skipOnboarding => 'Пропустить';
+
+  @override
+  String get whyNotFound => 'Почему не находит ПК?';
+
+  @override
+  String get mdnsHelpTitle => 'ETS2LA не виден в сети';
+
+  @override
+  String get mdnsHelpBody => '• Проверь, что ETS2LA запущен на ПК\n• Оба устройства должны быть в одной Wi-Fi (не гостевой)\n• Некоторые роутеры блокируют mDNS — в этом случае введи IP ПК вручную\n• Если используешь VPN — выключи его\n• Windows Defender может блокировать порт — см. команду для фаервола в настройках';
+
+  @override
+  String get saveAsProfileQuestion => 'Сохранить это подключение как профиль?';
+
+  @override
+  String get pluginStarting => 'Включаем плагин…';
+
+  @override
+  String get sparklineStatsTitle => 'Последние 60 секунд';
+
+  @override
+  String get sparklineAvg => 'Сред';
+
+  @override
+  String get sparklineMax => 'Макс';
+
+  @override
+  String get sparklineMin => 'Мин';
+
+  @override
+  String get accentColorLabel => 'Акцентный цвет';
+
+  @override
+  String get accentOrange => 'Оранжевый';
+
+  @override
+  String get accentBlue => 'Синий';
+
+  @override
+  String get accentGreen => 'Зелёный';
+
+  @override
+  String get accentPurple => 'Фиолетовый';
+
+  @override
+  String get highContrast => 'Высокий контраст';
+
+  @override
+  String get highContrastHint => 'Более чёткие границы элементов';
+
+  @override
+  String get reduceMotion => 'Меньше анимации';
+
+  @override
+  String get reduceMotionHint => 'Отключить переходы и вибрацию';
+
+  @override
+  String get accessibility => 'Доступность';
+
+  @override
+  String get pingLabel => 'Пинг';
+
+  @override
+  String get disconnectHint => 'Удерживай имя хоста, чтобы отключиться';
+
+  @override
+  String get holdToDisconnect => 'Удерживай для отключения';
+
+  @override
+  String get mapTileDark => 'Тёмная';
+
+  @override
+  String get mapTileLight => 'Светлая';
+
+  @override
+  String get mapTileSatellite => 'Спутник';
+
+  @override
+  String get tripLogTitle => 'Журнал поездок';
+
+  @override
+  String get tripLogEmpty => 'Пока пусто. Проедь хотя бы минуту с подключённым ETS2LA — и поездки появятся здесь.';
+
+  @override
+  String get tripLogTotalsTitle => 'Всего за всё время';
+
+  @override
+  String get tripLogClearTitle => 'Очистить историю поездок?';
+
+  @override
+  String get tripLogClearBody => 'Все сохранённые поездки будут удалены с этого устройства. Действие нельзя отменить.';
+
+  @override
+  String get clear => 'Очистить';
+
+  @override
+  String get distance => 'Дистанция';
+
+  @override
+  String get drivingTime => 'Время в пути';
+
+  @override
+  String get avgSpeed => 'Средн.';
+
+  @override
+  String get maxSpeed => 'Макс.';
+
+  @override
+  String get autopilotShare => 'Автопилот';
+
+  @override
+  String disengagements(int count) {
+    return '$count отключений';
+  }
+
+  @override
+  String get driverMode => 'Режим водителя';
+
+  @override
+  String get driverModeHint => 'Крупный циферблат для телефона в держателе';
+
+  @override
+  String get driverModeAutoLandscape => 'Включать в альбомной';
+
+  @override
+  String get enterDriverMode => 'Войти в режим водителя';
+
+  @override
+  String get exitDriverMode => 'Выйти из режима водителя';
+
+  @override
+  String get favourite => 'Избранное';
+
+  @override
+  String get pinFavourite => 'Сделать профилем по умолчанию';
+
+  @override
+  String get unpinFavourite => 'Снять с избранного';
+
+  @override
+  String get shareProfile => 'Поделиться профилем';
+
+  @override
+  String get scanQr => 'Сканировать QR';
+
+  @override
+  String get scanQrHint => 'Наведи камеру на QR-код профиля';
+
+  @override
+  String get profileImported => 'Профиль импортирован';
+
+  @override
+  String get profileImportFailed => 'Не удалось прочитать QR-код';
+
+  @override
+  String get connectionDoctor => 'Диагностика подключения';
+
+  @override
+  String get connectionDoctorHint => 'Проверяет все порты и показывает, какой закрыт';
+
+  @override
+  String get runDiagnostics => 'Запустить диагностику';
+
+  @override
+  String doctorPingingApi(int port) {
+    return 'Пингуем API (порт $port)…';
+  }
+
+  @override
+  String doctorOpeningViz(int port) {
+    return 'Открываем визуализацию (порт $port)…';
+  }
+
+  @override
+  String doctorOpeningNav(int port) {
+    return 'Открываем навигацию (порт $port)…';
+  }
+
+  @override
+  String doctorOpeningPages(int port) {
+    return 'Открываем pages (порт $port)…';
+  }
+
+  @override
+  String get doctorReachable => 'Доступен';
+
+  @override
+  String get doctorBlocked => 'Заблокирован';
+
+  @override
+  String get copyFirewallCommand => 'Скопировать команду брандмауэра Windows';
+
+  @override
+  String get firewallCommandCopied => 'Команда брандмауэра скопирована';
+
+  @override
+  String get customizeDashboard => 'Настроить дашборд';
+
+  @override
+  String get customizeDashboardHint => 'Выбери и расставь карточки, которые нужны';
+
+  @override
+  String get resetToDefault => 'Сбросить к стандартному';
+
+  @override
+  String get hapticEventsEnabled => 'Вибрация на события';
+
+  @override
+  String get hapticEventsHint => 'Разные паттерны для автопилота, ACC и превышения';
+
+  @override
+  String get ttsEnabled => 'Голосовые подсказки';
+
+  @override
+  String get ttsEnabledHint => 'Короткие фразы при событиях автопилота';
+
+  @override
+  String get tripLogEnabled => 'Вести журнал поездок';
+
+  @override
+  String get tripLogEnabledHint => 'Сохранять дистанцию, время и долю автопилота по каждой сессии';
+
+  @override
+  String get feedback => 'Обратная связь';
+
+  @override
+  String get tripLog => 'Журнал поездок';
 }

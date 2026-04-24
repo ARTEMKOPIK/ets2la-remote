@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Declares ETS2LA Remote as a templated Android for Cars app. See
+     EtsCarAppService.kt and the corresponding <service> entry in the
+     main manifest. -->
+<automotiveApp>
+    <uses name="template"/>
+</automotiveApp>

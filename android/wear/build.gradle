@@ -62,6 +62,15 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.9.2"
     implementation "com.google.android.gms:play-services-wearable:18.2.0"
     implementation "androidx.wear:wear:1.3.0"
+    // Tile + Complication surfaces so users can toggle Autopilot from a
+    // watchface complication or a tile without opening the watch app.
+    implementation "androidx.wear.tiles:tiles:1.3.0"
+    implementation "androidx.wear.tiles:tiles-material:1.3.0"
+    implementation "androidx.wear.protolayout:protolayout:1.1.0"
+    implementation "androidx.wear.protolayout:protolayout-material:1.1.0"
+    implementation "androidx.wear.protolayout:protolayout-expression:1.1.0"
+    implementation "androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1"
+    implementation "com.google.guava:listenablefuture:1.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1"
 }

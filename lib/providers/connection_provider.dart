@@ -168,7 +168,14 @@ class ConnectionProvider extends ChangeNotifier {
 
   /// Insert or replace a profile identified by [ConnectionProfile.id].
   /// New profiles are inserted at the top so most-recently-saved floats up.
+  /// Also enforces the "only one favourite" invariant — if [profile] is
+  /// marked favourite every other profile is un-starred.
   Future<void> saveProfile(ConnectionProfile profile) async {
+    if (profile.favourite) {
+      _profiles = _profiles
+          .map((p) => p.id == profile.id ? p : p.copyWith(favourite: false))
+          .toList();
+    }
     final idx = _profiles.indexWhere((p) => p.id == profile.id);
     if (idx >= 0) {
       _profiles[idx] = profile;
@@ -177,6 +184,28 @@ class ConnectionProvider extends ChangeNotifier {
     }
     notifyListeners();
     await _saveProfiles();
+  }
+
+  /// Mark [id] as the autoconnect favourite. Passing the id of an
+  /// already-favourite profile clears the star so the user can un-pin.
+  Future<void> setFavouriteProfile(String id) async {
+    final idx = _profiles.indexWhere((p) => p.id == id);
+    if (idx < 0) return;
+    final wasFavourite = _profiles[idx].favourite;
+    _profiles = _profiles
+        .map((p) => p.copyWith(favourite: p.id == id && !wasFavourite))
+        .toList();
+    notifyListeners();
+    await _saveProfiles();
+  }
+
+  /// Profile the autoconnect flow should prefer, or null when none is
+  /// pinned. Callers fall back to [recentHosts] when this is null.
+  ConnectionProfile? get favouriteProfile {
+    for (final p in _profiles) {
+      if (p.favourite) return p;
+    }
+    return null;
   }
 
   Future<void> removeProfile(String id) async {

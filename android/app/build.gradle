@@ -86,4 +86,10 @@ dependencies {
     // companion in :wear. The phone's WearMessageListenerService forwards
     // them into Flutter via MainActivity intents.
     implementation "com.google.android.gms:play-services-wearable:18.2.0"
+
+    // Android Auto / Android for Cars App Library — powers the
+    // EtsCarAppService below. The `app` (projected) artifact runs on
+    // the phone projecting to a head unit (standard Android Auto).
+    implementation "androidx.car.app:app:1.4.0"
+    implementation "androidx.car.app:app-projected:1.4.0"
 }

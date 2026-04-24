@@ -40,7 +40,7 @@ class KeepAliveService {
         'body': body,
       });
     } on MissingPluginException {
-      // ignore
+      // ignore — old APK or non-Android platform
     } on PlatformException catch (e) {
       debugPrint('KeepAliveService.update failed: ${e.message}');
     }
@@ -51,7 +51,7 @@ class KeepAliveService {
     try {
       await _channel.invokeMethod<void>('stop');
     } on MissingPluginException {
-      // ignore
+      // ignore — old APK or non-Android platform
     } on PlatformException catch (e) {
       debugPrint('KeepAliveService.stop failed: ${e.message}');
     } finally {

@@ -47,6 +47,14 @@ class WidgetActionBridge {
     unawaited(_drainInitial());
   }
 
+  /// Detach the registered handler. Called from [ConnectionProvider.dispose]
+  /// so a stale handler can't receive an intent after the owning provider
+  /// is torn down (e.g. during hot-reload or tests).
+  void clearHandler() {
+    _handler = null;
+    _channel.setMethodCallHandler(null);
+  }
+
   Future<void> _drainInitial() async {
     try {
       final action = await _channel.invokeMethod<String>('getInitialAction');

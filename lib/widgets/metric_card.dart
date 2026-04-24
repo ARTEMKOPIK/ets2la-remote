@@ -25,7 +25,18 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    // Merge label + value (+ unit, subtitle) into a single a11y node so
+    // TalkBack reads "Odometer 42 km" instead of announcing each sub-text
+    // independently.
+    final semanticLabel = child != null
+        ? null
+        : '$label ${unit != null ? '$value $unit' : value}'
+            '${subtitle != null ? ', $subtitle' : ''}';
+    return MergeSemantics(
+      child: Semantics(
+        label: semanticLabel,
+        excludeSemantics: semanticLabel != null,
+        child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -89,6 +100,8 @@ class MetricCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }

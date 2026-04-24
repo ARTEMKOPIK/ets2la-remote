@@ -58,7 +58,10 @@ class VisualizationWsService {
     _setState(WsConnectionState.connecting);
 
     try {
-      final uri = Uri.parse('ws://$_host:$port');
+      // Use the Uri constructor (not Uri.parse on an interpolated string)
+      // so IPv6 hosts like `2001:db8::1` get bracketed correctly. A bare
+      // `ws://2001:db8::1:37522` is ambiguous and would fail to connect.
+      final uri = Uri(scheme: 'ws', host: _host, port: port);
       _channel = WebSocketChannel.connect(uri);
 
       await _channel!.ready

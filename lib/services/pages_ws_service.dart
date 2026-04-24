@@ -41,7 +41,8 @@ class PagesWsService {
     if (_connecting || _connected) return;
     _connecting = true;
     try {
-      final uri = Uri.parse('ws://$_host:$_port');
+      // Uri constructor bracketed IPv6 literals correctly.
+      final uri = Uri(scheme: 'ws', host: _host, port: _port);
       _channel = WebSocketChannel.connect(uri);
       await _channel!.ready
           .timeout(Duration(seconds: _readyTimeoutSeconds));

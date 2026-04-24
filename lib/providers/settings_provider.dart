@@ -204,11 +204,19 @@ class AppSettings extends ChangeNotifier {
   }
 
   void setAutoConnect(bool v) { _autoConnect = v; _save(); notifyListeners(); }
-  void setConnectionTimeout(int v) { _connectionTimeout = v; _save(); notifyListeners(); }
-  void setPortApi(int v) { _portApi = v; _save(); notifyListeners(); }
-  void setPortViz(int v) { _portViz = v; _save(); notifyListeners(); }
-  void setPortNav(int v) { _portNav = v; _save(); notifyListeners(); }
-  void setPortPages(int v) { _portPages = v; _save(); notifyListeners(); }
+  void setConnectionTimeout(int v) {
+    _connectionTimeout = v.clamp(1, 60);
+    _save();
+    notifyListeners();
+  }
+  // Port setters clamp to 1..65535 at write-time as well as read-time.
+  // Without this, a user who typed a value like 99999 would see it stick
+  // in memory for the current session but silently snap back to the
+  // fallback after the next app launch (where _clampPort runs on load).
+  void setPortApi(int v) { _portApi = _clampPort(v, _portApi); _save(); notifyListeners(); }
+  void setPortViz(int v) { _portViz = _clampPort(v, _portViz); _save(); notifyListeners(); }
+  void setPortNav(int v) { _portNav = _clampPort(v, _portNav); _save(); notifyListeners(); }
+  void setPortPages(int v) { _portPages = _clampPort(v, _portPages); _save(); notifyListeners(); }
   void setSpeedUnit(SpeedUnit v) { _speedUnit = v; _save(); notifyListeners(); }
   void setGaugeMax(GaugeMaxSpeed v) { _gaugeMax = v; _save(); notifyListeners(); }
   void setShowActivePlugins(bool v) { _showActivePlugins = v; _save(); notifyListeners(); }

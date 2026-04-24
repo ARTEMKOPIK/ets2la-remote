@@ -109,10 +109,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _finish();
                       return;
                     }
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOut,
-                    );
+                    final reduce =
+                        context.read<AppSettings>().reduceMotion;
+                    if (reduce) {
+                      // Jump without the 220ms slide — reduce-motion users
+                      // asked for no gratuitous animation.
+                      _pageController.jumpToPage(_index + 1);
+                    } else {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOut,
+                      );
+                    }
                   },
                   child: Text(
                     _index >= pages.length - 1

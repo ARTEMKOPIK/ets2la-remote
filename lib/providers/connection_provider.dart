@@ -356,6 +356,10 @@ class ConnectionProvider extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _wsStateSub?.cancel();
+    // Detach the widget/Wear intent handler we installed in the
+    // constructor; leaving it registered would route intents into a
+    // disposed provider (triggers notifyListeners-after-dispose asserts).
+    WidgetActionBridge.instance.clearHandler();
     wsService.dispose();
     navService.dispose();
     pagesService.dispose();

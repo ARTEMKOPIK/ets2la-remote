@@ -18,6 +18,11 @@ enum UpdateState {
 }
 
 class UpdateProvider extends ChangeNotifier {
+  UpdateProvider(
+      {UpdateServiceClient updateService = const UpdateServiceClient()})
+      : _updateService = updateService;
+
+  final UpdateServiceClient _updateService;
   UpdateState _state = UpdateState.idle;
   UpdateInfo? _updateInfo;
   double _downloadProgress = 0.0;
@@ -45,7 +50,8 @@ class UpdateProvider extends ChangeNotifier {
   bool get needsInstallPermission => _needsInstallPermission;
 
   bool get hasUpdate => _updateInfo != null;
-  bool get canInstall => _state == UpdateState.downloaded && _downloadedPath != null;
+  bool get canInstall =>
+      _state == UpdateState.downloaded && _downloadedPath != null;
 
   /// Check GitHub for a new release.
   ///
@@ -56,14 +62,16 @@ class UpdateProvider extends ChangeNotifier {
   /// startup still honour the skipped-version flag so users aren't nagged
   /// on every launch.
   Future<void> checkForUpdate({bool manual = false}) async {
-    if (_state == UpdateState.checking || _state == UpdateState.downloading) return;
+    if (_state == UpdateState.checking || _state == UpdateState.downloading) {
+      return;
+    }
 
     _state = UpdateState.checking;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final updateInfo = await UpdateService.checkForUpdate();
+      final updateInfo = await _updateService.checkForUpdate();
       if (updateInfo != null) {
         if (!manual) {
           // Auto-check: honour "Remind me later" until a newer release appears.
@@ -158,7 +166,7 @@ class UpdateProvider extends ChangeNotifier {
   /// the app is silent — we only show notes after an actual upgrade.
   Future<void> checkWhatsNew() async {
     try {
-      final current = await UpdateService.getCurrentVersion();
+      final current = await _updateService.getCurrentVersion();
       final prefs = await SharedPreferences.getInstance();
       final last = prefs.getString('last_seen_version');
       if (last == null) {
@@ -166,13 +174,13 @@ class UpdateProvider extends ChangeNotifier {
         await prefs.setString('last_seen_version', current);
         return;
       }
-      if (UpdateService.compareVersions(current, last) <= 0) return;
+      if (_updateService.compareVersions(current, last) <= 0) return;
 
       // Mark the upgrade as seen before we fetch release notes so a network
       // failure doesn't make us re-try on every launch.
       await prefs.setString('last_seen_version', current);
 
-      final notes = await UpdateService.getReleaseNotes(current);
+      final notes = await _updateService.getReleaseNotes(current);
       if (notes == null || notes.isEmpty) return;
       _whatsNewVersion = current;
       _whatsNewNotes = notes;

@@ -70,7 +70,7 @@ class TripEntry {
         accSeconds: json['accSeconds'] as int,
         disengagements: json['disengagements'] as int,
       );
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('TripEntry.fromJson failed: $e');
       return null;
     }
@@ -92,7 +92,7 @@ class TripEntry {
         }
       }
       return out;
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('TripEntry.decodeAll failed: $e');
       return const [];
     }

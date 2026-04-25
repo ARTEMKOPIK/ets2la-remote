@@ -96,6 +96,7 @@ class ConnectionProvider extends ChangeNotifier {
       pagesService.setReadyTimeoutSeconds(settings.connectionTimeout);
     }
   }
+
   final VisualizationWsService wsService = VisualizationWsService();
   final NavigationWsService navService = NavigationWsService();
   final PagesWsService pagesService = PagesWsService();
@@ -153,8 +154,10 @@ class ConnectionProvider extends ChangeNotifier {
 
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
-    _recentHosts = prefs.getStringList('recent_hosts') ?? [];
-    _profiles = ConnectionProfile.decodeAll(prefs.getString('connection_profiles'));
+    _recentHosts = List<String>.of(prefs.getStringList('recent_hosts') ?? []);
+    _profiles = List<ConnectionProfile>.of(
+      ConnectionProfile.decodeAll(prefs.getString('connection_profiles')),
+    );
     notifyListeners();
   }
 
@@ -362,7 +365,7 @@ class ConnectionProvider extends ChangeNotifier {
   /// Remove a trailing `:port` from a user-entered host, but only when the
   /// input is unambiguously an IPv4 address or hostname. IPv6 addresses
   /// contain multiple `:` and must not be split.
-/// Strips an accidental port number from a host string.
+  /// Strips an accidental port number from a host string.
   ///
   ///   `192.168.0.5:37522` → `192.168.0.5`
   ///   `ets2la.local:8080` → `ets2la.local`

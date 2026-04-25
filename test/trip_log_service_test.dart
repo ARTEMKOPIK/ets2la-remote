@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,7 +13,7 @@ void main() {
     });
 
     test('loadTrips returns empty list when no data', () async {
-      final trips = await TripLogService_MockLoadTrips();
+      final trips = await tripLogServiceMockLoadTrips();
       expect(trips, isEmpty);
     });
 
@@ -38,7 +35,7 @@ void main() {
       ];
       await prefs.setString('trip_log_v1', TripEntry.encodeAll(trips));
 
-      final loaded = await TripLogService_MockLoadTrips();
+      final loaded = await tripLogServiceMockLoadTrips();
       expect(loaded.length, 1);
       expect(loaded[0].distanceKm, 42.5);
     });
@@ -47,7 +44,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('trip_log_v1', 'not valid json');
 
-      final trips = await TripLogService_MockLoadTrips();
+      final trips = await tripLogServiceMockLoadTrips();
       expect(trips, isEmpty);
     });
 
@@ -55,7 +52,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('trip_log_v1', '[{"id": 1}]');
 
-      await TripLogService_MockClear();
+      await tripLogServiceMockClear();
 
       final stored = prefs.getString('trip_log_v1');
       expect(stored, isNull);
@@ -63,7 +60,7 @@ void main() {
 
     test('loadTrips handles null gracefully', () async {
       // Don't set any value - should return empty
-      final trips = await TripLogService_MockLoadTrips();
+      final trips = await tripLogServiceMockLoadTrips();
       expect(trips, isEmpty);
     });
   });
@@ -113,7 +110,7 @@ void main() {
 // Mock implementations to test TripLogService static methods
 // These replicate the logic from TripLogService for testing
 
-Future<List<TripEntry>> TripLogService_MockLoadTrips() async {
+Future<List<TripEntry>> tripLogServiceMockLoadTrips() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     return TripEntry.decodeAll(prefs.getString('trip_log_v1'));
@@ -122,7 +119,7 @@ Future<List<TripEntry>> TripLogService_MockLoadTrips() async {
   }
 }
 
-Future<void> TripLogService_MockClear() async {
+Future<void> tripLogServiceMockClear() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('trip_log_v1');

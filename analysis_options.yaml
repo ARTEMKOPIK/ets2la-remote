@@ -21,6 +21,8 @@ analyzer:
     # missing_return: ignore
     todo: ignore
     deprecated_member_use_from_same_package: ignore
+    dangling_library_doc_comments: ignore
+    avoid_redundant_argument_values: ignore
 
 linter:
   rules:

@@ -163,7 +163,7 @@ class TripLogService {
     try {
       final prefs = await SharedPreferences.getInstance();
       return TripEntry.decodeAll(prefs.getString(_prefsKey));
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('TripLogService.loadTrips failed: $e');
       return const [];
     }
@@ -175,7 +175,7 @@ class TripLogService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_prefsKey);
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('TripLogService.clear failed: $e');
     }
   }

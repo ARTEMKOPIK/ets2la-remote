@@ -52,7 +52,14 @@ class ConnectionProfile {
     final id = json['id'] as String?;
     final name = json['name'] as String?;
     final host = json['host'] as String?;
-    if (id == null || name == null || host == null) return null;
+    if (id == null ||
+        id.isEmpty ||
+        name == null ||
+        name.isEmpty ||
+        host == null ||
+        host.isEmpty) {
+      return null;
+    }
     return ConnectionProfile(
       id: id,
       name: name,
@@ -78,7 +85,7 @@ class ConnectionProfile {
         }
       }
       return result;
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('ConnectionProfile.decodeAll failed: $e');
       return const [];
     }

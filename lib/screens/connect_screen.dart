@@ -133,10 +133,12 @@ class _ConnectScreenState extends State<ConnectScreen>
     r'^\[?[0-9a-fA-F:]{2,}\]?$',
   );
 
-  static bool _isValidHost(String host) =>
-      _ipRegex.hasMatch(host) ||
-      _hostnameRegex.hasMatch(host) ||
-      _ipv6Regex.hasMatch(host);
+  static bool _isValidHost(String host) {
+    final cleanHost = ConnectionProvider.stripAccidentalPort(host);
+    return _ipRegex.hasMatch(cleanHost) ||
+        _hostnameRegex.hasMatch(cleanHost) ||
+        _ipv6Regex.hasMatch(cleanHost);
+  }
 
   Future<void> _scanLan() async {
     if (_scanning) return;
@@ -234,10 +236,11 @@ class _ConnectScreenState extends State<ConnectScreen>
               TextFormField(
                 controller: macCtrl,
                 decoration: InputDecoration(
-                  labelText: l10n?.macAddressOptional ?? 'MAC address (optional)',
+                  labelText:
+                      l10n?.macAddressOptional ?? 'MAC address (optional)',
                   hintText: 'AA:BB:CC:11:22:33',
-                  helperText: l10n?.macAddressHelper ??
-                      'Needed for Wake-on-LAN',
+                  helperText:
+                      l10n?.macAddressHelper ?? 'Needed for Wake-on-LAN',
                 ),
                 validator: (v) {
                   final s = (v ?? '').trim();
@@ -396,8 +399,7 @@ class _ConnectScreenState extends State<ConnectScreen>
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor:
-            ok ? AppColors.toastSuccess : AppColors.toastError,
+        backgroundColor: ok ? AppColors.toastSuccess : AppColors.toastError,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(16),
@@ -435,7 +437,8 @@ class _ConnectScreenState extends State<ConnectScreen>
     final ok = await conn.connect(host);
     if (ok && mounted) {
       telem.init(conn.wsService, conn.navService, conn.apiService);
-      telem.startPluginRefresh(conn.wsService, conn.navService, conn.apiService);
+      telem.startPluginRefresh(
+          conn.wsService, conn.navService, conn.apiService);
       // Suggest saving as a profile once we've confirmed the host actually
       // works. Only fires when the host isn't already saved as a profile,
       // so repeat-connects to known hosts don't pester the user.
@@ -536,8 +539,7 @@ class _ConnectScreenState extends State<ConnectScreen>
               title: Text(
                 AppLocalizations.of(context)?.connect ?? 'Connect',
                 style: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w600),
+                    fontFamily: 'Roboto', fontWeight: FontWeight.w600),
               ),
             )
           : null,
@@ -556,8 +558,10 @@ class _ConnectScreenState extends State<ConnectScreen>
 
                   // Title
                   Text(
-                    AppLocalizations.of(context)?.connectToServer ?? 'Connect to ETS2LA',
-                    style: const TextStyle(fontFamily: 'Roboto', 
+                    AppLocalizations.of(context)?.connectToServer ??
+                        'Connect to ETS2LA',
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -565,8 +569,10 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppLocalizations.of(context)?.makeSureRunning ?? 'Enter the IP address of the PC running ETS2LA',
-                    style: const TextStyle(fontFamily: 'Roboto', 
+                    AppLocalizations.of(context)?.makeSureRunning ??
+                        'Enter the IP address of the PC running ETS2LA',
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -581,8 +587,8 @@ class _ConnectScreenState extends State<ConnectScreen>
                       decoration: BoxDecoration(
                         color: AppColors.orange.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border:
-                            Border.all(color: AppColors.orange.withOpacity(0.3)),
+                        border: Border.all(
+                            color: AppColors.orange.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -626,13 +632,15 @@ class _ConnectScreenState extends State<ConnectScreen>
                       // Clear previous error as soon as user starts editing
                       context.read<ConnectionProvider>().clearError();
                     },
-                    style: const TextStyle(fontFamily: 'Roboto',
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
                       fontSize: 18,
                       color: AppColors.textPrimary,
                       letterSpacing: 1,
                     ),
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)?.hostnameOrIp ?? 'IP or hostname',
+                      labelText: AppLocalizations.of(context)?.hostnameOrIp ??
+                          'IP or hostname',
                       hintText: '192.168.1.100',
                       prefixIcon: const Icon(Icons.router_rounded,
                           color: AppColors.textSecondary),
@@ -648,7 +656,8 @@ class _ConnectScreenState extends State<ConnectScreen>
                       decoration: BoxDecoration(
                         color: AppColors.errorDim,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                        border:
+                            Border.all(color: AppColors.error.withOpacity(0.3)),
                       ),
                       child: Row(
                         children: [
@@ -658,17 +667,23 @@ class _ConnectScreenState extends State<ConnectScreen>
                           Expanded(
                             child: Text(
                               _localizedError(context, conn.errorMessage!),
-                              style: const TextStyle(fontFamily: 'Roboto',
-                                  fontSize: 13, color: AppColors.error),
+                              style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 13,
+                                  color: AppColors.error),
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
-                            tooltip: AppLocalizations.of(context)?.dismiss ?? 'Dismiss',
+                            icon: const Icon(Icons.close_rounded,
+                                size: 18, color: AppColors.error),
+                            tooltip: AppLocalizations.of(context)?.dismiss ??
+                                'Dismiss',
                             visualDensity: VisualDensity.compact,
                             padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                            onPressed: () => context.read<ConnectionProvider>().clearError(),
+                            constraints: const BoxConstraints(
+                                minWidth: 32, minHeight: 32),
+                            onPressed: () =>
+                                context.read<ConnectionProvider>().clearError(),
                           ),
                         ],
                       ),
@@ -712,9 +727,12 @@ class _ConnectScreenState extends State<ConnectScreen>
                               ],
                             )
                           : Text(
-                              AppLocalizations.of(context)?.connect ?? 'Connect',
-                              style: const TextStyle(fontFamily: 'Roboto', 
-                                  fontSize: 16, fontWeight: FontWeight.w600),
+                              AppLocalizations.of(context)?.connect ??
+                                  'Connect',
+                              style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
                             ),
                     ),
                   ),
@@ -736,9 +754,12 @@ class _ConnectScreenState extends State<ConnectScreen>
                               color: AppColors.orange),
                       label: Text(
                         _scanning
-                            ? (AppLocalizations.of(context)?.scanning ?? 'Scanning…')
-                            : (AppLocalizations.of(context)?.findEts2la ?? 'Find ETS2LA on LAN'),
-                        style: const TextStyle(fontFamily: 'Roboto', fontSize: 14),
+                            ? (AppLocalizations.of(context)?.scanning ??
+                                'Scanning…')
+                            : (AppLocalizations.of(context)?.findEts2la ??
+                                'Find ETS2LA on LAN'),
+                        style:
+                            const TextStyle(fontFamily: 'Roboto', fontSize: 14),
                       ),
                     ),
                   ),
@@ -784,8 +805,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                       decoration: BoxDecoration(
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(8),
-                        border:
-                            Border.all(color: AppColors.surfaceBorder),
+                        border: Border.all(color: AppColors.surfaceBorder),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -824,11 +844,10 @@ class _ConnectScreenState extends State<ConnectScreen>
                               ),
                               onPressed: () => _showMdnsHelpDialog(context),
                               style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
                                 minimumSize: Size.zero,
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
                           ),
@@ -842,18 +861,21 @@ class _ConnectScreenState extends State<ConnectScreen>
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            AppLocalizations.of(context)?.foundOnLan ?? 'Found on LAN',
+                            AppLocalizations.of(context)?.foundOnLan ??
+                                'Found on LAN',
                             style: const TextStyle(
                                 fontFamily: 'Roboto',
                                 fontSize: 12,
                                 color: AppColors.textMuted),
                           ),
                         ),
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -873,11 +895,13 @@ class _ConnectScreenState extends State<ConnectScreen>
                   if (conn.profiles.isNotEmpty) ...[
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            AppLocalizations.of(context)?.profiles ?? 'Profiles',
+                            AppLocalizations.of(context)?.profiles ??
+                                'Profiles',
                             style: const TextStyle(
                               fontFamily: 'Roboto',
                               fontSize: 12,
@@ -885,7 +909,8 @@ class _ConnectScreenState extends State<ConnectScreen>
                             ),
                           ),
                         ),
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -899,10 +924,10 @@ class _ConnectScreenState extends State<ConnectScreen>
                           onRemove: () => context
                               .read<ConnectionProvider>()
                               .removeProfile(profile.id),
-                          onWake: (profile.mac != null &&
-                                  profile.mac!.isNotEmpty)
-                              ? () => _wakeProfile(profile)
-                              : null,
+                          onWake:
+                              (profile.mac != null && profile.mac!.isNotEmpty)
+                                  ? () => _wakeProfile(profile)
+                                  : null,
                           onShare: () => _shareProfile(profile),
                           onToggleFavourite: () => _toggleFavourite(profile),
                         )),
@@ -912,14 +937,19 @@ class _ConnectScreenState extends State<ConnectScreen>
                   if (conn.recentHosts.isNotEmpty) ...[
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(AppLocalizations.of(context)?.recent ?? 'Recent',
-                              style: const TextStyle(fontFamily: 'Roboto', 
-                                  fontSize: 12, color: AppColors.textMuted)),
+                          child: Text(
+                              AppLocalizations.of(context)?.recent ?? 'Recent',
+                              style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 12,
+                                  color: AppColors.textMuted)),
                         ),
-                        const Expanded(child: Divider(color: AppColors.surfaceBorder)),
+                        const Expanded(
+                            child: Divider(color: AppColors.surfaceBorder)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -934,7 +964,9 @@ class _ConnectScreenState extends State<ConnectScreen>
                               .removeRecentHost(host),
                           onSaveAsProfile: () => _showProfileDialog(
                             ConnectionProfile(
-                              id: DateTime.now().microsecondsSinceEpoch.toString(),
+                              id: DateTime.now()
+                                  .microsecondsSinceEpoch
+                                  .toString(),
                               name: '',
                               host: host,
                             ),
@@ -1097,14 +1129,17 @@ class _RecentHostTile extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
             child: Row(
               children: [
-                const Icon(Icons.history_rounded, size: 18, color: AppColors.textSecondary),
+                const Icon(Icons.history_rounded,
+                    size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(host,
-                        style: const TextStyle(fontFamily: 'Roboto',
-                            fontSize: 14, color: AppColors.textPrimary)),
+                        style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            color: AppColors.textPrimary)),
                   ),
                 ),
                 IconButton(
@@ -1169,9 +1204,8 @@ class _ProfileTile extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: profile.favourite
-              ? AppColors.orangeDim
-              : AppColors.surfaceBorder,
+          color:
+              profile.favourite ? AppColors.orangeDim : AppColors.surfaceBorder,
         ),
       ),
       child: Material(

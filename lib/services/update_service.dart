@@ -27,7 +27,8 @@ class UpdateInfo {
 
   /// Human-readable build date from tag like "1.0.0-build.202604221613"
   String? get buildDate {
-    final match = RegExp(r'build\.(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})').firstMatch(version);
+    final match = RegExp(r'build\.(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})')
+        .firstMatch(version);
     if (match == null) return null;
     return '${match.group(3)}.${match.group(2)}.${match.group(1)}';
   }
@@ -43,7 +44,10 @@ class UpdateInfo {
   static String cleanReleaseNotes(String raw) {
     var text = raw;
     // Remove "**Full Changelog**: https://..." lines
-    text = text.replaceAll(RegExp(r'\*\*Full Changelog\*\*:?\s*https?://\S+', caseSensitive: false), '');
+    text = text.replaceAll(
+        RegExp(r'\*\*Full Changelog\*\*:?\s*https?://\S+',
+            caseSensitive: false),
+        '');
     // Remove standalone GitHub URLs
     text = text.replaceAll(RegExp(r'https?://github\.com/\S+'), '');
     // Remove markdown bold markers
@@ -92,7 +96,8 @@ class UpdateService {
 
       final data = jsonDecode(res.body) as Map<String, dynamic>;
       final tagName = data['tag_name'] as String? ?? '';
-      final latestVersion = tagName.startsWith('v') ? tagName.substring(1) : tagName;
+      final latestVersion =
+          tagName.startsWith('v') ? tagName.substring(1) : tagName;
 
       if (_compareVersions(latestVersion, currentV) <= 0) return null;
 
@@ -180,3 +185,16 @@ class UpdateService {
   }
 }
 
+class UpdateServiceClient {
+  const UpdateServiceClient();
+
+  Future<String> getCurrentVersion() => UpdateService.getCurrentVersion();
+
+  Future<UpdateInfo?> checkForUpdate() => UpdateService.checkForUpdate();
+
+  Future<String?> getReleaseNotes(String version) =>
+      UpdateService.getReleaseNotes(version);
+
+  int compareVersions(String v1, String v2) =>
+      UpdateService.compareVersions(v1, v2);
+}

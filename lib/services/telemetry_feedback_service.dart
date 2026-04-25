@@ -97,7 +97,7 @@ class TelemetryFeedbackService {
       // Assistant audio channel on Android so ducking is short.
       await _tts.setSharedInstance(true);
       await _tts.awaitSpeakCompletion(true);
-    } catch (e, st) {
+    } catch (e) {
       // Non-fatal — flutter_tts throws on iOS-only setters when running
       // on Android, and on some old Android images setSharedInstance
       // returns a PlatformException we can safely ignore.

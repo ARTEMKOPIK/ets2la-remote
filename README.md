@@ -1,7 +1,7 @@
 # ETS2LA Remote
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/koenidv/ets2la-remote/main/assets/unity_build/icon.png" alt="ETS2LA Remote Logo" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/ARTEMKOPIK/ets2la-remote/main/assets/unity_build/icon.png" alt="ETS2LA Remote Logo" width="128" height="128">
 </p>
 
 <p align="center">
@@ -9,14 +9,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/koenidv/ets2la-remote/releases">
-    <img src="https://img.shields.io/github/v/release/koenidv/ets2la-remote?include_prereleases&style=flat-square" alt="GitHub release">
+  <a href="https://github.com/ARTEMKOPIK/ets2la-remote/releases">
+    <img src="https://img.shields.io/github/v/release/ARTEMKOPIK/ets2la-remote?include_prereleases&style=flat-square" alt="GitHub release">
   </a>
-  <a href="https://github.com/koenidv/ets2la-remote/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/koenidv/ets2la-remote?style=flat-square" alt="License">
+  <a href="https://github.com/ARTEMKOPIK/ets2la-remote/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/ARTEMKOPIK/ets2la-remote?style=flat-square" alt="License">
   </a>
-  <a href="https://github.com/koenidv/ets2la-remote/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/koenidv/ets2la-remote/android.yml?style=flat-square" alt="Build Status">
+  <a href="https://github.com/ARTEMKOPIK/ets2la-remote/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/ARTEMKOPIK/ets2la-remote/ci.yml?style=flat-square" alt="Build Status">
   </a>
 </p>
 
@@ -41,7 +41,7 @@
 
 ## About
 
-**ETS2LA Remote** is a Flutter-based Android application that provides mobile control for the [ETS2 Local Radio](https://github.com/koenidv/ets2-local-radio) (ETS2LA) autopilot system. The app connects to a computer running ETS2LA via WebSocket to display real-time telemetry, control autopilot features, and provide an immersive driver experience.
+**ETS2LA Remote** is a Flutter-based Android application that provides mobile control for the [ETS2LA](https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist) autopilot system. The app connects to a computer running ETS2LA via WebSocket to display real-time telemetry, control autopilot features, and provide an immersive driver experience.
 
 This app is designed to work alongside the ETS2LA desktop application, enabling you to monitor and control your autonomous trucking operations directly from your Android device.
 
@@ -111,7 +111,7 @@ This app is designed to work alongside the ETS2LA desktop application, enabling 
 
 ### Computer Running ETS2LA
 
-- **Euro Truck Simulator 2** with [ETS2 Local Radio](https://github.com/koenidv/ets2-local-radio) mod installed
+- **Euro Truck Simulator 2 / American Truck Simulator** with [ETS2LA](https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist) running
 - **Network**: Same local network as the Android device (or properly configured port forwarding)
 
 ### Ports
@@ -122,7 +122,7 @@ The app communicates on four ports (default values):
 |---------|--------------|----------|
 | API (REST) | 37520 | HTTP |
 | Visualization | 37522 | WebSocket |
-| Navigation | 37521 | WebSocket |
+| Navigation | 62840 | WebSocket |
 | Pages | 37523 | WebSocket |
 
 ---
@@ -138,7 +138,7 @@ The app communicates on four ports (default values):
 
 ### From GitHub Releases
 
-1. Go to the [Releases Page](https://github.com/koenidv/ets2la-remote/releases)
+1. Go to the [Releases Page](https://github.com/ARTEMKOPIK/ets2la-remote/releases)
 2. Download the latest APK (`ets2la-remote-vX.X.X.apk`)
 3. Enable "Install from unknown sources" in your device settings
 4. Open the APK file and follow the installation prompts
@@ -147,7 +147,7 @@ The app communicates on four ports (default values):
 
 ```bash
 # Clone the repository
-git clone https://github.com/koenidv/ets2la-remote.git
+git clone https://github.com/ARTEMKOPIK/ets2la-remote.git
 cd ets2la-remote
 
 # Install Flutter dependencies
@@ -277,7 +277,7 @@ You can customize the ports in Settings > Ports (Advanced):
 |---------|---------|-------------|
 | API Port | 37520 | REST API for plugin queries |
 | Visualization Port | 37522 | WebSocket for telemetry |
-| Navigation Port | 37521 | WebSocket for GPS data |
+| Navigation Port | 62840 | WebSocket for GPS data |
 | Pages Port | 37523 | WebSocket for plugin pages |
 
 ### Connection Profile
@@ -321,7 +321,7 @@ Contributions are welcome! Please follow these guidelines:
 # See: https://flutter.dev/docs/get-started/install
 
 # Clone and setup
-git clone https://github.com/koenidv/ets2la-remote.git
+git clone https://github.com/ARTEMKOPIK/ets2la-remote.git
 cd ets2la-remote
 flutter pub get
 
@@ -342,7 +342,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ## Acknowledgments
 
-- [ETS2 Local Radio](https://github.com/koenidv/ets2-local-radio) — The companion desktop application
+- [ETS2LA](https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist) — The companion desktop application
 - [Flutter](https://flutter.dev) — Cross-platform UI framework
 - [OpenStreetMap](https://www.openstreetmap.org) — Map data provider
 - Contributors and beta testers

@@ -1,9 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ets2la_remote/providers/connection_provider.dart';
+import 'package:ets2la_remote/providers/settings_provider.dart';
 import 'package:ets2la_remote/models/connection_profile.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('ConnectionProvider', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
@@ -11,8 +14,7 @@ void main() {
 
     group('stripAccidentalPort static helper', () {
       test('strips port from plain IPv4', () {
-        expect(
-            ConnectionProvider.stripAccidentalPort('192.168.0.5:37522'),
+        expect(ConnectionProvider.stripAccidentalPort('192.168.0.5:37522'),
             '192.168.0.5');
       });
 
@@ -22,8 +24,8 @@ void main() {
       });
 
       test('returns IPv6 unchanged (no split needed)', () {
-        expect(
-            ConnectionProvider.stripAccidentalPort('2001:db8::1'), '2001:db8::1');
+        expect(ConnectionProvider.stripAccidentalPort('2001:db8::1'),
+            '2001:db8::1');
       });
 
       test('strips port from bracketed IPv6', () {
@@ -36,8 +38,12 @@ void main() {
       });
 
       test('trims whitespace before processing', () {
-        expect(
-            ConnectionProvider.stripAccidentalPort('  192.168.0.5:8080  '),
+        expect(ConnectionProvider.stripAccidentalPort('  192.168.0.5:8080  '),
+            '192.168.0.5');
+      });
+
+      test('strips API port typed by user', () {
+        expect(ConnectionProvider.stripAccidentalPort('192.168.0.5:37520'),
             '192.168.0.5');
       });
 
@@ -338,7 +344,9 @@ void main() {
       });
 
       test('notifies listeners', () async {
-        SharedPreferences.setMockInitialValues({'recent_hosts': ['a']});
+        SharedPreferences.setMockInitialValues({
+          'recent_hosts': ['a']
+        });
         final provider = ConnectionProvider();
         addTearDown(provider.dispose);
         await provider.ready;
@@ -394,12 +402,12 @@ void main() {
         addTearDown(provider.dispose);
         await provider.ready;
 
-        final settings = AppSettings.create();
+        final settings = await AppSettings.create();
         // We can't use the factory since it calls SharedPreferences.getInstance()
         // again — test the configurePorts path via a partial mock approach:
         // just verify it accepts an AppSettings object and no exception is thrown.
         // The actual port application is tested via the wsService internals.
-        expect(() => provider.configurePorts(await settings), returnsNormally);
+        expect(() => provider.configurePorts(settings), returnsNormally);
       });
     });
 

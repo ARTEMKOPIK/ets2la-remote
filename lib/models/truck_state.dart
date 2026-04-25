@@ -63,10 +63,19 @@ class TruckState {
 
   factory TruckState.fromJson(Map<String, dynamic> json) {
     return TruckState(
-      speed: _parseDouble(json['speed']),
-      speedLimit: _parseDouble(json['speed_limit']),
+      speed: _speedToMetersPerSecond(
+        json['speed'],
+        kmhValue: json['speedKmh'],
+      ),
+      speedLimit: _speedToMetersPerSecond(
+        json['speed_limit'],
+        kmhValue: json['speedLimitKmh'],
+      ),
       cruiseControlSpeed: _parseDouble(json['cruise_control']),
-      targetSpeed: _parseDouble(json['target_speed']),
+      targetSpeed: _speedToMetersPerSecond(
+        json['target_speed'],
+        kmhValue: json['targetSpeedKmh'] ?? json['accTargetSpeedKmh'],
+      ),
       throttle: _parseDouble(json['throttle']),
       brake: _parseDouble(json['brake']),
       indicatingLeft: _parseBool(json['indicating_left']),
@@ -82,12 +91,18 @@ class TruckState {
   double get speedKmh => (speed < 0 ? 0 : speed) * 3.6;
   // speedLimit can be 0 (no limit) but never negative — clamp to 0 for safety
   double get speedLimitKmh => (speedLimit < 0 ? 0 : speedLimit) * 3.6;
-  double get targetSpeedKmh => targetSpeed * 3.6;
+  double get targetSpeedKmh => (targetSpeed < 0 ? 0 : targetSpeed) * 3.6;
   bool get isOverSpeedLimit => speedLimit > 0 && speed > speedLimit * 1.05;
 
   // Use OR of both indicator fields for robustness
   bool get isIndicatingLeft => indicatingLeft || indicatorLeft;
   bool get isIndicatingRight => indicatingRight || indicatorRight;
+
+  static double _speedToMetersPerSecond(Object? raw, {Object? kmhValue}) {
+    if (raw != null) return _parseDouble(raw);
+    if (kmhValue != null) return _parseDouble(kmhValue) / 3.6;
+    return 0;
+  }
 }
 
 class TruckTransform {
@@ -99,8 +114,12 @@ class TruckTransform {
   final double rz;
 
   const TruckTransform({
-    this.x = 0, this.y = 0, this.z = 0,
-    this.rx = 0, this.ry = 0, this.rz = 0,
+    this.x = 0,
+    this.y = 0,
+    this.z = 0,
+    this.rx = 0,
+    this.ry = 0,
+    this.rz = 0,
   });
 
   factory TruckTransform.fromJson(Map<String, dynamic> json) {
@@ -121,14 +140,30 @@ class AutopilotStatus {
 
   const AutopilotStatus({this.enabled = const [], this.disabled = const []});
 
-  bool get steeringEnabled => enabled.contains('Map');
-  bool get accEnabled => enabled.contains('AdaptiveCruiseControl');
-  bool get collisionEnabled => enabled.contains('CollisionAvoidance');
+  bool get steeringEnabled => _hasPlugin('Map') || _hasPlugin('plugins.map');
+  bool get accEnabled =>
+      _hasPlugin('AdaptiveCruiseControl') ||
+      _hasPlugin('plugins.adaptivecruisecontrol');
+  bool get collisionEnabled =>
+      _hasPlugin('CollisionAvoidance') ||
+      _hasPlugin('plugins.collisionavoidance');
+
+  bool _hasPlugin(String name) => enabled.any(
+      (plugin) => plugin == name || plugin.toLowerCase() == name.toLowerCase());
 
   factory AutopilotStatus.fromJson(Map<String, dynamic> json) {
+    final enabled = _parseStringList(json['enabled']);
+    final disabled = _parseStringList(json['disabled']);
+    if (enabled.isNotEmpty || disabled.isNotEmpty) {
+      return AutopilotStatus(enabled: enabled, disabled: disabled);
+    }
+    final legacyEnabled = <String>[
+      if (_parseBool(json['steeringEnabled'])) 'Map',
+      if (_parseBool(json['accEnabled'])) 'AdaptiveCruiseControl',
+      if (_parseBool(json['collisionEnabled'])) 'CollisionAvoidance',
+    ];
     return AutopilotStatus(
-      enabled: _parseStringList(json['enabled']),
-      disabled: _parseStringList(json['disabled']),
+      enabled: legacyEnabled,
     );
   }
 }

@@ -3,8 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ets2la_remote/providers/settings_provider.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('AppSettings', () {
-    late Map<String, Object?> prefsStore;
+    late Map<String, Object> prefsStore;
 
     setUp(() {
       prefsStore = {};
@@ -41,12 +43,9 @@ void main() {
         expect(settings.isReady, true);
       });
 
-      test('marks listeners as notified after load', () async {
-        int notifyCount = 0;
+      test('marks settings ready after load', () async {
         final settings = await AppSettings.create();
-        settings.addListener(() => notifyCount++);
-        // create() calls notifyListeners() once at end of _load()
-        expect(notifyCount, 1);
+        expect(settings.isReady, true);
       });
     });
 
@@ -103,7 +102,7 @@ void main() {
         expect(settings.connectionTimeout, 10);
         expect(settings.portApi, 40000);
         expect(settings.portViz, 40001);
-        expect(settings.portNav, 70000);
+        expect(settings.portNav, 62840);
         expect(settings.portPages, 40002);
         expect(settings.speedUnit, SpeedUnit.mph);
         expect(settings.gaugeMax, GaugeMaxSpeed.s160);

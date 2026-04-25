@@ -26,7 +26,7 @@ class TelemetryProvider extends ChangeNotifier {
 
   /// Rolling ring buffer of the last ~60s of km/h samples for the sparkline
   /// on the dashboard. Capped so we never grow unboundedly.
-  static const int _historyCap = 120;
+  static const int historyCap = 120;
   static const Duration _sampleInterval = Duration(milliseconds: 500);
   final List<double> _speedHistory = <double>[];
   DateTime _lastSpeedSample = DateTime.fromMillisecondsSinceEpoch(0);
@@ -156,9 +156,8 @@ class TelemetryProvider extends ChangeNotifier {
     if (now.difference(_lastSpeedSample) < _sampleInterval) return;
     _lastSpeedSample = now;
     _speedHistory.add(truckState.speedKmh);
-    if (_speedHistory.length > _historyCap) {
-      // Remove oldest entries to maintain cap — keeps newest `_historyCap` items.
-      _speedHistory.removeRange(0, _speedHistory.length - _historyCap);
+    if (_speedHistory.length > historyCap) {
+      _speedHistory.removeRange(0, _speedHistory.length - historyCap);
     }
   }
 
@@ -217,8 +216,7 @@ class TelemetryProvider extends ChangeNotifier {
     // Only start if connected
     if (wsService.state != WsConnectionState.connected) return;
 
-    _pluginRefreshTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) async {
+    _pluginRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
       // Guard: prevent overlapping API calls (e.g. if previous call took >5s)
       if (_pluginRefreshBusy) return;
       _pluginRefreshBusy = true;

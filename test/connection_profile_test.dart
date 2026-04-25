@@ -174,12 +174,12 @@ void main() {
     });
 
     test('decodeAll skips malformed entries', () {
-      final encoded =
+      const encoded =
           '[{"id": "1", "name": "A", "host": "1.2.3.4"}, {"name": "B", "host": "5.6.7.8"}]';
-      // First entry is malformed (missing "id"), second is well-formed
+      // First entry is well-formed, second is malformed (missing "id").
       final decoded = ConnectionProfile.decodeAll(encoded);
       expect(decoded.length, 1);
-      expect(decoded[0].name, 'B');
+      expect(decoded[0].name, 'A');
     });
   });
 }

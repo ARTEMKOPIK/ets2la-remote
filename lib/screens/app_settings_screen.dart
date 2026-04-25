@@ -30,7 +30,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
-    if (mounted) setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+    if (mounted) {
+      setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+    }
   }
 
   Future<void> _launchUrl(String url) async {
@@ -48,19 +50,21 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings', style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings',
+            style: const TextStyle(
+                fontFamily: 'Roboto', fontWeight: FontWeight.w600)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-
           // ── CONNECTION ─────────────────────────────────────────
           _SectionHeader(l10n?.connection ?? 'Connection'),
           _SettingsCard(children: [
             _SwitchTile(
               icon: Icons.wifi_rounded,
               title: l10n?.autoConnectOnLaunch ?? 'Auto-connect on launch',
-              subtitle: l10n?.reconnectToLastIp ?? 'Reconnect to last IP automatically',
+              subtitle: l10n?.reconnectToLastIp ??
+                  'Reconnect to last IP automatically',
               value: s.autoConnect,
               onChanged: s.setAutoConnect,
             ),
@@ -68,27 +72,43 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SliderTile(
               icon: Icons.timer_rounded,
               title: l10n?.connectionTimeout ?? 'Connection timeout',
-              subtitle: l10n?.secondsFormat(s.connectionTimeout) ?? '${s.connectionTimeout} seconds',
+              subtitle: l10n?.secondsFormat(s.connectionTimeout) ??
+                  '${s.connectionTimeout} seconds',
               value: s.connectionTimeout.toDouble(),
-              min: 2, max: 15, divisions: 13,
+              min: 2,
+              max: 15,
+              divisions: 13,
               onChanged: (v) => s.setConnectionTimeout(v.round()),
             ),
           ]),
 
           _SectionHeader(l10n?.portsAdvanced ?? 'Ports (Advanced)'),
           _SettingsCard(children: [
-            _PortTile(label: l10n?.portApiLabel ?? 'API (REST)', value: s.portApi, onChanged: s.setPortApi),
+            _PortTile(
+                label: l10n?.portApiLabel ?? 'API (REST)',
+                value: s.portApi,
+                onChanged: s.setPortApi),
             _Divider(),
-            _PortTile(label: l10n?.portVizLabel ?? 'Visualization (WS)', value: s.portViz, onChanged: s.setPortViz),
+            _PortTile(
+                label: l10n?.portVizLabel ?? 'Visualization (WS)',
+                value: s.portViz,
+                onChanged: s.setPortViz),
             _Divider(),
-            _PortTile(label: l10n?.portNavLabel ?? 'Navigation (WS)', value: s.portNav, onChanged: s.setPortNav),
+            _PortTile(
+                label: l10n?.portNavLabel ?? 'Navigation (WS)',
+                value: s.portNav,
+                onChanged: s.setPortNav),
             _Divider(),
-            _PortTile(label: l10n?.portPagesLabel ?? 'Pages (WS)', value: s.portPages, onChanged: s.setPortPages),
+            _PortTile(
+                label: l10n?.portPagesLabel ?? 'Pages (WS)',
+                value: s.portPages,
+                onChanged: s.setPortPages),
           ]),
           Padding(
             padding: const EdgeInsets.only(top: 6, left: 4, right: 4),
             child: Text(
-              l10n?.portsAdvancedHint ?? 'Only change if ETS2LA uses non-default ports',
+              l10n?.portsAdvancedHint ??
+                  'Only change if ETS2LA uses non-default ports',
               style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
           ),
@@ -115,7 +135,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SwitchTile(
               icon: Icons.extension_rounded,
               title: l10n?.showActivePlugins ?? 'Show Active Plugins',
-              subtitle: l10n?.pluginChipsOnDashboard ?? 'Plugin chips on Dashboard',
+              subtitle:
+                  l10n?.pluginChipsOnDashboard ?? 'Plugin chips on Dashboard',
               value: s.showActivePlugins,
               onChanged: s.setShowActivePlugins,
             ),
@@ -124,8 +145,10 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               icon: Icons.language_rounded,
               title: l10n?.language ?? 'Language',
               options: [l10n?.languageSystem ?? 'System', 'English', 'Русский'],
-              selectedIndex: s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
-              onChanged: (i) => s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
+              selectedIndex:
+                  s.language == null ? 0 : (s.language == 'en' ? 1 : 2),
+              onChanged: (i) =>
+                  s.setLanguage(i == 0 ? null : (i == 1 ? 'en' : 'ru')),
             ),
             _Divider(),
             _AccentPickerTile(
@@ -235,7 +258,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SwitchTile(
               icon: Icons.my_location_rounded,
               title: l10n?.autoFollowTruck ?? 'Auto-follow truck',
-              subtitle: l10n?.keepTruckCentered ?? 'Keep truck centered by default',
+              subtitle:
+                  l10n?.keepTruckCentered ?? 'Keep truck centered by default',
               value: s.mapAutoFollow,
               onChanged: s.setMapAutoFollow,
             ),
@@ -243,7 +267,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SwitchTile(
               icon: Icons.route_rounded,
               title: l10n?.showRoute ?? 'Show route',
-              subtitle: l10n?.displayNavRoute ?? 'Display navigation route on map',
+              subtitle:
+                  l10n?.displayNavRoute ?? 'Display navigation route on map',
               value: s.mapShowRoute,
               onChanged: s.setMapShowRoute,
             ),
@@ -275,7 +300,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _SwitchTile(
               icon: Icons.link_rounded,
               title: l10n?.autoConnectOnOpen ?? 'Auto-connect on open',
-              subtitle: l10n?.connectWhenTabOpens ?? 'Connect to ETS2LA when tab opens',
+              subtitle: l10n?.connectWhenTabOpens ??
+                  'Connect to ETS2LA when tab opens',
               value: s.vizAutoConnect,
               onChanged: s.setVizAutoConnect,
             ),
@@ -292,7 +318,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             _Divider(),
             _InfoTile(
               icon: Icons.router_rounded,
-              title: AppLocalizations.of(context)?.connectedTo ?? 'Connected to',
+              title:
+                  AppLocalizations.of(context)?.connectedTo ?? 'Connected to',
               value: conn.currentHost.isNotEmpty ? conn.currentHost : '—',
             ),
             _Divider(),
@@ -324,9 +351,12 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(fontFamily: 'Roboto', 
-          fontSize: 11, fontWeight: FontWeight.w700,
-          color: AppColors.textSecondary, letterSpacing: 1.5,
+        style: const TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textSecondary,
+          letterSpacing: 1.5,
         ),
       ),
     );
@@ -366,8 +396,11 @@ class _SwitchTile extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const _SwitchTile({
-    required this.icon, required this.title,
-    this.subtitle, required this.value, required this.onChanged,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.value,
+    required this.onChanged,
   });
 
   @override
@@ -384,9 +417,18 @@ class _SwitchTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  Text(title,
+                      style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500)),
                   if (subtitle != null)
-                    Text(subtitle!, style: const TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
+                    Text(subtitle!,
+                        style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 12,
+                            color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -469,8 +511,10 @@ class _SegmentTile extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   const _SegmentTile({
-    required this.icon, required this.title,
-    required this.options, required this.selectedIndex,
+    required this.icon,
+    required this.title,
+    required this.options,
+    required this.selectedIndex,
     required this.onChanged,
   });
 
@@ -482,7 +526,13 @@ class _SegmentTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(
+              child: Text(title,
+                  style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500))),
           const SizedBox(width: 8),
           Container(
             decoration: BoxDecoration(
@@ -498,16 +548,20 @@ class _SegmentTile extends StatelessWidget {
                   onTap: () => onChanged(e.key),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: selected ? AppColors.orange : Colors.transparent,
                       borderRadius: BorderRadius.circular(7),
                     ),
                     child: Text(
                       e.value,
-                      style: TextStyle(fontFamily: 'Roboto', 
-                        fontSize: 12, fontWeight: FontWeight.w600,
-                        color: selected ? Colors.white : AppColors.textSecondary,
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            selected ? Colors.white : AppColors.textSecondary,
                       ),
                     ),
                   ),
@@ -531,9 +585,14 @@ class _SliderTile extends StatelessWidget {
   final ValueChanged<double> onChanged;
 
   const _SliderTile({
-    required this.icon, required this.title, required this.subtitle,
-    required this.value, required this.min, required this.max,
-    required this.divisions, required this.onChanged,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.onChanged,
   });
 
   @override
@@ -546,13 +605,26 @@ class _SliderTile extends StatelessWidget {
             children: [
               Icon(icon, size: 20, color: AppColors.orange),
               const SizedBox(width: 14),
-              Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-              Text(subtitle, style: const TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.orange, fontWeight: FontWeight.w600)),
+              Expanded(
+                  child: Text(title,
+                      style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500))),
+              Text(subtitle,
+                  style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 13,
+                      color: AppColors.orange,
+                      fontWeight: FontWeight.w600)),
             ],
           ),
           Slider(
             value: value,
-            min: min, max: max, divisions: divisions,
+            min: min,
+            max: max,
+            divisions: divisions,
             activeColor: AppColors.orange,
             inactiveColor: AppColors.surfaceElevated,
             onChanged: onChanged,
@@ -564,22 +636,35 @@ class _SliderTile extends StatelessWidget {
 }
 
 // ─── Port edit tile ───────────────────────────────────────────────────────────
-class _PortTile extends StatelessWidget {
+class _PortTile extends StatefulWidget {
   final String label;
   final int value;
   final ValueChanged<int> onChanged;
 
-  const _PortTile({required this.label, required this.value, required this.onChanged});
+  const _PortTile(
+      {required this.label, required this.value, required this.onChanged});
 
+  @override
+  State<_PortTile> createState() => _PortTileState();
+}
+
+class _PortTileState extends State<_PortTile> {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          const Icon(Icons.settings_ethernet_rounded, size: 20, color: AppColors.orange),
+          const Icon(Icons.settings_ethernet_rounded,
+              size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
-          Expanded(child: Text(label, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
+          Expanded(
+              child: Text(widget.label,
+                  style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500))),
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -588,17 +673,21 @@ class _PortTile extends StatelessWidget {
               child: Container(
                 constraints: const BoxConstraints(minHeight: 40, minWidth: 64),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.surfaceBorder),
                 ),
                 child: Text(
-                  '$value',
-                  style: const TextStyle(fontFamily: 'Roboto',
-                    fontSize: 13, fontWeight: FontWeight.w600,
-                    color: AppColors.orange, fontFeatures: [FontFeature.tabularFigures()],
+                  '${widget.value}',
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.orange,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
               ),
@@ -610,43 +699,78 @@ class _PortTile extends StatelessWidget {
   }
 
   void _editPort(BuildContext context) {
-    final ctrl = TextEditingController(text: '$value');
+    final ctrl = TextEditingController(text: '${widget.value}');
+    bool valid = true;
     // `showDialog` never completes before `dispose` is safe; tie the
     // controller lifetime to the dialog instead of leaking it on every edit.
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text(label, style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary)),
-        content: TextField(
-          controller: ctrl,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.done,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(5),
-          ],
-          autofocus: true,
-          onSubmitted: (_) {
-            final v = int.tryParse(ctrl.text);
-            if (v != null && v > 0 && v < 65536) onChanged(v);
-            Navigator.pop(context);
-          },
-          style: const TextStyle(fontFamily: 'Roboto', color: AppColors.textPrimary, fontSize: 18),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final v = int.tryParse(ctrl.text);
-              if (v != null && v > 0 && v < 65536) onChanged(v);
-              Navigator.pop(context);
+      builder: (_) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: Text(widget.label,
+              style: const TextStyle(
+                  fontFamily: 'Roboto', color: AppColors.textPrimary)),
+          content: TextField(
+            controller: ctrl,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(5),
+            ],
+            autofocus: true,
+            onChanged: (text) {
+              final nextValid = _isPortTextValid(text);
+              if (nextValid != valid) {
+                setDialogState(() => valid = nextValid);
+              }
             },
-            child: Text(AppLocalizations.of(context)?.ok ?? 'Save'),
+            onSubmitted: (_) => _submitPort(dialogContext, ctrl, () {
+              setDialogState(() => valid = false);
+            }),
+            style: const TextStyle(
+                fontFamily: 'Roboto',
+                color: AppColors.textPrimary,
+                fontSize: 18),
+            decoration: InputDecoration(
+              helperText: '1–65535',
+              errorText: valid ? null : '1–65535',
+            ),
           ),
-        ],
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
+            ElevatedButton(
+              onPressed: () => _submitPort(dialogContext, ctrl, () {
+                setDialogState(() => valid = false);
+              }),
+              child: Text(AppLocalizations.of(context)?.ok ?? 'Save'),
+            ),
+          ],
+        ),
       ),
     ).whenComplete(ctrl.dispose);
+  }
+
+  bool _isPortTextValid(String text) {
+    final v = int.tryParse(text);
+    return v != null && v > 0 && v < 65536;
+  }
+
+  void _submitPort(
+    BuildContext context,
+    TextEditingController ctrl,
+    VoidCallback onInvalid,
+  ) {
+    final v = int.tryParse(ctrl.text);
+    if (v != null && v > 0 && v < 65536) {
+      widget.onChanged(v);
+      Navigator.pop(context);
+    } else {
+      onInvalid();
+    }
   }
 }
 
@@ -656,7 +780,8 @@ class _InfoTile extends StatelessWidget {
   final String title;
   final String value;
 
-  const _InfoTile({required this.icon, required this.title, required this.value});
+  const _InfoTile(
+      {required this.icon, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -666,8 +791,18 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 14),
-          Expanded(child: Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500))),
-          Text(value, style: const TextStyle(fontFamily: 'Roboto', fontSize: 13, color: AppColors.textSecondary)),
+          Expanded(
+              child: Text(title,
+                  style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500))),
+          Text(value,
+              style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 13,
+                  color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -681,7 +816,11 @@ class _TapTile extends StatelessWidget {
   final String? subtitle;
   final VoidCallback onTap;
 
-  const _TapTile({required this.icon, required this.title, this.subtitle, required this.onTap});
+  const _TapTile(
+      {required this.icon,
+      required this.title,
+      this.subtitle,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -698,13 +837,23 @@ class _TapTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontFamily: 'Roboto', fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  Text(title,
+                      style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500)),
                   if (subtitle != null)
-                    Text(subtitle!, style: const TextStyle(fontFamily: 'Roboto', fontSize: 12, color: AppColors.textSecondary)),
+                    Text(subtitle!,
+                        style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 12,
+                            color: AppColors.textSecondary)),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                size: 14, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -738,15 +887,18 @@ class _CheckUpdateTileState extends State<_CheckUpdateTile> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              const Icon(Icons.check_circle_rounded,
+                  color: Colors.white, size: 18),
               const SizedBox(width: 10),
               Text(widget.l10n?.noUpdates ?? 'You\'re up to date',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w500)),
             ],
           ),
           backgroundColor: AppColors.toastSuccess,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
         ),
@@ -763,16 +915,29 @@ class _CheckUpdateTileState extends State<_CheckUpdateTile> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(Icons.system_update_rounded, size: 20, color: _checking ? AppColors.textMuted : AppColors.orange),
+            Icon(Icons.system_update_rounded,
+                size: 20,
+                color: _checking ? AppColors.textMuted : AppColors.orange),
             const SizedBox(width: 14),
             Expanded(
               child: Text(widget.l10n?.checkForUpdates ?? 'Check for updates',
-                style: TextStyle(fontFamily: 'Roboto', fontSize: 14, color: _checking ? AppColors.textMuted : AppColors.textPrimary, fontWeight: FontWeight.w500)),
+                  style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      color: _checking
+                          ? AppColors.textMuted
+                          : AppColors.textPrimary,
+                      fontWeight: FontWeight.w500)),
             ),
             if (_checking)
-              const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange))
+              const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: AppColors.orange))
             else
-              const Icon(Icons.refresh_rounded, size: 18, color: AppColors.textMuted),
+              const Icon(Icons.refresh_rounded,
+                  size: 18, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -800,8 +965,7 @@ class _AccentPickerTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          const Icon(Icons.palette_rounded,
-              size: 20, color: AppColors.orange),
+          const Icon(Icons.palette_rounded, size: 20, color: AppColors.orange),
           const SizedBox(width: 14),
           Expanded(
             child: Text(

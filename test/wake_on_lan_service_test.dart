@@ -87,13 +87,13 @@ void main() {
     group('_buildPacket', () {
       test('creates 102-byte magic packet', () {
         final mac = WakeOnLanService.parseMac('AA:BB:CC:DD:EE:FF')!;
-        final packet = WakeOnLanService_MockBuildPacket(mac);
+        final packet = wakeOnLanServiceMockBuildPacket(mac);
         expect(packet.length, 102);
       });
 
       test('first 6 bytes are 0xFF', () {
         final mac = WakeOnLanService.parseMac('AA:BB:CC:DD:EE:FF')!;
-        final packet = WakeOnLanService_MockBuildPacket(mac);
+        final packet = wakeOnLanServiceMockBuildPacket(mac);
         for (var i = 0; i < 6; i++) {
           expect(packet[i], 0xFF);
         }
@@ -101,7 +101,7 @@ void main() {
 
       test('bytes 6-11 are MAC repeated', () {
         final mac = Uint8List.fromList([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]);
-        final packet = WakeOnLanService_MockBuildPacket(mac);
+        final packet = wakeOnLanServiceMockBuildPacket(mac);
         expect(packet[6], 0xAA);
         expect(packet[7], 0xBB);
         expect(packet[8], 0xCC);
@@ -112,12 +112,12 @@ void main() {
 
       test('MAC repeated 16 times total', () {
         final mac = Uint8List.fromList([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]);
-        final packet = WakeOnLanService_MockBuildPacket(mac);
+        final packet = wakeOnLanServiceMockBuildPacket(mac);
         // Check first and last MAC repetition
         expect(packet[6], 0xAA);
         expect(packet[11], 0xFF);
         expect(packet[12], 0xAA);
-        expect(packet[97], 0xAA);
+        expect(packet[96], 0xAA);
         expect(packet[101], 0xFF);
       });
     });
@@ -125,7 +125,7 @@ void main() {
 }
 
 // Helper to test internal _buildPacket method through reflection or reimplementation
-Uint8List WakeOnLanService_MockBuildPacket(Uint8List mac) {
+Uint8List wakeOnLanServiceMockBuildPacket(Uint8List mac) {
   final packet = Uint8List(6 + 16 * 6);
   for (var i = 0; i < 6; i++) {
     packet[i] = 0xFF;

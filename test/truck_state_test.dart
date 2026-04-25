@@ -131,7 +131,8 @@ void main() {
       expect(state.isIndicatingLeft, true);
     });
 
-    test('isIndicatingLeft uses indicatorLeft when indicatingLeft is false', () {
+    test('isIndicatingLeft uses indicatorLeft when indicatingLeft is false',
+        () {
       final state = TruckState.fromJson({
         'indicating_left': false,
         'indicator_left': true,
@@ -257,10 +258,24 @@ void main() {
       expect(status.accEnabled, true);
     });
 
-    test('collisionEnabled returns true when CollisionAvoidance in enabled', () {
+    test('collisionEnabled returns true when CollisionAvoidance in enabled',
+        () {
       final status = AutopilotStatus.fromJson({
         'enabled': ['CollisionAvoidance'],
       });
+      expect(status.collisionEnabled, true);
+    });
+
+    test('recognizes upstream plugin status ids', () {
+      final status = AutopilotStatus.fromJson({
+        'enabled': [
+          'plugins.map',
+          'plugins.adaptivecruisecontrol',
+          'plugins.collisionavoidance',
+        ],
+      });
+      expect(status.steeringEnabled, true);
+      expect(status.accEnabled, true);
       expect(status.collisionEnabled, true);
     });
 

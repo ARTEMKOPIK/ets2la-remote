@@ -14,29 +14,38 @@ class NavPosition {
   final LatLng position;
   final double bearing;
   final double speedMph;
+  final double speedLimitMph;
 
   const NavPosition({
     required this.position,
     this.bearing = 0,
     this.speedMph = 0,
+    this.speedLimitMph = 0,
   });
 
   factory NavPosition.fromJson(Map<String, dynamic> json) {
     final pos = json['position'];
     double lon = 0;
     double lat = 0;
-    if (pos is List && pos.length >= 2) {
+    if (pos is List && pos.isNotEmpty) {
       lon = _num(pos[0]);
-      lat = _num(pos[1]);
+      if (pos.length >= 2) {
+        lat = _num(pos[1]);
+      }
     }
     return NavPosition(
       position: LatLng(lat, lon),
       bearing: _num(json['bearing']),
       speedMph: _num(json['speedMph']),
+      speedLimitMph: _num(
+        json['speedLimitMph'],
+        _num(json['speedLimit']) * 0.621371,
+      ),
     );
   }
 
   double get speedKmh => speedMph * 1.60934;
+  double get speedLimitKmh => speedLimitMph * 1.60934;
 }
 
 class NavRoute {
@@ -60,6 +69,7 @@ class NavRoute {
         }
       }
     }
-    return NavRoute(id: json['id'] is String ? json['id'] as String : '', points: pts);
+    return NavRoute(
+        id: json['id'] is String ? json['id'] as String : '', points: pts);
   }
 }

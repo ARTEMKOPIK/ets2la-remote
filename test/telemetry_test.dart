@@ -9,11 +9,13 @@ void main() {
         'position': [-122.4194, 37.7749],
         'bearing': 45.0,
         'speedMph': 30.0,
+        'speedLimit': 80.0,
       });
       expect(pos.position.latitude, 37.7749);
       expect(pos.position.longitude, -122.4194);
       expect(pos.bearing, 45.0);
       expect(pos.speedMph, 30.0);
+      expect(pos.speedLimitKmh, closeTo(80.0, 0.001));
     });
 
     test('fromJson defaults missing fields to zero', () {
@@ -22,6 +24,7 @@ void main() {
       expect(pos.position.longitude, 0.0);
       expect(pos.bearing, 0.0);
       expect(pos.speedMph, 0.0);
+      expect(pos.speedLimitMph, 0.0);
     });
 
     test('fromJson handles empty position array', () {
@@ -56,8 +59,10 @@ void main() {
       const pos = NavPosition(
         position: LatLng(0, 0),
         speedMph: 60.0,
+        speedLimitMph: 50.0,
       );
       expect(pos.speedKmh, closeTo(96.5604, 0.001)); // 60 * 1.60934
+      expect(pos.speedLimitKmh, closeTo(80.467, 0.001));
     });
 
     test('constructor accepts all fields', () {

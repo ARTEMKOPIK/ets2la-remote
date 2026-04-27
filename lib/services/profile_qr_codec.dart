@@ -12,6 +12,7 @@ import '../models/connection_profile.dart';
 class ProfileQrCodec {
   static const String scheme = 'ets2la';
   static const String host = 'profile';
+  static const int _maxFieldLength = 253;
 
   /// MAC addresses in the classic AA:BB:CC:DD:EE:FF / AA-BB-…/ aa:bb:… form.
   /// Used to sanity-check incoming QR payloads — a malformed MAC would
@@ -51,6 +52,9 @@ class ProfileQrCodec {
     final hostValue = uri.queryParameters['host']?.trim() ?? '';
     final mac = uri.queryParameters['mac']?.trim();
     if (name.isEmpty || hostValue.isEmpty) return null;
+    if (name.length > _maxFieldLength || hostValue.length > _maxFieldLength) {
+      return null;
+    }
 
     // Silently drop a malformed MAC rather than reject the whole QR —
     // the name + host part is still useful and the user can re-enter

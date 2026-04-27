@@ -49,9 +49,9 @@ class ConnectionProfile {
       };
 
   static ConnectionProfile? fromJson(Map<String, dynamic> json) {
-    final id = json['id'] as String?;
-    final name = json['name'] as String?;
-    final host = json['host'] as String?;
+    final id = (json['id'] as String?)?.trim();
+    final name = (json['name'] as String?)?.trim();
+    final host = (json['host'] as String?)?.trim();
     if (id == null ||
         id.isEmpty ||
         name == null ||
@@ -60,11 +60,12 @@ class ConnectionProfile {
         host.isEmpty) {
       return null;
     }
+    final mac = (json['mac'] as String?)?.trim();
     return ConnectionProfile(
       id: id,
       name: name,
       host: host,
-      mac: json['mac'] as String?,
+      mac: mac == null || mac.isEmpty ? null : mac,
       favourite: (json['favourite'] as bool?) ?? false,
     );
   }

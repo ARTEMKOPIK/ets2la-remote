@@ -1439,6 +1439,24 @@ abstract class AppLocalizations {
   /// **'Exit driver mode'**
   String get exitDriverMode;
 
+  /// No description provided for @overSpeedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'over the speed limit'**
+  String get overSpeedLimit;
+
+  /// No description provided for @speedLimitSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed limit {limit} {unit}'**
+  String speedLimitSemantics(int limit, String unit);
+
+  /// No description provided for @speedLimitOverSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed limit {limit} {unit}, over the limit'**
+  String speedLimitOverSemantics(int limit, String unit);
+
   /// No description provided for @favourite.
   ///
   /// In en, this message translates to:

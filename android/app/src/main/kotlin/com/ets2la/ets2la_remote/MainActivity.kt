@@ -11,6 +11,7 @@ import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.util.UUID
 
 class MainActivity : FlutterActivity() {
     private val multicastChannel = "ets2la_remote/multicast_lock"
@@ -162,21 +163,15 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Widget-action extras are powerful — they toggle autopilot/ACC or force
-     * a disconnect on a live session. We only trust them when the caller is
-     * this app itself (home-screen widget, Wear listener, or the foreground
-     * notification). For any third-party caller we drop the extra silently.
+     * Widget-action extras are powerful — they toggle autopilot/ACC or
+     * disconnect a live session. Accept only actions carrying the app-private
+     * token that our own widget / notification / Wear / Auto code injected.
      */
-    private fun isTrustedCaller(): Boolean {
-        val ref = referrer ?: return false
-        return ref.host == packageName
-    }
-
     private fun consumeWidgetIntent(intent: Intent?) {
         val action = intent?.getStringExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION)
             ?: return
-        if (!isTrustedCaller()) {
-            Log.w("ETS2LAMain", "Ignoring widget action from untrusted caller: $referrer")
+        if (!WidgetActionSecurity.hasValidToken(applicationContext, intent)) {
+            Log.w("ETS2LAMain", "Ignoring widget action without a trusted token")
             return
         }
         val channel = widgetChannelRef
@@ -193,14 +188,8 @@ class MainActivity : FlutterActivity() {
      * either immediately (warm start) or buffer it for getInitialTab() to
      * drain on cold start once the engine is up.
      *
-     * Deliberately NOT gated behind [isTrustedCaller]: launcher shortcuts
-     * are fired by the system launcher, whose referrer is
-     * `android-app://com.google.android.apps.nexuslauncher` (or similar) —
-     * not our own package. A trust check here caused the shortcut to open
-     * the app but leave it on the last visited tab, ignoring the tab index
-     * the shortcut carried. The tab extra only switches bottom-navigation
-     * indices and has no side effects, so unlike widget actions it's safe
-     * to accept from any caller.
+     * Launcher shortcuts are not gated by the widget-action token because
+     * they only switch bottom-navigation tabs and have no remote side effects.
      */
     private fun consumeShortcutIntent(intent: Intent?) {
         if (intent?.action != "com.ets2la.ets2la_remote.SHORTCUT") return
@@ -231,5 +220,30 @@ class MainActivity : FlutterActivity() {
     override fun onDestroy() {
         releaseLock()
         super.onDestroy()
+    }
+}
+
+internal object WidgetActionSecurity {
+    private const val PREFS = "widget_action_security"
+    private const val KEY_TOKEN = "token"
+    private const val EXTRA_TOKEN = "widget_action_token"
+
+    fun attachToken(context: Context, intent: Intent) {
+        intent.putExtra(EXTRA_TOKEN, token(context))
+    }
+
+    fun hasValidToken(context: Context, intent: Intent?): Boolean {
+        val supplied = intent?.getStringExtra(EXTRA_TOKEN) ?: return false
+        return supplied == token(context)
+    }
+
+    @Synchronized
+    private fun token(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val existing = prefs.getString(KEY_TOKEN, null)
+        if (!existing.isNullOrEmpty()) return existing
+        val generated = UUID.randomUUID().toString()
+        prefs.edit().putString(KEY_TOKEN, generated).apply()
+        return generated
     }
 }

@@ -42,6 +42,11 @@ void main() {
             '192.168.0.5');
       });
 
+      test('trims hostname without port', () {
+        expect(ConnectionProvider.stripAccidentalPort('  ets2la.local  '),
+            'ets2la.local');
+      });
+
       test('strips API port typed by user', () {
         expect(ConnectionProvider.stripAccidentalPort('192.168.0.5:37520'),
             '192.168.0.5');

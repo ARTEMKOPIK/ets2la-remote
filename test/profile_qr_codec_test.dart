@@ -62,8 +62,8 @@ void main() {
     test('rejects unknown schemes and hosts', () {
       expect(ProfileQrCodec.decode(''), isNull);
       expect(ProfileQrCodec.decode('not a uri'), isNull);
-      expect(ProfileQrCodec.decode('https://example.com/?host=1.2.3.4'),
-          isNull);
+      expect(
+          ProfileQrCodec.decode('https://example.com/?host=1.2.3.4'), isNull);
       expect(ProfileQrCodec.decode('ets2la://wifi?host=1.2.3.4'), isNull);
     });
 
@@ -74,6 +74,14 @@ void main() {
       );
       expect(
         ProfileQrCodec.decode('ets2la://profile?name=Foo'),
+        isNull,
+      );
+    });
+
+    test('rejects oversized profile fields', () {
+      final hugeName = 'a' * 254;
+      expect(
+        ProfileQrCodec.decode('ets2la://profile?name=$hugeName&host=1.2.3.4'),
         isNull,
       );
     });

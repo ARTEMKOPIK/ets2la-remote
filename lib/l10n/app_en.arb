@@ -251,6 +251,21 @@
   "driverModeAutoLandscape": "Auto-enter on landscape",
   "enterDriverMode": "Enter driver mode",
   "exitDriverMode": "Exit driver mode",
+  "overSpeedLimit": "over the speed limit",
+  "speedLimitSemantics": "Speed limit {limit} {unit}",
+  "@speedLimitSemantics": {
+    "placeholders": {
+      "limit": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "speedLimitOverSemantics": "Speed limit {limit} {unit}, over the limit",
+  "@speedLimitOverSemantics": {
+    "placeholders": {
+      "limit": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
   "favourite": "Favourite",
   "pinFavourite": "Pin as default",
   "unpinFavourite": "Unpin",

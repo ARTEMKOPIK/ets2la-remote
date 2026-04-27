@@ -85,6 +85,19 @@ void main() {
       expect(profile.favourite, true);
     });
 
+    test('fromJson trims text fields and drops empty mac', () {
+      final profile = ConnectionProfile.fromJson({
+        'id': ' id ',
+        'name': ' Name ',
+        'host': ' 1.2.3.4 ',
+        'mac': '   ',
+      });
+      expect(profile!.id, 'id');
+      expect(profile.name, 'Name');
+      expect(profile.host, '1.2.3.4');
+      expect(profile.mac, isNull);
+    });
+
     test('fromJson defaults favourite to false', () {
       final profile = ConnectionProfile.fromJson({
         'id': 'id',

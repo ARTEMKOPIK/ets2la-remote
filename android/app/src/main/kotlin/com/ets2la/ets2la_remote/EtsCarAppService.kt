@@ -90,6 +90,7 @@ internal object WidgetActionBridge {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        WidgetActionSecurity.attachToken(context, intent)
         context.startActivity(intent)
     }
 }

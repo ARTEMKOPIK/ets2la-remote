@@ -30,6 +30,7 @@ class WearMessageListenerService : WearableListenerService() {
             putExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION, action)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        WidgetActionSecurity.attachToken(applicationContext, intent)
         startActivity(intent)
     }
 }

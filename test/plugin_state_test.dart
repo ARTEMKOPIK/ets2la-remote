@@ -28,6 +28,21 @@ void main() {
       expect(info.tags, isEmpty);
     });
 
+    test('fromJson ignores malformed tag lists', () {
+      final info = PluginInfo.fromJson({
+        'id': 'plugins.foo',
+        'name': 'Foo',
+        'tags': 'not-a-list',
+      });
+      expect(info.tags, isEmpty);
+    });
+
+    test('fromJson parses legacy running flags', () {
+      expect(PluginInfo.fromJson({'running': 1}).running, true);
+      expect(PluginInfo.fromJson({'running': 'true'}).running, true);
+      expect(PluginInfo.fromJson({'running': 'false'}).running, false);
+    });
+
     test('fromJson defaults missing id and name to empty string', () {
       final info = PluginInfo.fromJson({});
       expect(info.id, '');
@@ -40,8 +55,8 @@ void main() {
         'Steering (Map)',
       );
       expect(
-        PluginInfo.fromJson({'id': 'plugins.adaptivecruisecontrol', 'name': 'X'})
-            .displayName,
+        PluginInfo.fromJson(
+            {'id': 'plugins.adaptivecruisecontrol', 'name': 'X'}).displayName,
         'Adaptive Cruise Control',
       );
       expect(
@@ -97,8 +112,8 @@ void main() {
         '🛣️',
       );
       expect(
-        PluginInfo.fromJson({'id': 'plugins.adaptivecruisecontrol', 'name': 'X'})
-            .iconEmoji,
+        PluginInfo.fromJson(
+            {'id': 'plugins.adaptivecruisecontrol', 'name': 'X'}).iconEmoji,
         '🚀',
       );
       expect(

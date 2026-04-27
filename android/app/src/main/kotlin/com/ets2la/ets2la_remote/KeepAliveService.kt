@@ -155,6 +155,7 @@ class KeepAliveService : Service() {
             putExtra(AutopilotWidgetProvider.EXTRA_WIDGET_ACTION, action)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        WidgetActionSecurity.attachToken(this, intent)
         return PendingIntent.getActivity(
             this,
             action.hashCode(),

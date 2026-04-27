@@ -213,6 +213,8 @@ void main() {
 
         await provider.checkForUpdate(manual: false);
         expect(provider.state, UpdateState.available);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('update_skipped_version'), isNull);
       });
     });
 

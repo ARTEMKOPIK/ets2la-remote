@@ -689,6 +689,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get exitDriverMode => 'Выйти из режима водителя';
 
   @override
+  String get overSpeedLimit => 'превышение лимита';
+
+  @override
+  String speedLimitSemantics(int limit, String unit) {
+    return 'Лимит скорости $limit $unit';
+  }
+
+  @override
+  String speedLimitOverSemantics(int limit, String unit) {
+    return 'Лимит скорости $limit $unit, превышение';
+  }
+
+  @override
   String get favourite => 'Избранное';
 
   @override

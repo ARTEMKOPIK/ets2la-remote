@@ -73,9 +73,9 @@ class UpdateProvider extends ChangeNotifier {
     try {
       final updateInfo = await _updateService.checkForUpdate();
       if (updateInfo != null) {
+        final prefs = await SharedPreferences.getInstance();
         if (!manual) {
           // Auto-check: honour "Remind me later" until a newer release appears.
-          final prefs = await SharedPreferences.getInstance();
           final skipped = prefs.getString('update_skipped_version');
           if (skipped != null && skipped == updateInfo.version) {
             _state = UpdateState.idle;
@@ -83,6 +83,7 @@ class UpdateProvider extends ChangeNotifier {
             return;
           }
         }
+        await prefs.remove('update_skipped_version');
         _updateInfo = updateInfo;
         _state = UpdateState.available;
       } else {

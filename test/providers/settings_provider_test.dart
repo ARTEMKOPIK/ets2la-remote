@@ -230,6 +230,14 @@ void main() {
         expect(settings.language, isNull);
       });
 
+      test('clearLanguage removes persisted language', () async {
+        settings.setLanguage('ru');
+        settings.clearLanguage();
+        expect(settings.language, isNull);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('language'), isNull);
+      });
+
       test('setAccentColor changes accent', () async {
         settings.setAccentColor(AccentColor.purple);
         expect(settings.accentColor, AccentColor.purple);

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum SpeedUnit { kmh, mph }
+
 enum GaugeMaxSpeed { s160, s200, s250 }
+
 enum MapTileStyle { dark, light, satellite }
 
 /// Accent colour options exposed in Settings. The underlying hex values
@@ -36,10 +38,10 @@ class AppSettings extends ChangeNotifier {
   SpeedUnit _speedUnit = SpeedUnit.kmh;
   GaugeMaxSpeed _gaugeMax = GaugeMaxSpeed.s200;
   bool _showActivePlugins = true;
-  
+
   // Language: null = system default, 'en' = English, 'ru' = Russian
   String? _language;
-  
+
   String? get language => _language;
   Locale? get locale => _language != null ? Locale(_language!) : null;
 
@@ -49,9 +51,12 @@ class AppSettings extends ChangeNotifier {
 
   double get gaugeMaxValue {
     switch (_gaugeMax) {
-      case GaugeMaxSpeed.s160: return 160;
-      case GaugeMaxSpeed.s200: return 200;
-      case GaugeMaxSpeed.s250: return 250;
+      case GaugeMaxSpeed.s160:
+        return 160;
+      case GaugeMaxSpeed.s200:
+        return 200;
+      case GaugeMaxSpeed.s250:
+        return 250;
     }
   }
 
@@ -168,25 +173,26 @@ class AppSettings extends ChangeNotifier {
     _portViz = _clampPort(p.getInt('portViz'), 37522);
     _portNav = _clampPort(p.getInt('portNav'), 62840);
     _portPages = _clampPort(p.getInt('portPages'), 37523);
-    _speedUnit = _safeEnum(SpeedUnit.values, p.getInt('speedUnit'), SpeedUnit.kmh);
-    _gaugeMax = _safeEnum(GaugeMaxSpeed.values, p.getInt('gaugeMax'), GaugeMaxSpeed.s200);
+    _speedUnit =
+        _safeEnum(SpeedUnit.values, p.getInt('speedUnit'), SpeedUnit.kmh);
+    _gaugeMax = _safeEnum(
+        GaugeMaxSpeed.values, p.getInt('gaugeMax'), GaugeMaxSpeed.s200);
     _showActivePlugins = p.getBool('showActivePlugins') ?? true;
     _language = p.getString('language'); // null = system default
     _mapAutoFollow = p.getBool('mapAutoFollow') ?? true;
-    _mapTileStyle =
-        _safeEnum(MapTileStyle.values, p.getInt('mapTileStyle'), MapTileStyle.dark);
+    _mapTileStyle = _safeEnum(
+        MapTileStyle.values, p.getInt('mapTileStyle'), MapTileStyle.dark);
     _mapShowRoute = p.getBool('mapShowRoute') ?? true;
     _vizDarkTheme = p.getBool('vizDarkTheme') ?? true;
     _vizAutoConnect = p.getBool('vizAutoConnect') ?? true;
-    _accentColor =
-        _safeEnum(AccentColor.values, p.getInt('accentColor'), AccentColor.orange);
+    _accentColor = _safeEnum(
+        AccentColor.values, p.getInt('accentColor'), AccentColor.orange);
     _highContrast = p.getBool('highContrast') ?? false;
     _reduceMotion = p.getBool('reduceMotion') ?? false;
     _hasSeenOnboarding = p.getBool('hasSeenOnboarding') ?? false;
     _hapticEventsEnabled = p.getBool('hapticEventsEnabled') ?? true;
     _ttsEnabled = p.getBool('ttsEnabled') ?? false;
-    _driverModeAutoLandscape =
-        p.getBool('driverModeAutoLandscape') ?? false;
+    _driverModeAutoLandscape = p.getBool('driverModeAutoLandscape') ?? false;
     _tripLogEnabled = p.getBool('tripLogEnabled') ?? true;
     _dashboardLayout = p.getStringList('dashboardLayout') ?? const [];
     _isReady = true;
@@ -247,32 +253,119 @@ class AppSettings extends ChangeNotifier {
     }
   }
 
-  void setAutoConnect(bool v) { _autoConnect = v; _save(); notifyListeners(); }
+  void setAutoConnect(bool v) {
+    _autoConnect = v;
+    _save();
+    notifyListeners();
+  }
+
   void setConnectionTimeout(int v) {
     _connectionTimeout = v.clamp(1, 60);
     _save();
     notifyListeners();
   }
+
   // Port setters clamp to 1..65535 at write-time as well as read-time.
   // Without this, a user who typed a value like 99999 would see it stick
   // in memory for the current session but silently snap back to the
   // fallback after the next app launch (where _clampPort runs on load).
-  void setPortApi(int v) { _portApi = _clampPort(v, _portApi); _save(); notifyListeners(); }
-  void setPortViz(int v) { _portViz = _clampPort(v, _portViz); _save(); notifyListeners(); }
-  void setPortNav(int v) { _portNav = _clampPort(v, _portNav); _save(); notifyListeners(); }
-  void setPortPages(int v) { _portPages = _clampPort(v, _portPages); _save(); notifyListeners(); }
-  void setSpeedUnit(SpeedUnit v) { _speedUnit = v; _save(); notifyListeners(); }
-  void setGaugeMax(GaugeMaxSpeed v) { _gaugeMax = v; _save(); notifyListeners(); }
-  void setShowActivePlugins(bool v) { _showActivePlugins = v; _save(); notifyListeners(); }
-  void setLanguage(String? lang) { _language = lang; _save(); notifyListeners(); }
-  void setMapAutoFollow(bool v) { _mapAutoFollow = v; _save(); notifyListeners(); }
-  void setMapTileStyle(MapTileStyle v) { _mapTileStyle = v; _save(); notifyListeners(); }
-  void setMapShowRoute(bool v) { _mapShowRoute = v; _save(); notifyListeners(); }
-  void setVizDarkTheme(bool v) { _vizDarkTheme = v; _save(); notifyListeners(); }
-  void setVizAutoConnect(bool v) { _vizAutoConnect = v; _save(); notifyListeners(); }
-  void setAccentColor(AccentColor v) { _accentColor = v; _save(); notifyListeners(); }
-  void setHighContrast(bool v) { _highContrast = v; _save(); notifyListeners(); }
-  void setReduceMotion(bool v) { _reduceMotion = v; _save(); notifyListeners(); }
+  void setPortApi(int v) {
+    _portApi = _clampPort(v, _portApi);
+    _save();
+    notifyListeners();
+  }
+
+  void setPortViz(int v) {
+    _portViz = _clampPort(v, _portViz);
+    _save();
+    notifyListeners();
+  }
+
+  void setPortNav(int v) {
+    _portNav = _clampPort(v, _portNav);
+    _save();
+    notifyListeners();
+  }
+
+  void setPortPages(int v) {
+    _portPages = _clampPort(v, _portPages);
+    _save();
+    notifyListeners();
+  }
+
+  void setSpeedUnit(SpeedUnit v) {
+    _speedUnit = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setGaugeMax(GaugeMaxSpeed v) {
+    _gaugeMax = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setShowActivePlugins(bool v) {
+    _showActivePlugins = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setLanguage(String? lang) {
+    _language = lang;
+    _save();
+    notifyListeners();
+  }
+
+  void clearLanguage() => setLanguage(null);
+  void setMapAutoFollow(bool v) {
+    _mapAutoFollow = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setMapTileStyle(MapTileStyle v) {
+    _mapTileStyle = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setMapShowRoute(bool v) {
+    _mapShowRoute = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setVizDarkTheme(bool v) {
+    _vizDarkTheme = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setVizAutoConnect(bool v) {
+    _vizAutoConnect = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setAccentColor(AccentColor v) {
+    _accentColor = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setHighContrast(bool v) {
+    _highContrast = v;
+    _save();
+    notifyListeners();
+  }
+
+  void setReduceMotion(bool v) {
+    _reduceMotion = v;
+    _save();
+    notifyListeners();
+  }
+
   void markOnboardingSeen() {
     if (_hasSeenOnboarding) return;
     _hasSeenOnboarding = true;

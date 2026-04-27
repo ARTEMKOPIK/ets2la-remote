@@ -372,16 +372,17 @@ class ConnectionProvider extends ChangeNotifier {
   ///   `[2001:db8::1]:37522` → `2001:db8::1`
   ///   `2001:db8::1` → `2001:db8::1` (unchanged)
   static String stripAccidentalPort(String input) {
-    if (input.isEmpty) return input;
-    if (input.startsWith('[')) {
-      final close = input.indexOf(']');
-      if (close > 0) return input.substring(1, close);
-      return input;
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return trimmed;
+    if (trimmed.startsWith('[')) {
+      final close = trimmed.indexOf(']');
+      if (close > 0) return trimmed.substring(1, close);
+      return trimmed;
     }
-    final colonCount = ':'.allMatches(input).length;
-    if (colonCount > 1) return input;
-    if (colonCount == 1) return input.split(':').first.trim();
-    return input;
+    final colonCount = ':'.allMatches(trimmed).length;
+    if (colonCount > 1) return trimmed;
+    if (colonCount == 1) return trimmed.split(':').first.trim();
+    return trimmed;
   }
 
   @override

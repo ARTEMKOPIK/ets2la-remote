@@ -72,6 +72,7 @@ class AutopilotWidgetProvider : AppWidgetProvider() {
             // receives onNewIntent instead of being recreated.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        WidgetActionSecurity.attachToken(context, intent)
         // Use a request code derived from action so each button has its own
         // PendingIntent — otherwise both buttons would share the same one.
         val requestCode = action.hashCode() xor appWidgetId

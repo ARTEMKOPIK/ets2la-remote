@@ -16,6 +16,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:ets2la_remote/l10n/app_localizations.dart';
 
 import '../providers/connection_provider.dart';
+import '../providers/settings_provider.dart';
 import '../providers/telemetry_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -58,10 +59,14 @@ class _DriverModeScreenState extends State<DriverModeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final telem = context.watch<TelemetryProvider>();
+    final settings = context.watch<AppSettings>();
     final truck = telem.truckState;
     final autopilot = telem.autopilotStatus;
-    final speed = truck.speedKmh.round();
-    final limit = truck.speedLimitKmh.round();
+    final speed = settings.speedFromKmh(truck.speedKmh).round();
+    final limit = settings.speedFromKmh(truck.speedLimitKmh).round();
+    final speedUnit = settings.speedUnit == SpeedUnit.mph
+        ? (l10n?.mph ?? settings.speedUnitLabel)
+        : (l10n?.kmh ?? settings.speedUnitLabel);
     final overLimit = truck.isOverSpeedLimit;
     return Scaffold(
       backgroundColor: Colors.black,
@@ -82,8 +87,8 @@ class _DriverModeScreenState extends State<DriverModeScreen> {
                     MergeSemantics(
                       child: Semantics(
                         label: overLimit
-                            ? '$speed km/h, over the speed limit'
-                            : '$speed km/h',
+                            ? '$speed $speedUnit, ${l10n?.overSpeedLimit ?? 'over the speed limit'}'
+                            : '$speed $speedUnit',
                         excludeSemantics: true,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -103,7 +108,7 @@ class _DriverModeScreenState extends State<DriverModeScreen> {
                               ),
                             ),
                             Text(
-                              'km/h',
+                              speedUnit,
                               style: TextStyle(
                                 fontFamily: 'Roboto',
                                 fontSize: 22,
@@ -134,6 +139,7 @@ class _DriverModeScreenState extends State<DriverModeScreen> {
                         if (limit > 0)
                           _LimitPill(
                             limit: limit,
+                            speedUnit: speedUnit,
                             overLimit: overLimit,
                           ),
                       ],
@@ -231,16 +237,24 @@ class _StatusPill extends StatelessWidget {
 }
 
 class _LimitPill extends StatelessWidget {
-  const _LimitPill({required this.limit, required this.overLimit});
+  const _LimitPill({
+    required this.limit,
+    required this.speedUnit,
+    required this.overLimit,
+  });
   final int limit;
+  final String speedUnit;
   final bool overLimit;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Semantics(
       label: overLimit
-          ? 'Speed limit $limit, over the limit'
-          : 'Speed limit $limit',
+          ? (l10n?.speedLimitOverSemantics(limit, speedUnit) ??
+              'Speed limit $limit $speedUnit, over the limit')
+          : (l10n?.speedLimitSemantics(limit, speedUnit) ??
+              'Speed limit $limit $speedUnit'),
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),

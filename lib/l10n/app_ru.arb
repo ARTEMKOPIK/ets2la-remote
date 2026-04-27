@@ -230,6 +230,21 @@
   "driverModeAutoLandscape": "Включать в альбомной",
   "enterDriverMode": "Войти в режим водителя",
   "exitDriverMode": "Выйти из режима водителя",
+  "overSpeedLimit": "превышение лимита",
+  "speedLimitSemantics": "Лимит скорости {limit} {unit}",
+  "@speedLimitSemantics": {
+    "placeholders": {
+      "limit": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "speedLimitOverSemantics": "Лимит скорости {limit} {unit}, превышение",
+  "@speedLimitOverSemantics": {
+    "placeholders": {
+      "limit": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
   "favourite": "Избранное",
   "pinFavourite": "Сделать профилем по умолчанию",
   "unpinFavourite": "Снять с избранного",

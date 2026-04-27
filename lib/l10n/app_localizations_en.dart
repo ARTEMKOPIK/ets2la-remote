@@ -689,6 +689,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exitDriverMode => 'Exit driver mode';
 
   @override
+  String get overSpeedLimit => 'over the speed limit';
+
+  @override
+  String speedLimitSemantics(int limit, String unit) {
+    return 'Speed limit $limit $unit';
+  }
+
+  @override
+  String speedLimitOverSemantics(int limit, String unit) {
+    return 'Speed limit $limit $unit, over the limit';
+  }
+
+  @override
   String get favourite => 'Favourite';
 
   @override
